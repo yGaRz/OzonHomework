@@ -12,27 +12,27 @@ service_discovery:
   rules:
     - when: manual
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker login -u ygar@rambler.ru -p Aa123456 gitlab-registry.ozon.dev
     - docker buildx create --use
-    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/cs/classroom-10/students/practice/service-discovery:latest --push ./src/Ozon.Route256.Practice.ServiceDiscovery
+    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/cs/classroom-10/ygar/practice/service-discovery:latest --push ./src/Ozon.Route256.Practice.ServiceDiscovery
 
 logistics_simulator:
   stage: build_images
   rules:
     - when: manual
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker login -u ygar@rambler.ru -p Aa123456 gitlab-registry.ozon.dev
     - docker buildx create --use
-    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/cs/classroom-10/students/practice/logistics-simulator:latest --push ./src/Ozon.Route256.Practice.LogisticsSimulator
+    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/cs/classroom-10/ygar/practice/logistics-simulator:latest --push ./src/Ozon.Route256.Practice.LogisticsSimulator
 
 orders_generator:
   stage: build_images
   rules:
     - when: manual
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker login -u ygar@rambler.ru -p Aa123456 gitlab-registry.ozon.dev
     - docker buildx create --use
-    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest --push ./src/Ozon.Route256.Practice.OrdersGenerator
+    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/cs/classroom-10/ygar/practice/orders-generator:latest --push ./src/Ozon.Route256.Practice.OrdersGenerator
 
 build:
   stage: customer_service
