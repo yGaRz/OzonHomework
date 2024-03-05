@@ -3,6 +3,8 @@ version: "3.9"
 volumes:
   customer-service-db:
     name: customer-service-db
+  orders-db:
+    name: orders-db
     
 services:
   gateway-service:
@@ -48,6 +50,18 @@ services:
       - "5400:5432"
     volumes:
       - customer-service-db:/var/lib/postgresql/data
+ 
+  orders-db:
+    image: postgres:latest
+    container_name: orders-db
+    environment:
+      - POSTGRES_DB=orders-db
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    ports:
+      - "5401:5432"
+    volumes:
+      - orders-db:/var/lib/postgresql/data
      
   orders-generator-web:
     build:
