@@ -3,8 +3,6 @@ image: docker:latest
 stages:
   - build_images
   - build
-  - customer_service_job
-  - gateway_service_job
   - test
 
   
