@@ -12,7 +12,7 @@ service_discovery:
   rules:
     - when: manual
   script:
-    - docker login -u ygar@rambler.ru -p Aa123456 gitlab-registry.ozon.dev
+    - docker login -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD $CI_REGISTRY 
     - docker buildx create --use
     - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/service-discovery:latest --push ./src/Ozon.Route256.Practice.ServiceDiscovery
 
@@ -21,7 +21,7 @@ logistics_simulator:
   rules:
     - when: manual
   script:
-    - docker login -u ygar@rambler.ru -p Aa123456 gitlab-registry.ozon.dev
+    - docker login -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD $CI_REGISTRY 
     - docker buildx create --use
     - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/logistics-simulator:latest --push ./src/Ozon.Route256.Practice.LogisticsSimulator
 
@@ -30,7 +30,7 @@ orders_generator:
   rules:
     - when: manual
   script:
-    - docker login -u ygar@rambler.ru -p Aa123456 gitlab-registry.ozon.dev
+    - docker login -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD $CI_REGISTRY 
     - docker buildx create --use
     - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/orders-generator:latest --push ./src/Ozon.Route256.Practice.OrdersGenerator
 
