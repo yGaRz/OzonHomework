@@ -2,7 +2,12 @@ image: docker:latest
 
 stages:
   - build_images
-  - customer_service
+  - build
+  - customer_service_job
+  - gateway_service_job
+  - test
+
+  
 
 services:
   - name: docker:dind
@@ -34,18 +39,77 @@ orders_generator:
     - docker buildx create --use
     - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/orders-generator:latest --push ./src/Ozon.Route256.Practice.OrdersGenerator
 
-build:
-  stage: customer_service
+customer_service:
+  stage: build_images
+  rules:
+    - when: manual
+  script:
+    - docker login -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD $CI_REGISTRY 
+    - docker buildx create --use
+    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/customer-service:latest --push ./src/Ozon.Route256.Practice.CustomerService
+
+gateway_service:
+  stage: build_images
+  rules:
+    - when: manual
+  script:
+    - docker login -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD $CI_REGISTRY 
+    - docker buildx create --use
+    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/gateway-service:latest --push ./src/Ozon.Route256.Practice.GatewayService
+
+orders_service:
+  stage: build_images
+  rules:
+    - when: manual
+  script:
+    - docker login -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD $CI_REGISTRY 
+    - docker buildx create --use
+    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/orders-service:latest --push ./src/Ozon.Route256.Practice.OrdersService
+
+customer_service_build:
+  stage: build
   image: mcr.microsoft.com/dotnet/sdk:6.0
   needs: []
   script: 
     - dotnet restore src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj
     - dotnet build src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj --no-restore
        
-test:
-  stage: customer_service
+customer_service_test:
+  stage: test
   image: mcr.microsoft.com/dotnet/sdk:6.0
-  needs: ["build"]
+  needs: ["customer_service_build"]
+  script: 
+    - dotnet restore src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj
+    - dotnet build src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj --no-restore
+
+gateway_service_build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:6.0
+  needs: []
+  script: 
+    - dotnet restore src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj
+    - dotnet build src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj --no-restore
+       
+gateway_service_test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:6.0
+  needs: ["gateway_service_build"]
+  script: 
+    - dotnet restore src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj
+    - dotnet build src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj --no-restore
+
+orders_service_build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:6.0
+  needs: []
+  script: 
+    - dotnet restore src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj
+    - dotnet build src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj --no-restore
+       
+orders_service_test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:6.0
+  needs: ["orders_service_build"]
   script: 
     - dotnet restore src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj
     - dotnet build src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj --no-restore
