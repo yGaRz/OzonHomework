@@ -34,7 +34,7 @@ orders_generator:
     - docker buildx create --use
     - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/orders-generator:latest --push ./src/Ozon.Route256.Practice.OrdersGenerator
 
-build_customer_service:
+build:
   stage: customer_service
   image: mcr.microsoft.com/dotnet/sdk:6.0
   needs: []
@@ -42,7 +42,7 @@ build_customer_service:
     - dotnet restore src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj
     - dotnet build src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj --no-restore
        
-test_customer_service:
+test:
   stage: customer_service
   image: mcr.microsoft.com/dotnet/sdk:6.0
   needs: ["build"]
