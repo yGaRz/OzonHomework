@@ -10,33 +10,6 @@ stages:
 services:
   - name: docker:dind
 
-service_discovery:
-  stage: build_images
-  rules:
-    - when: manual
-  script:
-    - docker login -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD $CI_REGISTRY 
-    - docker buildx create --use
-    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/service-discovery:latest --push ./src/Ozon.Route256.Practice.ServiceDiscovery
-
-logistics_simulator:
-  stage: build_images
-  rules:
-    - when: manual
-  script:
-    - docker login -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD $CI_REGISTRY 
-    - docker buildx create --use
-    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/logistics-simulator:latest --push ./src/Ozon.Route256.Practice.LogisticsSimulator
-
-orders_generator:
-  stage: build_images
-  rules:
-    - when: manual
-  script:
-    - docker login -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD $CI_REGISTRY 
-    - docker buildx create --use
-    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/orders-generator:latest --push ./src/Ozon.Route256.Practice.OrdersGenerator
-
 customer_service:
   stage: build_images
   rules:
