@@ -93,7 +93,7 @@ services:
       - ROUTE256_UPDATE_TIMEOUT=10
         
   logistic-simulator:
-    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/logistics-simulator:latest
+    image: 
     container_name: logistic-simulator
     
   zookeeper:
