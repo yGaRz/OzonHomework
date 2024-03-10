@@ -7,102 +7,18 @@ volumes:
     name: orders-db-volume
     
 services:
-  gateway-service:
-    build: 
-      context: ./src/Ozon.Route256.Practice.GatewayService
-      dockerfile: Dockerfile
-    container_name: gateway-service
-    ports:
-      - "5071:80"
-
-  orders-service-1:
-    build: 
-      context: ./src/Ozon.Route256.Practice.OrdersService
-      dockerfile: Dockerfile
-    container_name: orders-service-1
-    ports:
-      - "5091:80" 
- 
-  orders-service-2:
-    build: 
-      context: ./src/Ozon.Route256.Practice.OrdersService
-      dockerfile: Dockerfile
-    container_name: orders-service-2
-    ports:
-      - "5092:80"
-    
-  customer-service:
-    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/customer-service:latest
-    container_name: customer-service
-    ports:
-      - "5081:80"
-    environment:
-      "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
-      "ROUTE256_GRPC_PORT": "5005"
-      "ROUTE256_HTTP_PORT": "5004"
-
-  
-  customer-service-db:
-    image: postgres:latest
-    container_name: customer-service-db
-    environment:
-      - POSTGRES_DB=customer-service
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
-    ports:
-      - "5400:5432"
-    volumes:
-      - customer-service-db:/var/lib/postgresql/data
- 
-  orders-db:
-    image: postgres:latest
-    container_name: orders-db
-    environment:
-      - POSTGRES_DB=orders-db
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
-    ports:
-      - "5401:5432"
-    volumes:
-      - orders-db:/var/lib/postgresql/data
-     
-  orders-generator-web:
-    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest
-    container_name: orders-generator-web
-    environment:
-      - ROUTE256_ORDER_SOURCE=WebSite
-      - ROUTE256_ORDER_REQUEST_TOPIC=pre_orders
-      - ROUTE256_KAFKA_BROKERS=broker-1:9091
-        
-  orders-generator-mobile:
-    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest
-    container_name: orders-generator-mobile
-    environment:
-      - ROUTE256_ORDER_SOURCE=Mobile
-      - ROUTE256_ORDER_REQUEST_TOPIC=pre_orders
-      - ROUTE256_KAFKA_BROKERS=broker-1:9091  
-  
-  orders-generator-api:
-    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest
-    container_name: orders-generator-api
-    environment:
-      - ROUTE256_ORDER_SOURCE=Api
-      - ROUTE256_ORDER_REQUEST_TOPIC=pre_orders
-      - ROUTE256_KAFKA_BROKERS=broker-1:9091
-        
   service-discovery:
     image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/service-discovery:latest
     container_name: service-discovery
     environment:
       - ROUTE256_DB_STATE=cluster:0-9:db1:1543;cluster:10-19:db2:1543;cluster1:0:db3:1543
       - ROUTE256_UPDATE_TIMEOUT=10
-        
-  logistic-simulator:
-    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/logistics-simulator:latest
-    container_name: logistic-simulator
-    
+
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
+    depends_on:
+      - service-discovery
     container_name: zookeeper
     ports:
       - "2181:2181"
@@ -121,6 +37,7 @@ services:
     container_name: broker-1
     depends_on:
       - zookeeper
+      - service-discovery
     ports:
       - "29091:29091"
     environment:
@@ -138,6 +55,7 @@ services:
     container_name: broker-2
     depends_on:
       - zookeeper
+      - service-discovery
     ports:
       - "29092:29092"
     environment:
@@ -149,4 +67,131 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_INTERNAL'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'LISTENER_INTERNAL:PLAINTEXT,LISTENER_LOCAL:PLAINTEXT'
       KAFKA_DEFAULT_REPLICATION_FACTOR: '2'
+
+  customer-service-db:
+    image: postgres:latest
+    depends_on:
+      - service-discovery
+    container_name: customer-service-db
+    environment:
+      - POSTGRES_DB=customer-service
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    ports:
+      - "5400:5432"
+    volumes:
+      - customer-service-db:/var/lib/postgresql/data
+ 
+  orders-db:
+    image: postgres:latest
+    depends_on:
+      - service-discovery
+    container_name: orders-db
+    environment:
+      - POSTGRES_DB=orders-db
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    ports:
+      - "5401:5432"
+    volumes:
+      - orders-db:/var/lib/postgresql/data
+
+  gateway-service:
+    build: 
+      context: ./src/Ozon.Route256.Practice.GatewayService
+      dockerfile: Dockerfile
+    depends_on:
+      - service-discovery
+      - broker-1
+      - broker-2
+    container_name: gateway-service
+    ports:
+      - "5071:80"
+
+  orders-service-1:
+    build: 
+      context: ./src/Ozon.Route256.Practice.OrdersService
+      dockerfile: Dockerfile
+    depends_on:
+      - service-discovery
+      - broker-1
+      - broker-2
+      - orders-db
+    container_name: orders-service-1
+    ports:
+      - "5091:80" 
+ 
+  orders-service-2:
+    build: 
+      context: ./src/Ozon.Route256.Practice.OrdersService
+      dockerfile: Dockerfile
+    depends_on:
+      - service-discovery
+      - broker-1
+      - broker-2
+      - orders-db
+    container_name: orders-service-2
+    ports:
+      - "5092:80"
+    
+  customer-service:
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/customer-service:latest
+    depends_on:
+      - service-discovery
+      - broker-1
+      - broker-2
+      - customer-service-db
+    container_name: customer-service
+    ports:
+      - "5081:80"
+    environment:
+      "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
+      "ROUTE256_GRPC_PORT": "5005"
+      "ROUTE256_HTTP_PORT": "5004"
+     
+  orders-generator-web:
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest
+    depends_on:
+      - service-discovery
+      - broker-1
+      - broker-2
+    container_name: orders-generator-web
+    environment:
+      - ROUTE256_ORDER_SOURCE=WebSite
+      - ROUTE256_ORDER_REQUEST_TOPIC=pre_orders
+      - ROUTE256_KAFKA_BROKERS=broker-1:9091
+        
+  orders-generator-mobile:
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest
+    depends_on:
+      - service-discovery
+      - broker-1
+      - broker-2
+    container_name: orders-generator-mobile
+    environment:
+      - ROUTE256_ORDER_SOURCE=Mobile
+      - ROUTE256_ORDER_REQUEST_TOPIC=pre_orders
+      - ROUTE256_KAFKA_BROKERS=broker-1:9091  
+  
+  orders-generator-api:
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest
+    depends_on:
+      - service-discovery
+      - broker-1
+      - broker-2
+    container_name: orders-generator-api
+    environment:
+      - ROUTE256_ORDER_SOURCE=Api
+      - ROUTE256_ORDER_REQUEST_TOPIC=pre_orders
+      - ROUTE256_KAFKA_BROKERS=broker-1:9091
+                
+  logistic-simulator:
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/logistics-simulator:latest
+    depends_on:
+      - service-discovery
+      - broker-1
+      - broker-2
+    container_name: logistic-simulator
+    
+
 
