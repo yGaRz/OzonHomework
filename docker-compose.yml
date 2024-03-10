@@ -2,9 +2,9 @@ version: "3.9"
 
 volumes:
   customer-service-db:
-    name: customer-service-db
+    name: customer-service-db-volume
   orders-db:
-    name: orders-db
+    name: orders-db-volume
     
 services:
   gateway-service:
