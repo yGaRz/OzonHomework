@@ -10,15 +10,6 @@ stages:
 services:
   - name: docker:dind
 
-customer_service:
-  stage: build_images
-  rules:
-    - when: manual
-  script:
-    - docker login -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD $CI_REGISTRY 
-    - docker buildx create --use
-    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/customer-service:latest --push ./src/Ozon.Route256.Practice.CustomerService
-
 gateway_service:
   stage: build_images
   rules:
@@ -36,22 +27,6 @@ orders_service:
     - docker login -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD $CI_REGISTRY 
     - docker buildx create --use
     - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/ygar/practice/orders-service:latest --push ./src/Ozon.Route256.Practice.OrdersService
-
-customer_service_build:
-  stage: build
-  image: mcr.microsoft.com/dotnet/sdk:6.0
-  needs: []
-  script: 
-    - dotnet restore src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj
-    - dotnet build src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj --no-restore
-       
-customer_service_test:
-  stage: test
-  image: mcr.microsoft.com/dotnet/sdk:6.0
-  needs: ["customer_service_build"]
-  script: 
-    - dotnet restore src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj
-    - dotnet build src/Ozon.Route256.Practice.CustomerService/Ozon.Route256.Practice.CustomerService.csproj --no-restore
 
 gateway_service_build:
   stage: build
