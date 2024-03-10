@@ -32,12 +32,15 @@ services:
       - "5092:80"
     
   customer-service:
-    build: 
-      context: ./src/Ozon.Route256.Practice.CustomerService
-      dockerfile: Dockerfile
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/customer-service:latest
     container_name: customer-service
     ports:
       - "5081:80"
+    environment:
+      "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
+      "ROUTE256_GRPC_PORT": "5005"
+      "ROUTE256_HTTP_PORT": "5004"
+
   
   customer-service-db:
     image: postgres:latest
@@ -64,9 +67,7 @@ services:
       - orders-db:/var/lib/postgresql/data
      
   orders-generator-web:
-    build:
-      context: ./src/Ozon.Route256.Practice.OrdersGenerator
-      dockerfile: Dockerfile
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest
     container_name: orders-generator-web
     environment:
       - ROUTE256_ORDER_SOURCE=WebSite
@@ -74,9 +75,7 @@ services:
       - ROUTE256_KAFKA_BROKERS=broker-1:9091
         
   orders-generator-mobile:
-    build:
-      context: ./src/Ozon.Route256.Practice.OrdersGenerator
-      dockerfile: Dockerfile
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest
     container_name: orders-generator-mobile
     environment:
       - ROUTE256_ORDER_SOURCE=Mobile
@@ -84,9 +83,7 @@ services:
       - ROUTE256_KAFKA_BROKERS=broker-1:9091  
   
   orders-generator-api:
-    build:
-      context: ./src/Ozon.Route256.Practice.OrdersGenerator
-      dockerfile: Dockerfile
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest
     container_name: orders-generator-api
     environment:
       - ROUTE256_ORDER_SOURCE=Api
@@ -94,18 +91,14 @@ services:
       - ROUTE256_KAFKA_BROKERS=broker-1:9091
         
   service-discovery:
-    build:
-      context: ./src/Ozon.Route256.Practice.ServiceDiscovery
-      dockerfile: Dockerfile
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/service-discovery:latest
     container_name: service-discovery
     environment:
       - ROUTE256_DB_STATE=cluster:0-9:db1:1543;cluster:10-19:db2:1543;cluster1:0:db3:1543
       - ROUTE256_UPDATE_TIMEOUT=10
         
   logistic-simulator:
-    build:
-      context: ./src/Ozon.Route256.Practice.LogisticsSimulator
-      dockerfile: Dockerfile
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/logistics-simulator:latest
     container_name: logistic-simulator
     
   zookeeper:
