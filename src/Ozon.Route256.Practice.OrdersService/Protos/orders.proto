@@ -1,0 +1,72 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Ozon.Route256.Practice";
+
+service Orders
+{
+	//Ручка отмены заказа
+	rpc CancelOrder(CancelOrderByIdRequest) returns(CancelOrderByIdResponse);
+	//Ручка возврата статуса заказа
+	rpc GetOrderStatusById(GetOrderStatusByIdRequest) returns(GetOrderStatusByIdResponse);
+	//Ручка возврата списка регионов
+	rpc GetRegion(GetRegionRequest) returns(GetRegionResponse);
+	//Ручка возврата списка заказов
+	rpc GetOrders(GetOrdersRequest) returns(GetOrdersResponse);
+	//Ручка агрегации заказов по региону
+	rpc GetOrdersByRegion(GetOrdersByRegionRequest) returns(GetOrdersByRegionResponse);
+	//Ручка получения всех заказов клиента
+	rpc GetOrdersByCustomerID(GetOrdersByCustomerIDRequest) returns(GetOrdersByCustomerIDResponse);
+}
+
+message CancelOrderByIdRequest{
+	long id =1;
+}
+message CancelOrderByIdResponse{
+}
+
+message	GetOrderStatusByIdRequest{
+	long id =1;
+}
+message GetOrderStatusByIdResponse{
+	long id_logistic =1;
+}
+
+message GetRegionRequest{
+	string region=1;
+}
+message GetRegionResponse{
+	repeated string region=1;
+}
+
+message GetOrdersRequest{
+	repeated string region=1;
+	string type_order=2;
+}
+message GetOrdersResponse{
+	repeated Order orders=1;
+}
+
+message GetOrdersByRegionRequest{
+	repeated region=1;
+	google.protobuf.Timestamp start_time = 2;
+}
+message GetOrdersByRegionResponse{
+	repeated Order orders=1;
+}
+
+message GetOrdersByCustomerIDRequest{
+	int32 id=1;
+}
+
+message GetOrdersByCustomerIDResponse{
+	repeated Order orders=1;
+}
+
+message Order{
+	int32 id=1;
+	int32 status=2;
+	string description=3;
+	string region=4;
+}
