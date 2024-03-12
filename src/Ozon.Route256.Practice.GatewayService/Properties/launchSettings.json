@@ -2,36 +2,15 @@
   "profiles": {
     "Ozon.Route256.Practice.GatewayService": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5033"
-    },
-    "IIS Express": {
-      "commandName": "IISExpress",
       "launchBrowser": true,
+      "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "Docker": {
-      "commandName": "Docker",
-      "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
-      "environmentVariables": {
-        "ASPNETCORE_URLS": "http://+:80"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ROUTE256_SD_ADDRESS": "http://localhost:6081",
+        "ROUTE256_HTTP_PORT": "5004"
       },
-      "publishAllPorts": true
-    }
-  },
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:38318",
-      "sslPort": 0
+      "applicationUrl": "http://localhost:5033"
     }
   }
 }

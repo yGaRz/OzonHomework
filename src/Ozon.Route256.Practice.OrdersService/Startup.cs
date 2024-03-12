@@ -13,7 +13,7 @@ namespace Ozon.Route256.Practice.OrdersService
         public void ConfigureServices(IServiceCollection serviceCollection)
         {
             serviceCollection.AddGrpc(option => option.Interceptors.Add<LoggerInterceptor>());
-            serviceCollection.AddControllers();
+            //serviceCollection.AddControllers();
             serviceCollection.AddSwaggerGen();
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();

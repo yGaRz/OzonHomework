@@ -21,16 +21,16 @@ service Orders
 }
 
 message CancelOrderByIdRequest{
-	long id =1;
+	int32 id =1;
 }
 message CancelOrderByIdResponse{
 }
 
 message	GetOrderStatusByIdRequest{
-	long id =1;
+	int32 id =1;
 }
 message GetOrderStatusByIdResponse{
-	long id_logistic =1;
+	int32 id_logistic =1;
 }
 
 message GetRegionRequest{
@@ -49,9 +49,10 @@ message GetOrdersResponse{
 }
 
 message GetOrdersByRegionRequest{
-	repeated region=1;
+	repeated string region=1;
 	google.protobuf.Timestamp start_time = 2;
 }
+
 message GetOrdersByRegionResponse{
 	repeated Order orders=1;
 }
