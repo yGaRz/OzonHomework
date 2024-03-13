@@ -12,7 +12,6 @@
             serviceCollection.AddControllers();
             serviceCollection.AddEndpointsApiExplorer();
             serviceCollection.AddSwaggerGen();
-
         }
 
         public void Configure(IApplicationBuilder applicationBuilder)
@@ -20,6 +19,11 @@
             applicationBuilder.UseRouting();
             applicationBuilder.UseSwagger();
             applicationBuilder.UseSwaggerUI();
+            applicationBuilder.UseHttpsRedirection();
+            applicationBuilder.UseEndpoints(endpointRouteBuilder =>
+            {
+                endpointRouteBuilder.MapControllers();
+            });
         }
 
     }

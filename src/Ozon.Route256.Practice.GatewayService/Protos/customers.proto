@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+option csharp_namespace = "Ozon.Route256.Practice";
+
+service Customers {
+  rpc GetCustomerById(GetCustomerByIdRequest) returns(GetCustomerByIdResponse);
+  rpc GetCustomers(GetCustomersRequest) returns (GetCustomersResponse);
+  rpc GetCustomersForGenerator(GetCustomersForGeneratorRequest) returns (GetCustomersForGeneratorResponse);
+  rpc CreateCustomer(CreateCustomerRequest) returns (CreateCustomerResponse);
+  rpc GetCustomerByLastName(GetCustomerByLastNameRequest) returns (GetCustomerByLastNameResponse);
+}
+
+// ---  GetCustomerById  ---
+
+message GetCustomerByIdRequest {
+  int32 id = 1;
+}
+
+message GetCustomerByIdResponse {
+  Customer customer = 1;
+}
+
+// ---  GetCustomers  ---
+
+message GetCustomersRequest {
+}
+
+message GetCustomersResponse {
+  repeated Customer customers = 1;
+}
+
+// ---  GetCustomersForGenerator  ---
+
+message GetCustomersForGeneratorRequest {
+  int32 id = 1;
+}
+
+message GetCustomersForGeneratorResponse {
+  int32 id = 1;
+  Address address = 6;
+}
+
+// ---  CreateCustomer  ---
+
+message CreateCustomerRequest {
+  Customer customer = 1;
+}
+
+message CreateCustomerResponse {
+}
+
+// ---  GetCustomerByLastName  ---
+
+message GetCustomerByLastNameRequest {
+  string lastName = 1;
+}
+
+message GetCustomerByLastNameResponse {
+  repeated Customer customers = 1;
+}
+
+// ---  Common  ---
+
+message Customer {
+  int32 id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string mobile_number = 4;
+  string email = 5;
+  Address default_address = 6;
+  repeated Address addressed = 7;
+}
+
+message Address {
+  string region = 1;
+  string city = 2;
+  string street = 3;
+  string building = 4;
+  string apartment = 5;
+  double latitude = 6;
+  double longitude = 7;
+}

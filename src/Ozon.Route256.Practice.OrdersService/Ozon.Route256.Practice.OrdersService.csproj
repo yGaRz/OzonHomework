@@ -17,5 +17,5 @@
   <ItemGroup>
     <Protobuf Include="Protos/*.proto" Type="Both" />
   </ItemGroup>
-
+  
 </Project>

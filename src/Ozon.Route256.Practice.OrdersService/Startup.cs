@@ -1,5 +1,8 @@
-﻿
+﻿using Grpc.Core;
+using Grpc.Net.Client.Configuration;
+using Ozon.Route256.Practice.CustomerService.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
+using Ozon.Route256.Practice;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -13,10 +16,21 @@ namespace Ozon.Route256.Practice.OrdersService
         public void ConfigureServices(IServiceCollection serviceCollection)
         {
             serviceCollection.AddGrpc(option => option.Interceptors.Add<LoggerInterceptor>());
-            //serviceCollection.AddControllers();
+            serviceCollection.AddGrpcClient<SdService.SdServiceClient>(option =>
+            {
+                var url = _configuration.GetValue<string>("ROUTE256_SD_ADDRESS");
+                if (string.IsNullOrEmpty(url))
+                {
+                    throw new ArgumentException("ROUTE256_SD_ADDRESS variable is null or empty");
+                }
+
+                option.Address = new Uri(url);
+            });
             serviceCollection.AddSwaggerGen();
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();
+            serviceCollection.AddSingleton<IDbStore, DbStore>();
+            serviceCollection.AddHostedService<SdConsumerHostedService>();
         }
 
         public void Configure(IApplicationBuilder applicationBuilder)
@@ -24,8 +38,6 @@ namespace Ozon.Route256.Practice.OrdersService
             applicationBuilder.UseRouting();
             applicationBuilder.UseSwagger();
             applicationBuilder.UseSwaggerUI();
-            //applicationBuilder.UseHttpsRedirection();
-            //applicationBuilder.UseAuthorization();
             applicationBuilder.UseEndpoints(endpointRouteBuilder =>
             {
                 endpointRouteBuilder.MapGrpcService<GrpcServices.OrdersService>();
