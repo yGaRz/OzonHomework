@@ -111,6 +111,7 @@ services:
       - "5071:80"
     environment:
       "ROUTE256_OS_PORT": "5005"
+      "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
 
   orders-service-1:
     build: 
@@ -157,10 +158,10 @@ services:
     container_name: customer-service
     ports:
       - "5081:80"
+      - "5181:5005"
     environment:
       "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
       "ROUTE256_GRPC_PORT": "5005"
-      "ROUTE256_HTTP_PORT": "5004"
      
   orders-generator-web:
     image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest

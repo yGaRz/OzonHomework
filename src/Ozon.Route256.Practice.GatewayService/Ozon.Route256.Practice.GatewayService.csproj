@@ -10,10 +10,15 @@
 
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.61.0" />
+    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.61.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Protobuf Include="Protos/*.proto" Type="Both" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ClientBalancing\" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Grpc.Core;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
 {
@@ -7,37 +8,31 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
     public class OrdersController:ControllerBase
     {
         private readonly ILogger<OrdersController> _logger;
-        OrdersController(ILogger<OrdersController> logger)
+        private readonly Orders.OrdersClient _ordersClient;
+        public OrdersController(ILogger<OrdersController> logger, 
+                                    Orders.OrdersClient ordersClient)
         {
             _logger = logger;
+            _ordersClient = ordersClient;
         }
 
-        [HttpGet]
-        [Route("[action]")]
-        public string Get1()
-        {
-            return "qweqwe";
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public string Get2()
-        {
-            return "qweqwe";
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public string Get3()
-        {
-            return "qweqwe";
-        }
         [HttpDelete]
-        [Route("[action]")]
-        public string CancelOrder(long orderId)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public string CancelOrder(int id)
         {
-            return (orderId * 1000).ToString();
+            CancelOrderByIdRequest request  = new CancelOrderByIdRequest { Id = id };
+            CancelOrderByIdResponse answer = new CancelOrderByIdResponse();
+            try
+            {
+                answer = _ordersClient.CancelOrder(request);
+            }
+            catch (RpcException ex)
+            {
+                return ex.ToString();
+            }
+            return answer.ToString();
         }
-
     }
 }

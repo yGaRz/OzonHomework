@@ -83,11 +83,10 @@ message Order{
 	string region=6;
 	int32 status=7;
 	string name=8;
-	AddressOrders address_customer=9;
+	AddressCutomer address_customer=9;
 	string phone=10;
 }
-
-message AddressOrders {
+message AddressCutomer {
   string region = 1;
   string city = 2;
   string street = 3;
@@ -96,6 +95,7 @@ message AddressOrders {
   double latitude = 6;
   double longitude = 7;
 }
+
 message RegionCount{
 	string region=1;
 	int32 count=2;
