@@ -1,8 +1,10 @@
 ﻿syntax = "proto3";
-
 import "google/protobuf/timestamp.proto";
-
+import "Protos/customers.proto";
 option csharp_namespace = "Ozon.Route256.Practice";
+
+package GatewayService.Proto;
+
 
 service Orders
 {
@@ -61,7 +63,7 @@ message GetOrdersByRegionRequest{
   repeated string region=2;
 }
 message GetOrdersByRegionResponse{
-  repeated RegionCount result=1;
+  repeated Order orders=1;
 }
 
 //Ручка получения всех заказов клиента
@@ -83,17 +85,8 @@ message Order{
 	string region=6;
 	int32 status=7;
 	string name=8;
-	AddressCutomer address_customer=9;
+	Address address_customer=9;
 	string phone=10;
-}
-message AddressCutomer {
-  string region = 1;
-  string city = 2;
-  string street = 3;
-  string building = 4;
-  string apartment = 5;
-  double latitude = 6;
-  double longitude = 7;
 }
 
 message RegionCount{

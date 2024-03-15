@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
@@ -23,7 +24,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             try
             {
                 GetOrdersByRegionRequest request = new GetOrdersByRegionRequest();
-                request.StartTime.Seconds = start.ToFileTimeUtc();
+                request.StartTime = Timestamp.FromDateTimeOffset(start);
                 if (regions != null)
                     request.Region.Add(regions);
                 var responce = await _ordersClient.GetOrdersByRegionAsync(request, null, null, cancellationToken);

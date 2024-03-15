@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
@@ -26,7 +27,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 GetOrdersByCustomerIDRequest request = new GetOrdersByCustomerIDRequest();
                 request.Id = id;
                 request.PaginationParam = paginationParam;
-                request.StartTime.Seconds = start.ToFileTimeUtc();
+                request.StartTime = Timestamp.FromDateTimeOffset(start);
                 var responce = await _ordersClient.GetOrdersByCustomerIDAsync(request, null, null, cancellationToken);
                 if (responce != null)
                     return StatusCode(200, responce.Orders.ToList());
@@ -34,11 +35,14 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             }
             catch (RpcException ex)
             {
-                return StatusCode(502);
+                if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
+                    return StatusCode(400, "Покупатель не найден");
+                else
+                    return StatusCode(502);
             }
             catch (Exception ex)
             {
-                return StatusCode(500);
+                return StatusCode(500,ex.Message);
             }
         }
     }

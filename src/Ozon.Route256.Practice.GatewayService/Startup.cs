@@ -18,10 +18,10 @@ namespace Ozon.Route256.Practice.GatewayService
 
             var factory = new StaticResolverFactory(address => new[]
             {
-                new BalancerAddress("localhost", 5191),
-                new BalancerAddress("localhost", 5192)
-                //new BalancerAddress("orders-service-1", 5005),
-                //new BalancerAddress("orders-service-2", 5005)
+                //new BalancerAddress("localhost", 5191),
+                //new BalancerAddress("localhost", 5192)
+                new BalancerAddress("orders-service-1", 5005),
+                new BalancerAddress("orders-service-2", 5005)
             });
             serviceCollection.AddSingleton<ResolverFactory>(factory);
             serviceCollection.AddGrpcClient<Orders.OrdersClient>(options =>

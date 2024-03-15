@@ -17,5 +17,9 @@
   <ItemGroup>
     <Protobuf Include="Protos/*.proto" Type="Both" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Protos\customers.proto" />
+  </ItemGroup>
   
 </Project>
