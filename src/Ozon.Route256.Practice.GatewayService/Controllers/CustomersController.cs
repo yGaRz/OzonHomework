@@ -9,7 +9,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CustomersController : ControllerBase
+    public partial class CustomersController : ControllerBase
     {
         private readonly ILogger<CustomersController> _logger;
         private readonly Customers.CustomersClient _customersClient;
@@ -19,17 +19,24 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             _logger = logger;
             _customersClient = client;
         }
+        /// <summary>
+        /// Возврат списка клиентов
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
         public async Task<ActionResult<List<Customer>>> GetCustomersAsync(CancellationToken cancellationToken)
         {
-            List<Customer> result = new List<Customer>();
             try
             {
                 var request = new GetCustomersRequest();
-                await _customersClient.GetCustomersAsync(request,null,null,cancellationToken);
+                var responce = await _customersClient.GetCustomersAsync(request, null, null, cancellationToken);
+                if (responce != null)
+                    return responce.Customers.ToList();
+                return new List<Customer>();
             }
             catch (RpcException ex)
             {
@@ -38,7 +45,6 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 else
                     return StatusCode(502);
             }
-            return result;
         }
     }
 }

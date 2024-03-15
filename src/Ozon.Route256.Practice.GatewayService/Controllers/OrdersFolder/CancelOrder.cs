@@ -1,0 +1,41 @@
+﻿using Grpc.Core;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Ozon.Route256.Practice.GatewayService.Controllers
+{
+    public partial class OrdersController
+    {        
+        /// <summary>
+        /// Отмена заказа
+        /// </summary>
+        /// <param name="id">Номер заказа</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpDelete("[action]")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<string>> CancelOrder(int id, CancellationToken cancellationToken)
+        {
+            if (id == 0)
+                return BadRequest();
+            try
+            {
+                CancelOrderByIdRequest request = new CancelOrderByIdRequest { Id = id };
+                CancelOrderByIdResponse answer = new CancelOrderByIdResponse();
+                var responce = await _ordersClient.CancelOrderAsync(request, null, null, cancellationToken);
+                if (responce.ReasonCancelError == "")
+                    return StatusCode(200, "Заказ отменен успешно");
+                else
+                    return StatusCode(400, responce.ReasonCancelError);
+            }
+            catch (RpcException ex)
+            {
+                if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
+                    return StatusCode(404, "Заказ не найден");
+                else
+                    return StatusCode(502);
+            }
+        }
+    }
+}

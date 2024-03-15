@@ -7,6 +7,16 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
     {
         public override Task<CancelOrderByIdResponse> CancelOrder(CancelOrderByIdRequest request, ServerCallContext context)
         {
+            CancelOrderByIdResponse response = new CancelOrderByIdResponse();
+            if(request.Id==0)
+                throw new RpcException(new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
+            if (request.Id == 1)
+                return Task.FromResult(response);
+            if (request.Id == 2)
+            {
+                response.ReasonCancelError = "Невозможно отменить заказ номер 2";
+                return Task.FromResult(response);
+            }
             throw new RpcException(new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
             //throw new NotFoundException($"Order by Id = {request.Id} not founded");
         }

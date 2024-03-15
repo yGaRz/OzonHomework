@@ -49,7 +49,12 @@ namespace Ozon.Route256.Practice.GatewayService
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddControllers();
             serviceCollection.AddEndpointsApiExplorer();
-            serviceCollection.AddSwaggerGen();
+            serviceCollection.AddSwaggerGen(options=>
+            {
+                var basePath = AppContext.BaseDirectory;
+                var xmlPath = Path.Combine(basePath, "Ozon.Route256.Practice.GatewayService.xml");
+                options.IncludeXmlComments(xmlPath);
+            });
         }
 
         public void Configure(IApplicationBuilder applicationBuilder)
@@ -57,7 +62,7 @@ namespace Ozon.Route256.Practice.GatewayService
             applicationBuilder.UseRouting();
             applicationBuilder.UseSwagger();
             applicationBuilder.UseSwaggerUI();
-            applicationBuilder.UseHttpsRedirection();
+            //applicationBuilder.UseHttpsRedirection();
             applicationBuilder.UseEndpoints(endpointRouteBuilder =>
             {
                 endpointRouteBuilder.MapControllers();

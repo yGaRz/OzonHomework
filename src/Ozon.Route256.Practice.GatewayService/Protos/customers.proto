@@ -1,6 +1,6 @@
 syntax = "proto3";
-
 option csharp_namespace = "Ozon.Route256.Practice";
+
 
 service Customers {
   rpc GetCustomerById(GetCustomerByIdRequest) returns(GetCustomerByIdResponse);
