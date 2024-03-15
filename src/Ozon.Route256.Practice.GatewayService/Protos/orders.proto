@@ -63,7 +63,11 @@ message GetOrdersByRegionRequest{
   repeated string region=2;
 }
 message GetOrdersByRegionResponse{
-  repeated Order orders=1;
+  string region =1;
+  int32 countOrdes=2;
+  double totalSum=3;
+  double totalWight=4;
+  int32 countCustomer=5;
 }
 
 //Ручка получения всех заказов клиента
