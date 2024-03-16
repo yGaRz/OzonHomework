@@ -25,9 +25,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status502BadGateway)]
+        [ProducesResponseType(StatusCodes.Status200OK,Type =typeof(List<Customer>))]
         public async Task<ActionResult<List<Customer>>> GetCustomersAsync(CancellationToken cancellationToken)
         {
             try

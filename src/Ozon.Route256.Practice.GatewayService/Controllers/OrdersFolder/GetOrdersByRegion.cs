@@ -18,7 +18,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<GetOrdersByRegionResponse>> GetOrderByRegion(DateTime start,
-            List<string>? regions,
+            [FromBody]List<string>? regions,
             CancellationToken cancellationToken)
         {
             try

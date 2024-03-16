@@ -23,10 +23,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             {
                 GetOrderStatusByIdRequest request = new GetOrderStatusByIdRequest { Id = id };
                 var responce = await _ordersClient.GetOrderStatusByIdAsync(request, null, null, cancellationToken);
-                if (responce != null)
-                    return responce.LogisticStatus;
-                else
-                    return StatusCode(404,"Заказ не найден");
+                return responce.LogisticStatus;
             }
             catch (RpcException ex)
             {

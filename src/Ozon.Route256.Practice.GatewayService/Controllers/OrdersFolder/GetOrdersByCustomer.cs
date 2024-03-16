@@ -15,7 +15,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("[action]")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK,Type=typeof(List<Order>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<Order>>> GetOrderByCustomer(int id,
                                                         DateTime start,
@@ -24,14 +24,14 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         {
             try
             {
-                GetOrdersByCustomerIDRequest request = new GetOrdersByCustomerIDRequest();
-                request.Id = id;
-                request.PaginationParam = paginationParam;
-                request.StartTime = Timestamp.FromDateTimeOffset(start);
+                GetOrdersByCustomerIDRequest request = new GetOrdersByCustomerIDRequest()
+                {
+                    Id = id,
+                    PaginationParam = paginationParam,
+                    StartTime = Timestamp.FromDateTimeOffset(start)
+                };
                 var responce = await _ordersClient.GetOrdersByCustomerIDAsync(request, null, null, cancellationToken);
-                if (responce != null)
-                    return StatusCode(200, responce.Orders.ToList());
-                return StatusCode(400, "Нескольких регионов нет в системе");
+                return StatusCode(200, responce.Orders.ToList());
             }
             catch (RpcException ex)
             {

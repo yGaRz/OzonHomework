@@ -18,17 +18,11 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             {
                 GetRegionRequest request = new GetRegionRequest();
                 var responce = await _ordersClient.GetRegionAsync(request, null, null, cancellationToken);
-                if (responce != null)
-                    return StatusCode(200, responce.Region.ToList());
-                else
-                    return StatusCode(400);
+                return StatusCode(200, responce.Region.ToList());
             }
-            catch (RpcException ex)
+            catch
             {
-                if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return StatusCode(404);
-                else
-                    return StatusCode(502);
+                return StatusCode(502);
             }
         }
     }

@@ -16,6 +16,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("[action]")]
+        [ProducesResponseType(StatusCodes.Status200OK,Type=typeof(List<Order>))]
         public async Task<ActionResult<List<Order>>> GetOrders(List<string> regions,
                                                                         string TypeOrder,
                                                                         string PaginationParam,
@@ -36,8 +37,8 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                     request.SortField = SortField;
                 request.Region.Add(regions);
 
-
                 var responce = await _ordersClient.GetOrdersAsync(request, null, null, cancellationToken);
+
                 List<Order> result = new List<Order>();
                 if (responce != null)
                     for (int i = 0; i < responce.Orders.Count; i++)
@@ -46,10 +47,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             }
             catch (RpcException ex)
             {
-                if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return StatusCode(400, "Регион не найден");
-                else
-                    return StatusCode(502);
+                return StatusCode(502);
             }
         }
     }
