@@ -1,5 +1,6 @@
 ﻿using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
+using Ozon.Route256.Practice.GatewayService.Models;
 using System.ComponentModel;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
@@ -15,7 +16,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         [HttpGet("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<string>> GetOrderStatus(int id, CancellationToken cancellationToken)
+        public async Task<ActionResult<OrderState>> GetOrderStatus(int id, CancellationToken cancellationToken)
         {
             if (id == 0)
                 return BadRequest();
@@ -23,7 +24,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             {
                 GetOrderStatusByIdRequest request = new GetOrderStatusByIdRequest { Id = id };
                 var responce = await _ordersClient.GetOrderStatusByIdAsync(request, null, null, cancellationToken);
-                return responce.LogisticStatus;
+                return StatusCode(200, responce.LogisticStatus.ToString());
             }
             catch (RpcException ex)
             {
@@ -31,6 +32,10 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                     return StatusCode(404);
                 else
                     return StatusCode(502);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500,ex.Message);
             }
         }
     }

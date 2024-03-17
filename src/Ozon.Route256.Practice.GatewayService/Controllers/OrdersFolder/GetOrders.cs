@@ -1,5 +1,6 @@
 ﻿using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
+using Ozon.Route256.Practice.CustomerService.DataAccess.Entities;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
 {
@@ -8,34 +9,31 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         /// <summary>
         /// Возврат списка заказов
         /// </summary>
-        /// <param name="regions">Список регионов</param>
-        /// <param name="TypeOrder">Тип заказа</param>
-        /// <param name="PaginationParam">Параметры пагинации</param>
-        /// <param name="ParamSort">Параметры сортировки</param>
-        /// <param name="SortField">Поле по которому будет сортировка</param>
+        /// <param name="model">RegionsList - список регионов, </param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK,Type=typeof(List<Order>))]
-        public async Task<ActionResult<List<Order>>> GetOrders(List<string> regions,
-                                                                        string TypeOrder,
-                                                                        string PaginationParam,
-                                                                        string? ParamSort,
-                                                                        string? SortField,
-                                                                        CancellationToken cancellationToken)
+       public async Task<ActionResult<List<Order>>> GetOrders(GetOrdersModel model,
+                                                                    CancellationToken cancellationToken)
         {
             try
             {
+                //RegionsModel model= new RegionsModel();
+
                 GetOrdersRequest request = new GetOrdersRequest()
                 {
-                    TypeOrder = TypeOrder,
-                    PaginationParam = PaginationParam
+                    TypeOrder = model.OrderState,
+                    PaginationParam = new Pagination() { Pagination_ = model.PaginationParam },
+                    SortField = model.SortField
                 };
-                if(ParamSort != null)
-                    request.ParamSort = ParamSort;
-                if(SortField != null)
-                    request.SortField = SortField;
-                request.Region.Add(regions);
+
+                if (model.SortParam != null)
+                    request.SortParam = (SortParam)model.SortParam;
+                else 
+                    request.SortParam = SortParam.None;
+                foreach (var a in model.RegionsList)
+                    request.Region.Add(new Region() { NameRegion = a });
 
                 var responce = await _ordersClient.GetOrdersAsync(request, null, null, cancellationToken);
 
@@ -45,9 +43,13 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                         result.Add(responce.Orders[i]);
                 return StatusCode(200,result);
             }
-            catch (RpcException ex)
+            catch (RpcException)
             {
                 return StatusCode(502);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex);
             }
         }
     }
