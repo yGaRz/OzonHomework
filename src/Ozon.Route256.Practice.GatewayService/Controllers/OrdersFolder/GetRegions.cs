@@ -18,7 +18,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             {
                 GetRegionRequest request = new GetRegionRequest();
                 var responce = await _ordersClient.GetRegionAsync(request, null, null, cancellationToken);
-                List<string> result = responce.Region.Select(x=>x.NameRegion).ToList();
+                List<string> result = responce.Region.ToList();
                 return StatusCode(200, result);
             }
             catch(RpcException e)

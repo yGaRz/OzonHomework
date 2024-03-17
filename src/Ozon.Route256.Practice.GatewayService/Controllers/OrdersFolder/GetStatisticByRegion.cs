@@ -39,8 +39,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 request.StartTime = Timestamp.FromDateTimeOffset(start);
 
                 if(regions != null) 
-                    foreach (var a in regions)
-                        request.Region.Add(new Region() { NameRegion = a });
+                    request.Region.Add(regions);
 
                 var responce = await _ordersClient.GetOrdersByRegionAsync(request, null, null, cancellationToken);
                 if (responce != null)
@@ -50,7 +49,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                         result.Add(new StatisticByRegion()
                         {
                             CountCustomer = a.CountCustomer,
-                            Region = a.Region.NameRegion,
+                            Region = a.Region,
                             CountOrders = a.TotalCountOrders,
                             TotalSum = a.TotalSumOrders,
                             TotalWigth = a.TotalWightOrders

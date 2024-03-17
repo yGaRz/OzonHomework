@@ -32,8 +32,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                     request.SortParam = (SortParam)model.SortParam;
                 else 
                     request.SortParam = SortParam.None;
-                foreach (var a in model.RegionsList)
-                    request.Region.Add(new Region() { NameRegion = a });
+                request.Region.Add(model.RegionsList);
 
                 var responce = await _ordersClient.GetOrdersAsync(request, null, null, cancellationToken);
 

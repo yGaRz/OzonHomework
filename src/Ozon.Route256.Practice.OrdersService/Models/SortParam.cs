@@ -3,6 +3,7 @@
     public enum SortParam
     {
         ASC=0, 
-        DESC=1
+        DESC=1,
+        None=2
     }
 }
