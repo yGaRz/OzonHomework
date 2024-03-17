@@ -32,8 +32,8 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                     PaginationParam = new Pagination()
                     {
                         PageIndex = paginationParam.PageIndex,
-                        PageSize = paginationParam.PageSize,
-                        MaxPageSize = paginationParam.MaxPageSize
+                        PageSize = paginationParam.PageSize
+                       // MaxPageSize = paginationParam.MaxPageSize
                     },
                     StartTime = Timestamp.FromDateTimeOffset(start)
                 };

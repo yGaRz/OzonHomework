@@ -26,8 +26,8 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                     TypeOrder = model.OrderState,
                     PaginationParam = new Pagination() { 
                         PageIndex = model.PaginationParam.PageIndex,
-                        PageSize=model.PaginationParam.PageSize,
-                        MaxPageSize=model.PaginationParam.MaxPageSize
+                        PageSize=model.PaginationParam.PageSize
+                        //MaxPageSize=model.PaginationParam.MaxPageSize
                     },
                     SortField = model.SortField
                 };

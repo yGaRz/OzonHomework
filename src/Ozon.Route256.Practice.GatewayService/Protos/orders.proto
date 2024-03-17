@@ -96,7 +96,7 @@ message Order{
 	string phone_number=11;}
 
 message Pagination{
-	uint32 max_page_size=1;
+//	uint32 max_page_size=1;
 	uint32 page_index=2;
 	uint32 page_size=3;
 }
