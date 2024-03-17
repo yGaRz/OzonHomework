@@ -19,7 +19,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<Order>>> GetOrderByCustomer(int id,
                                                         DateTime start,
-                                                        string paginationParam,
+                                                        Pagination paginationParam,
                                                         CancellationToken cancellationToken)
         {
             try
@@ -29,7 +29,12 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 GetOrdersByCustomerIDRequest request = new GetOrdersByCustomerIDRequest()
                 {
                     Id = id,
-                    PaginationParam = new Pagination() { Pagination_ = paginationParam },
+                    PaginationParam = new Pagination()
+                    {
+                        PageIndex = paginationParam.PageIndex,
+                        PageSize = paginationParam.PageSize,
+                        MaxPageSize = paginationParam.MaxPageSize
+                    },
                     StartTime = Timestamp.FromDateTimeOffset(start)
                 };
                 var responce = await _ordersClient.GetOrdersByCustomerIDAsync(request, null, null, cancellationToken);

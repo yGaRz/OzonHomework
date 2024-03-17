@@ -9,7 +9,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
     {
         public record StatisticByRegion()
         {
-            public string Region;
+            public string? Region;
             public int CountOrders;
             public double TotalSum;
             public double TotalWigth;
