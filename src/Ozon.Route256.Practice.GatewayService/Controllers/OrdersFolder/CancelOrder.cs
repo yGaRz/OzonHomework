@@ -15,7 +15,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<string>> CancelOrder(int id, CancellationToken cancellationToken)
+        public async Task<ActionResult<string>> CancelOrder(long id, CancellationToken cancellationToken)
         {
             try
             {
@@ -32,6 +32,10 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                     return StatusCode(404, "Заказ не найден");
                 else
                     return StatusCode(502,"Сервис не отвечает");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
             }
         }
     }

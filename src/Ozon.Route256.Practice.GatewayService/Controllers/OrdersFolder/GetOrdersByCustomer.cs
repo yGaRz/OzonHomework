@@ -24,10 +24,12 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         {
             try
             {
+                if (start > DateTime.Now)
+                    return StatusCode(400, "Некорректно указана дата и время поиска заказов");
                 GetOrdersByCustomerIDRequest request = new GetOrdersByCustomerIDRequest()
                 {
                     Id = id,
-                    PaginationParam = paginationParam,
+                    PaginationParam = new Pagination() { Pagination_ = paginationParam },
                     StartTime = Timestamp.FromDateTimeOffset(start)
                 };
                 var responce = await _ordersClient.GetOrdersByCustomerIDAsync(request, null, null, cancellationToken);
