@@ -206,6 +206,8 @@ services:
       - broker-1
       - broker-2
     container_name: logistic-simulator
+    ports:
+      - "5131:5238"
     
 
 

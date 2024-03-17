@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <None Remove="Protos\customers.proto" />
+    <None Remove="Protos\logistic.proto" />
   </ItemGroup>
   
 </Project>
