@@ -44,6 +44,19 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
 
                 var responce = await _ordersClient.GetOrdersByRegionAsync(request, null, null, cancellationToken);
                 if (responce != null)
+                {
+                    List<StatisticByRegion> result = new List<StatisticByRegion>();
+                    foreach (var a in responce.Statistic)
+                        result.Add(new StatisticByRegion()
+                        {
+                            CountCustomer = a.CountCustomer,
+                            Region = a.Region.NameRegion,
+                            CountOrders = a.TotalCountOrders,
+                            TotalSum = a.TotalSumOrders,
+                            TotalWigth = a.TotalWightOrders
+                        });
+                    return StatusCode(200, result);
+                }
                 else 
                     return NotFound();
             }
