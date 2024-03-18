@@ -46,6 +46,7 @@ namespace Ozon.Route256.Practice.GatewayService
 
                 option.Address = new Uri(url);
             });
+
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddControllers();
             serviceCollection.AddEndpointsApiExplorer();

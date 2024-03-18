@@ -20,11 +20,11 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         [HttpGet("[action]")]
         [SwaggerResponse(200, "Orders list", typeof(OrdersListModel))]
         [SwaggerResponse(400, "Customer not found")]
-        public async Task<ActionResult<OrdersListModel>> GetOrderByCustomer(int id,
-                                                                    uint pageIndex,
-                                                                    uint pageSize,
+        public async Task<ActionResult<OrdersListModel>> GetOrderByCustomer([FromHeader]int id,
+                                                                    [FromHeader]uint pageIndex,
                                                                     DateTime start,
-                                                                    CancellationToken cancellationToken)
+                                                                    CancellationToken cancellationToken,
+                                                                    uint pageSize = 50)
         {
             try
             {

@@ -1,4 +1,5 @@
 using Grpc.Core;
+using Swashbuckle.AspNetCore.Annotations;
 namespace Ozon.Route256.Practice.GatewayService.Model;
 
 public enum OrderState

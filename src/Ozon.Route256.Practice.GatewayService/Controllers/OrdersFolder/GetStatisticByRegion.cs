@@ -34,13 +34,13 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         {
             try
             {
-                GetOrdersByRegionRequest request = new GetOrdersByRegionRequest();
+                GetRegionStatisticRequest request = new GetRegionStatisticRequest();
                 request.StartTime = Timestamp.FromDateTimeOffset(start);
 
                 if(regions != null) 
                     request.Region.Add(regions);
 
-                var responce = await _ordersClient.GetOrdersByRegionAsync(request, null, null, cancellationToken);
+                var responce = await _ordersClient.GetRegionStatisticAsync(request, null, null, cancellationToken);
                 if (responce != null)
                 {
                     List<StatisticByRegion> result = new List<StatisticByRegion>();

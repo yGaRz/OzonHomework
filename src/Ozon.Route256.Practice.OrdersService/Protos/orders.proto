@@ -15,7 +15,7 @@ service Orders
 	//Ручка возврата списка заказов
 	rpc GetOrders(GetOrdersRequest) returns(GetOrdersResponse);
 	//Ручка агрегации заказов по региону
-	rpc GetOrdersByRegion(GetOrdersByRegionRequest) returns(GetOrdersByRegionResponse);
+	rpc GetRegionStatistic(GetRegionStatisticRequest) returns(GetRegionStatisticResponse);
 	//Ручка получения всех заказов клиента
 	rpc GetOrdersByCustomerID(GetOrdersByCustomerIDRequest) returns(GetOrdersByCustomerIDResponse);
 }
@@ -52,11 +52,11 @@ message GetOrdersResponse{
 }
 
 //Ручка агрегации заказов по региону
-message GetOrdersByRegionRequest{
+message GetRegionStatisticRequest{
   google.protobuf.Timestamp start_time = 1;
   repeated string region=2;}
-message GetOrdersByRegionResponse{
-	repeated RegionStatistic statistic=1;
+message GetRegionStatisticResponse{
+	repeated RegionStatisticMessage statistic=1;
 }
 
 //Ручка получения всех заказов клиента
@@ -101,7 +101,7 @@ message Order{
 	string phone_number=11;}
 
 
-message RegionStatistic{
+message RegionStatisticMessage{
   string region =1;
   int32 total_count_orders=2;
   double total_sum_orders=3;
