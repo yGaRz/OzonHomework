@@ -1,49 +1,50 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
+using Ozon.Route256.Practice.GatewayService.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
 {
     public partial class OrdersController
     {
         /// <summary>
-        /// Получение списка заказов клиента
+        /// Get customer orders
         /// </summary>
-        /// <param name="id">Идентификатор клиента</param>
-        /// <param name="start">Дата/время от которого стоить агрегацию</param>
-        /// <param name="paginationParam">Параметры пагинации</param>
+        /// <param name="id">id customer</param>
+        /// <param name="pageIndex">page index for pagination</param>
+        /// <param name="pageSize">count item on page</param>
+        /// <param name="start">start time for find</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("[action]")]
-        [ProducesResponseType(StatusCodes.Status200OK,Type=typeof(List<Order>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<List<Order>>> GetOrderByCustomer(int id,
-                                                        DateTime start,
-                                                        Pagination paginationParam,
-                                                        CancellationToken cancellationToken)
+        [SwaggerResponse(200, "Orders list", typeof(OrdersListModel))]
+        [SwaggerResponse(400, "Customer not found")]
+        public async Task<ActionResult<OrdersListModel>> GetOrderByCustomer(int id,
+                                                                    uint pageIndex,
+                                                                    uint pageSize,
+                                                                    DateTime start,
+                                                                    CancellationToken cancellationToken)
         {
             try
             {
-                if (start > DateTime.Now)
-                    return StatusCode(400, "Некорректно указана дата и время поиска заказов");
                 GetOrdersByCustomerIDRequest request = new GetOrdersByCustomerIDRequest()
                 {
                     Id = id,
-                    PaginationParam = new Pagination()
-                    {
-                        PageIndex = paginationParam.PageIndex,
-                        PageSize = paginationParam.PageSize
-                       // MaxPageSize = paginationParam.MaxPageSize
-                    },
+                    PageIndex = pageIndex,
+                    PageSize = pageSize,
                     StartTime = Timestamp.FromDateTimeOffset(start)
                 };
                 var responce = await _ordersClient.GetOrdersByCustomerIDAsync(request, null, null, cancellationToken);
-                return StatusCode(200, responce.Orders.ToList());
+                OrdersListModel result = new OrdersListModel() { PageIndex = responce.PageNumber };
+                foreach(var a in responce.Orders)
+                    result.ListOrder.Add(a);
+                return StatusCode(200,result);
             }
             catch (RpcException ex)
             {
                 if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return StatusCode(400, "Покупатель не найден");
+                    return StatusCode(400, "Customer not found");
                 else
                     return StatusCode(502);
             }

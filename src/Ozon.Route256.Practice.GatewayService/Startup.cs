@@ -51,6 +51,13 @@ namespace Ozon.Route256.Practice.GatewayService
             serviceCollection.AddEndpointsApiExplorer();
             serviceCollection.AddSwaggerGen(options=>
             {
+                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "Ozon.Route256.RestAPI",
+                    Description = "Nosov Arsenij homework"
+                });
+                options.EnableAnnotations();
                 var basePath = AppContext.BaseDirectory;
                 var xmlPath = Path.Combine(basePath, "Ozon.Route256.Practice.GatewayService.xml");
                 options.IncludeXmlComments(xmlPath);

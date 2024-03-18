@@ -7,9 +7,9 @@ namespace TestServices
         [Fact]
         public void Test1()
         {
-            PaginationParameter paginationParameter = new PaginationParameter();
-            paginationParameter.PageSize = 70;
-            paginationParameter.PageIndex = 6;
+            //PaginationParameter paginationParameter = new PaginationParameter();
+            //paginationParameter.PageSize = 70;
+            //paginationParameter.PageIndex = 6;
             
         }
     }

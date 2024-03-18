@@ -1,29 +1,31 @@
 ﻿using Grpc.Core;
 
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
 {
     public partial class OrdersController
     {
         /// <summary>
-        /// Получение списка регионов
+        /// Get region list
         /// </summary>
         /// <param name="cancellationToken"></param>
-        /// <returns>Список всех регионов или пустой список</returns>
+        /// <returns>Region list or empty</returns>
         [HttpGet("[action]")]
+        [SwaggerResponse(200, "Region list",typeof(List<string>))]
+        [Produces("application/json")]
         public async Task<ActionResult<List<string>>> GetRegions(CancellationToken cancellationToken)
         {
             try
             {
-                GetRegionRequest request = new GetRegionRequest();
-                var responce = await _ordersClient.GetRegionAsync(request, null, null, cancellationToken);
+                var responce = await _ordersClient.GetRegionAsync(new GetRegionRequest(), null, null, cancellationToken);
                 List<string> result = responce.Region.ToList();
                 return StatusCode(200, result);
             }
-            catch(RpcException e)
+            catch(RpcException ex)
             {
-                return StatusCode(502,e.Message);
+                return StatusCode(502, "The service is not responding:" + ex.Message);
             }
             catch (Exception ex)
             {

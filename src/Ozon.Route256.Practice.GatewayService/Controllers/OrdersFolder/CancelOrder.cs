@@ -1,20 +1,22 @@
 ﻿using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
 {
     public partial class OrdersController
-    {        
+    {
         /// <summary>
-        /// Отмена заказа
+        /// Cancel order
         /// </summary>
-        /// <param name="id">Номер заказа</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        /// <param name="id">Id order</param>
+        /// <param name="cancellationToken"></param>        
+        /// <returns></returns>   
         [HttpDelete("[action]")]
-        [ProducesResponseType(StatusCodes.Status200OK)]        
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerResponse(200, "Order canceled successfully")]
+        [SwaggerResponse(400, "The order cannot be canceled")]
+        [SwaggerResponse(404, "Order not found")]
+        [Produces("application/json")]
         public async Task<ActionResult<string>> CancelOrder(long id, CancellationToken cancellationToken)
         {
             try
@@ -22,16 +24,16 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 CancelOrderByIdRequest request = new CancelOrderByIdRequest { Id = id };
                 var responce = await _ordersClient.CancelOrderAsync(request, null, null, cancellationToken);
                 if (responce.ReasonCancelError == "")
-                    return StatusCode(200, "Заказ отменен успешно");
+                    return StatusCode(200);
                 else
                     return StatusCode(400, responce.ReasonCancelError);
             }
             catch (RpcException ex)
             {
                 if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return StatusCode(404, "Заказ не найден");
+                    return StatusCode(404);
                 else
-                    return StatusCode(502,"Сервис не отвечает");
+                    return StatusCode(502, "The service is not responding:" + ex.Message);
             }
             catch (Exception ex)
             {

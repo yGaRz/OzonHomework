@@ -1,54 +1,52 @@
 ﻿using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
 using Ozon.Route256.Practice.CustomerService.DataAccess.Entities;
+using Ozon.Route256.Practice.GatewayService.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
 {
     public partial class OrdersController
     {
         /// <summary>
-        /// Возврат списка заказов
+        /// Get orders
         /// </summary>
-        /// <param name="model">RegionsList - список регионов, </param>
+        /// <param name="pageIndex">Page number</param>
+        /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("[action]")]
-        [ProducesResponseType(StatusCodes.Status200OK,Type=typeof(List<Order>))]
-       public async Task<ActionResult<List<Order>>> GetOrders(GetOrdersModel model,
-                                                                    CancellationToken cancellationToken)
+        [SwaggerResponse(200, "Orders list", typeof(OrdersListModel))]
+        [SwaggerResponse(400, "Region not found")]
+        public async Task<ActionResult<OrdersListModel>> GetOrders(uint pageIndex,
+                                                                GetOrdersModel model,
+                                                                CancellationToken cancellationToken)
         {
             try
             {
-                //RegionsModel model= new RegionsModel();
-
                 GetOrdersRequest request = new GetOrdersRequest()
                 {
                     TypeOrder = model.OrderState,
-                    PaginationParam = new Pagination() { 
-                        PageIndex = model.PaginationParam.PageIndex,
-                        PageSize=model.PaginationParam.PageSize
-                        //MaxPageSize=model.PaginationParam.MaxPageSize
-                    },
-                    SortField = model.SortField
+                    PageIndex = pageIndex,
+                    PageSize = model.PageSize,
+                    SortField = model.SortField,
+                    SortParam = model.SortParam != null ? (SortParam)model.SortParam : SortParam.None
                 };
-
-                if (model.SortParam != null)
-                    request.SortParam = (SortParam)model.SortParam;
-                else 
-                    request.SortParam = SortParam.None;
                 request.Region.Add(model.RegionsList);
 
                 var responce = await _ordersClient.GetOrdersAsync(request, null, null, cancellationToken);
 
-                List<Order> result = new List<Order>();
+                OrdersListModel res = new OrdersListModel();
                 if (responce != null)
                     for (int i = 0; i < responce.Orders.Count; i++)
-                        result.Add(responce.Orders[i]);
-                return StatusCode(200,result);
+                        res.ListOrder.Add(responce.Orders[i]);
+                return StatusCode(200,res);
             }
-            catch (RpcException)
+            catch (RpcException ex)
             {
-                return StatusCode(502);
+                if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
+                    return StatusCode(400);
+                return StatusCode(502, "The service is not responding:" + ex.Message);
             }
             catch(Exception ex)
             {

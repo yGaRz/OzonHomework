@@ -3,6 +3,7 @@ using Grpc.Net.Client;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Swashbuckle.AspNetCore.Annotations;
 
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
@@ -25,13 +26,13 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK,Type =typeof(List<Customer>))]
+        [SwaggerResponse(200, "Customer list", Type = typeof(List<Customer>))]
+        [Produces("application/json")]
         public async Task<ActionResult<List<Customer>>> GetCustomersAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var request = new GetCustomersRequest();
-                var responce = await _customersClient.GetCustomersAsync(request, null, null, cancellationToken);
+                var responce = await _customersClient.GetCustomersAsync(new GetCustomersRequest(), null, null, cancellationToken);
                 if (responce != null)
                     return responce.Customers.ToList();
                 return new List<Customer>();
@@ -39,9 +40,9 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             catch (RpcException ex)
             {
                 if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return StatusCode(404);
+                    return StatusCode(200, new List<Customer>());
                 else
-                    return StatusCode(502);
+                    return StatusCode(502,ex);
             }
         }
     }

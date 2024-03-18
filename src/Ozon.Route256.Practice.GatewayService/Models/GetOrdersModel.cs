@@ -22,8 +22,8 @@ public class GetOrdersModel
     [Required(ErrorMessage ="Не указан тип заказа")]
     [Range(0,4,ErrorMessage ="Недопустимый тип заказа")]
     public OrderState OrderState { get; set; }
-    [Required(ErrorMessage = "Не указаны параметры пагинации")]
-    public Pagination PaginationParam { get; set; } = new Pagination();
+    [Range(20, 50, ErrorMessage = "Превышен размер страницы[20,50]")]
+    public uint PageSize { get; set; } = 25;
     [Range(0,1)]
     public SortParam? SortParam { get; set; }
     public string? SortField {  get; set; }

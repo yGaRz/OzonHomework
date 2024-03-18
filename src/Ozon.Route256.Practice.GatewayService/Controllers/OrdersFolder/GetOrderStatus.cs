@@ -1,6 +1,7 @@
 ﻿using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
 using Ozon.Route256.Practice.GatewayService.Models;
+using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
@@ -8,22 +9,20 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
     public partial class OrdersController
     {
         /// <summary>
-        /// Получение статуса заказа
+        /// Order status in logistic service
         /// </summary>
-        /// <param name="id">Номер заказа</param>
+        /// <param name="id">id order</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("[action]")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerResponse(200, "Order status in logostic")]
+        [SwaggerResponse(404, "Order not found")]
+        [Produces("application/json")]
         public async Task<ActionResult<OrderState>> GetOrderStatus(int id, CancellationToken cancellationToken)
         {
-            if (id == 0)
-                return BadRequest();
             try
             {
-                GetOrderStatusByIdRequest request = new GetOrderStatusByIdRequest { Id = id };
-                var responce = await _ordersClient.GetOrderStatusByIdAsync(request, null, null, cancellationToken);
+                var responce = await _ordersClient.GetOrderStatusByIdAsync(new GetOrderStatusByIdRequest { Id = id }, null, null, cancellationToken);
                 return StatusCode(200, responce.LogisticStatus.ToString());
             }
             catch (RpcException ex)
@@ -31,7 +30,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
                     return StatusCode(404);
                 else
-                    return StatusCode(502);
+                    return StatusCode(502, "The service is not responding:" + ex.Message);
             }
             catch(Exception ex)
             {

@@ -42,11 +42,14 @@ message GetRegionResponse{
 message GetOrdersRequest{
   repeated string region=1;
   OrderState type_order=2;
-  Pagination pagination_param=3;
-  SortParam sort_param=4;
-  string sort_field=5;}
+  uint32 page_size=3;
+  uint32 page_index=4;
+  SortParam sort_param=5;
+  string sort_field=6;}
 message GetOrdersResponse{
-  repeated Order orders=1;}
+  repeated Order orders=1;
+  uint32 page_number=2;
+}
 
 //Ручка агрегации заказов по региону
 message GetOrdersByRegionRequest{
@@ -60,10 +63,12 @@ message GetOrdersByRegionResponse{
 message GetOrdersByCustomerIDRequest{
   int32 id=1;
   google.protobuf.Timestamp start_time = 2;
-  Pagination pagination_param=3;
+  uint32 page_size=3;
+  uint32 page_index=4;
 }
 message GetOrdersByCustomerIDResponse{
   repeated Order orders=1;
+  uint32 page_number=2;
 }
 
 enum OrderState{
@@ -95,11 +100,6 @@ message Order{
 	Address address_customer=10;
 	string phone_number=11;}
 
-message Pagination{
-//	uint32 max_page_size=1;
-	uint32 page_index=2;
-	uint32 page_size=3;
-}
 
 message RegionStatistic{
   string region =1;
