@@ -7,6 +7,12 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
     {
         public override Task<CancelOrderByIdResponse> CancelOrder(CancelOrderByIdRequest request, ServerCallContext context)
         {
+            //Логика:
+            //1. Проверяем наличие заказа
+            //2. Проверяем статус в логистике
+            //3. если можем отменить - отменяем и меняем статус заказа.
+
+
             CancelOrderByIdResponse response = new CancelOrderByIdResponse();
             if(request.Id==0)
                 throw new RpcException(new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
