@@ -39,7 +39,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 OrdersListModel result = new OrdersListModel() { PageIndex = responce.PageNumber };
                 foreach(var a in responce.Orders)
                     result.ListOrder.Add(a);
-                return StatusCode(200,result);
+                return Ok(result);
             }
             catch (RpcException ex)
             {

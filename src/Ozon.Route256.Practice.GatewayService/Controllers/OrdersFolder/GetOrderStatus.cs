@@ -15,7 +15,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("[action]")]
-        [SwaggerResponse(200, "Order status in logostic")]
+        [SwaggerResponse(200, "Order status in logistics")]
         [SwaggerResponse(404, "Order not found")]
         [Produces("application/json")]
         public async Task<ActionResult<OrderState>> GetOrderStatus(int id, CancellationToken cancellationToken)
@@ -23,7 +23,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             try
             {
                 var responce = await _ordersClient.GetOrderStatusByIdAsync(new GetOrderStatusByIdRequest { Id = id }, null, null, cancellationToken);
-                return StatusCode(200, responce.LogisticStatus.ToString());
+                return Ok(responce.LogisticStatus.ToString());
             }
             catch (RpcException ex)
             {

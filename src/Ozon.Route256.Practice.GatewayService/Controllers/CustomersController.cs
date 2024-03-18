@@ -40,7 +40,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             catch (RpcException ex)
             {
                 if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return StatusCode(200, new List<Customer>());
+                    return Ok(new List<Customer>());
                 else
                     return StatusCode(502,ex);
             }

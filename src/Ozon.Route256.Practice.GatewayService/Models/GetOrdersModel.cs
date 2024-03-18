@@ -1,7 +1,7 @@
 ﻿using Ozon.Route256.Practice.GatewayService.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Ozon.Route256.Practice.CustomerService.DataAccess.Entities;
+namespace Ozon.Route256.Practice.GatewayService.Models;
 
 public class GetOrdersModel
 {

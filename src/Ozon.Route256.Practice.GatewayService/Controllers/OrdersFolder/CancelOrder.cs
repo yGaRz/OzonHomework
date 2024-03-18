@@ -24,14 +24,14 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 CancelOrderByIdRequest request = new CancelOrderByIdRequest { Id = id };
                 var responce = await _ordersClient.CancelOrderAsync(request, null, null, cancellationToken);
                 if (responce.ReasonCancelError == "")
-                    return StatusCode(200);
+                    return Ok();
                 else
                     return StatusCode(400, responce.ReasonCancelError);
             }
             catch (RpcException ex)
             {
                 if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return StatusCode(404);
+                    return NotFound();
                 else
                     return StatusCode(502, "The service is not responding:" + ex.Message);
             }

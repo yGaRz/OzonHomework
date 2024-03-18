@@ -53,7 +53,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                             TotalSum = a.TotalSumOrders,
                             TotalWigth = a.TotalWightOrders
                         });
-                    return StatusCode(200, result);
+                    return Ok(result);
                 }
                 else 
                     return NotFound();

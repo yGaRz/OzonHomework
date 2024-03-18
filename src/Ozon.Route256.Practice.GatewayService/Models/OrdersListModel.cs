@@ -3,9 +3,6 @@
     public class OrdersListModel
     {
         public uint PageIndex {  get; set; }
-        public List<Order> ListOrder { get; set; }
-        public OrdersListModel() { 
-            ListOrder = new List<Order>();
-        }
+        public List<Order> ListOrder { get; set; } = new List<Order>();
     }
 }

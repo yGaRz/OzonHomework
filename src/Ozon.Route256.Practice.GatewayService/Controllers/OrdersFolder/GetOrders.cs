@@ -1,6 +1,5 @@
 ﻿using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
-using Ozon.Route256.Practice.CustomerService.DataAccess.Entities;
 using Ozon.Route256.Practice.GatewayService.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -27,7 +26,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             {
                 GetOrdersRequest request = new GetOrdersRequest()
                 {
-                    TypeOrder = model.OrderState,
+                    TypeOrder = (OrderState)model.OrderState,
                     PageIndex = pageIndex,
                     PageSize = model.PageSize,
                     SortField = model.SortField,
@@ -41,7 +40,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 if (responce != null)
                     for (int i = 0; i < responce.Orders.Count; i++)
                         res.ListOrder.Add(responce.Orders[i]);
-                return StatusCode(200,res);
+                return Ok(res);
             }
             catch (RpcException ex)
             {

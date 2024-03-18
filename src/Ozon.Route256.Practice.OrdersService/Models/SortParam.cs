@@ -1,9 +1,11 @@
-﻿namespace Ozon.Route256.Practice.GatewayService.Models
+﻿namespace Ozon.Route256.Practice.OrdersService.Models
 {
-    public enum SortParam
-    {
-        ASC=0, 
-        DESC=1,
-        None=2
-    }
+public enum SortParam
+{
+    None = 0,
+    ASC = 1,
+    DESC = 2,
+
 }
+}
+
