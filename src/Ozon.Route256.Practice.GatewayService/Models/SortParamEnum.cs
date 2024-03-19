@@ -1,6 +1,6 @@
 ﻿namespace Ozon.Route256.Practice.GatewayService.Models
 {
-    public enum SortParam
+    public enum SortParamEnum
     {
         None = 0,
         ASC = 1,

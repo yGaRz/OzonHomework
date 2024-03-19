@@ -1,10 +1,17 @@
 ﻿using Grpc.Core;
+using Ozon.Route256.Practice.OrdersService.DataAccess;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 
 namespace Ozon.Route256.Practice.OrdersService.GrpcServices
 {
     public sealed class OrdersService:Orders.OrdersBase
     {
+        public readonly IRegionRepository _regionRepository;
+        public OrdersService(IRegionRepository regionRepository)
+        {
+            _regionRepository = regionRepository;
+        }    
+
         //Отмена заказа
         public override Task<CancelOrderByIdResponse> CancelOrder(CancelOrderByIdRequest request, ServerCallContext context)
         {
@@ -43,17 +50,20 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             //проверям имена, и если есть делаем выборку из репозитория
             return base.GetRegionStatistic(request, context);
         }
-
         public override Task<GetOrderStatusByIdResponse> GetOrderStatusById(GetOrderStatusByIdRequest request, ServerCallContext context)
         {
             //Проверяем наличие заказа в системе
             //если есть проверям в логистике
             throw new NotFoundException($"Order by Id = {request.Id} not founded");
         }
-        public override Task<GetRegionResponse> GetRegion(GetRegionRequest request, ServerCallContext context)
+        public override async Task<GetRegionResponse> GetRegion(GetRegionRequest request, ServerCallContext context)
         {
-            //возврат списка регионов из репозитория IRegionRepository
-            return Task.FromResult( new GetRegionResponse());
+            var regions = await _regionRepository.GetRegionsAsync();
+            var result = new GetRegionResponse
+            {
+                Region = { regions.ToArray() }
+            };           
+            return result;
         }
     }
 

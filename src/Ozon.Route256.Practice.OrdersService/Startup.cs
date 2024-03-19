@@ -3,6 +3,7 @@ using Grpc.Net.Client.Configuration;
 using Ozon.Route256.Practice.CustomerService.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
 using Ozon.Route256.Practice;
+using Ozon.Route256.Practice.OrdersService.DataAccess;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -29,8 +30,20 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddSwaggerGen();
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();
+
+            RegionRepository regionRepository = new RegionRepository();
+            //Task.Factory.StartNew(() =>
+            //{
+                regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(0, "Moscow"));
+                regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(1, "StPetersburg"));
+                regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(2, "Novosibirsk"));
+            //});
+
+            serviceCollection.AddSingleton<IRegionRepository>(regionRepository);
+
             serviceCollection.AddSingleton<IDbStore, DbStore>();
-            serviceCollection.AddHostedService<SdConsumerHostedService>();
+            serviceCollection.AddHostedService<SdConsumerHostedService>();          
+            
         }
 
         public void Configure(IApplicationBuilder applicationBuilder)

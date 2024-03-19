@@ -2,7 +2,7 @@ using Grpc.Core;
 using Swashbuckle.AspNetCore.Annotations;
 namespace Ozon.Route256.Practice.GatewayService.Models
 {
-    public enum OrderState
+    public enum OrderStateEnum
     {
         Created = 0,
         SentToCustomer = 1,
