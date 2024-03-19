@@ -26,13 +26,11 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
             token.ThrowIfCancellationRequested();
             return Task.FromResult(RegionsIntString[id]);
         }
-
         public Task<int> GetIdByRegionNameAsync(string regionName, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             return Task.FromResult(RegionsStringInt[regionName]);
         }
-
         public Task<string[]> GetRegionsAsync(CancellationToken token = default)
         {
             return Task.FromResult(RegionsIntString.Values.ToArray());

@@ -8,7 +8,11 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ROUTE256_CS_ADDRESS": "http://localhost:5181",
-        "ROUTE256_HTTP_PORT": "5004"
+        "ROUTE256_HTTP_PORT": "5004",
+        "ROUTE256_OS1_ADDRESS": "localhost",
+        "ROUTE256_OS1_PORT": "5191",
+        "ROUTE256_OS2_ADDRESS": "localhost",
+        "ROUTE256_OS2_PORT": "5192"
       },
       "applicationUrl": "http://localhost:5033"
     }

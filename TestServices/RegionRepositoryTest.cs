@@ -16,7 +16,6 @@ namespace TestServices
             var result = await regionRepository.GetNameByIdRegionAsync(0);    
             
             Assert.True(result == "Moscow");
-
         }
 
         [Fact]
@@ -29,8 +28,8 @@ namespace TestServices
             var result = await regionRepository.GetNameByIdRegionAsync(0);
 
             Assert.True(result != "London");
-
         }
+
         [Fact]
         public async Task TestCreateAsync3()
         {
@@ -43,8 +42,7 @@ namespace TestServices
             _ = regionRepository.CreateRegionAsync(new RegionEntity(6, "London"));
             var result = await regionRepository.GetRegionsAsync();
 
-            Assert.True(result.Count()==3);
-
+            Assert.True(result.Count() == 3);
         }
 
         [Fact]
@@ -60,7 +58,6 @@ namespace TestServices
             var result = await regionRepository.GetIdByRegionNameAsync("London");
 
             Assert.True(result == 2);
-
         }
 
     }

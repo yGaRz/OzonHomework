@@ -1,8 +1,6 @@
-﻿using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
-
-namespace Ozon.Route256.Practice.OrdersService.DataAccess.DTO
+﻿namespace Ozon.Route256.Practice.OrdersService.DataAccess.Etities
 {
-    public record Order(
+    public record OrderEntity(
         ulong Id,
         uint CountGoods,
         double TotalSum,

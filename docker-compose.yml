@@ -111,8 +111,11 @@ services:
       - "5071:80"
       - "5171:5005"
     environment:
-      "ROUTE256_OS_PORT": "5005"
       "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
+      "ROUTE256_OS1_ADDRESS": "orders-service-1"
+      "ROUTE256_OS1_PORT": "5005"
+      "ROUTE256_OS2_ADDRESS": "orders-service-2"
+      "ROUTE256_OS2_PORT": "5005"
 
   orders-service-1:
     build: 
@@ -129,6 +132,7 @@ services:
       - "5191:5005"
     environment:
       "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
+      "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
       "ROUTE256_GRPC_PORT": "5005"
 
  
@@ -147,6 +151,7 @@ services:
       - "5192:5005"
     environment:
       "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
+      "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
       "ROUTE256_GRPC_PORT": "5005"
     
   customer-service:

@@ -4,6 +4,7 @@ using Ozon.Route256.Practice.CustomerService.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
 using Ozon.Route256.Practice;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
+using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -27,23 +28,30 @@ namespace Ozon.Route256.Practice.OrdersService
 
                 option.Address = new Uri(url);
             });
+            serviceCollection.AddGrpcClient<LogisticsSimulatorService.LogisticsSimulatorServiceClient>(option =>
+            {
+                var url = _configuration.GetValue<string>("ROUTE256_LS_ADDRESS");
+                if (string.IsNullOrEmpty(url))
+                {
+                    throw new ArgumentException("ROUTE256_LS_ADDRESS variable is null or empty");
+                }
+
+                option.Address = new Uri(url);
+            });
             serviceCollection.AddSwaggerGen();
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();
 
-            RegionRepository regionRepository = new RegionRepository();
-            //Task.Factory.StartNew(() =>
-            //{
-                regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(0, "Moscow"));
-                regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(1, "StPetersburg"));
-                regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(2, "Novosibirsk"));
-            //});
 
+            RegionRepository regionRepository = new RegionRepository();
+            regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(0, "Moscow"));
+            regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(1, "StPetersburg"));
+            regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(2, "Novosibirsk"));
             serviceCollection.AddSingleton<IRegionRepository>(regionRepository);
 
+
             serviceCollection.AddSingleton<IDbStore, DbStore>();
-            serviceCollection.AddHostedService<SdConsumerHostedService>();          
-            
+            serviceCollection.AddHostedService<SdConsumerHostedService>();
         }
 
         public void Configure(IApplicationBuilder applicationBuilder)

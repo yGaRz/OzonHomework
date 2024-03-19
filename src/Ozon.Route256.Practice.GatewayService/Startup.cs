@@ -18,8 +18,12 @@ namespace Ozon.Route256.Practice.GatewayService
 
             var factory = new StaticResolverFactory(address => new[]
             {
-                new BalancerAddress("localhost", 5191),
-                new BalancerAddress("localhost", 5192)
+                new BalancerAddress(_configuration.GetValue<string>("ROUTE256_OS1_ADDRESS"),
+                                                            int.Parse(_configuration.GetValue<string>("ROUTE256_OS1_PORT"))),
+                new BalancerAddress(_configuration.GetValue<string>("ROUTE256_OS2_ADDRESS"),
+                                                            int.Parse(_configuration.GetValue<string>("ROUTE256_OS2_PORT")))   
+                //new BalancerAddress("localhost", 5191),
+                //new BalancerAddress("localhost", 5192),                
                 //new BalancerAddress("orders-service-1", 5005),
                 //new BalancerAddress("orders-service-2", 5005)
             });
@@ -34,7 +38,7 @@ namespace Ozon.Route256.Practice.GatewayService
                 {
                     LoadBalancingConfigs = { new LoadBalancingConfig("round_robin") }
                 };
-            });
+            });            
 
             serviceCollection.AddGrpcClient<Customers.CustomersClient>(option =>
             {
@@ -46,6 +50,7 @@ namespace Ozon.Route256.Practice.GatewayService
 
                 option.Address = new Uri(url);
             });
+
 
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddControllers();

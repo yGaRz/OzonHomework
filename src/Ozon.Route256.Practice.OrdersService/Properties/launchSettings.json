@@ -6,6 +6,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ROUTE256_SD_ADDRESS": "http://localhost:6081",
+        "ROUTE256_LS_ADDRESS": "http://localhost:5131",
         "ROUTE256_GRPC_PORT": "5005"
       },
       "dotnetRunMessages": true,
