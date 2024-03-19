@@ -5,20 +5,10 @@ volumes:
     name: customer-service-db-volume
   orders-db:
     name: orders-db-volume
-    
 services:
-  service-discovery:
-    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/service-discovery:latest
-    container_name: service-discovery
-    environment:
-      - ROUTE256_DB_STATE=cluster:0-9:db1:1543;cluster:10-19:db2:1543;cluster1:0:db3:1543
-      - ROUTE256_UPDATE_TIMEOUT=10
-
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
-    depends_on:
-      - service-discovery
     container_name: zookeeper
     ports:
       - "2181:2181"
@@ -31,6 +21,18 @@ services:
       ZOOKEEPER_INIT_LIMIT: '10'
       ZOOKEEPER_SYNC_LIMIT: '5'
       ZOOKEEPER_MAX_CLIENT_CONNS: '5'
+
+
+  service-discovery:
+    image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/service-discovery:latest
+    depends_on:
+      - zookeeper
+    container_name: service-discovery
+    ports:
+      - "6081:80"
+    environment:
+      - ROUTE256_DB_STATE=cluster:0-9:db1:1543;cluster:10-19:db2:1543;cluster1:0:db3:1543
+      - ROUTE256_UPDATE_TIMEOUT=10
 
   broker-1:
     image: confluentinc/cp-kafka:7.3.2
@@ -107,6 +109,13 @@ services:
     container_name: gateway-service
     ports:
       - "5071:80"
+      - "5171:5005"
+    environment:
+      "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
+      "ROUTE256_OS1_ADDRESS": "orders-service-1"
+      "ROUTE256_OS1_PORT": "5005"
+      "ROUTE256_OS2_ADDRESS": "orders-service-2"
+      "ROUTE256_OS2_PORT": "5005"
 
   orders-service-1:
     build: 
@@ -119,7 +128,13 @@ services:
       - orders-db
     container_name: orders-service-1
     ports:
-      - "5091:80" 
+      - "5091:80"
+      - "5191:5005"
+    environment:
+      "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
+      "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
+      "ROUTE256_GRPC_PORT": "5005"
+
  
   orders-service-2:
     build: 
@@ -133,6 +148,11 @@ services:
     container_name: orders-service-2
     ports:
       - "5092:80"
+      - "5192:5005"
+    environment:
+      "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
+      "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
+      "ROUTE256_GRPC_PORT": "5005"
     
   customer-service:
     image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/customer-service:latest
@@ -144,10 +164,10 @@ services:
     container_name: customer-service
     ports:
       - "5081:80"
+      - "5181:5005"
     environment:
       "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
       "ROUTE256_GRPC_PORT": "5005"
-      "ROUTE256_HTTP_PORT": "5004"
      
   orders-generator-web:
     image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/orders-generator:latest
@@ -192,6 +212,8 @@ services:
       - broker-1
       - broker-2
     container_name: logistic-simulator
+    ports:
+      - "5131:5238"
     
 
 
