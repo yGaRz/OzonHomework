@@ -46,5 +46,22 @@ namespace TestServices
             Assert.True(result.Count()==3);
 
         }
+
+        [Fact]
+        public async Task TestCreateAsync4()
+        {
+            RegionRepository regionRepository = new RegionRepository();
+
+            _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "Moscow"));
+            _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "London"));
+            _ = regionRepository.CreateRegionAsync(new RegionEntity(2, "London"));
+            _ = regionRepository.CreateRegionAsync(new RegionEntity(1, "Berlin"));
+            _ = regionRepository.CreateRegionAsync(new RegionEntity(6, "London"));
+            var result = await regionRepository.GetIdByRegionNameAsync("London");
+
+            Assert.True(result == 2);
+
+        }
+
     }
 }
