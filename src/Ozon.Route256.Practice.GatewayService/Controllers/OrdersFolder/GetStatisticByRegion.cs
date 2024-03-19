@@ -61,7 +61,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             catch(RpcException ex)
             {
                 if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return StatusCode(400, "Region not found");
+                    return BadRequest("Region not found");
                 else
                     return StatusCode(502);
             }

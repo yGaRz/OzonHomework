@@ -45,7 +45,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             catch (RpcException ex)
             {
                 if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return StatusCode(400);
+                    return BadRequest();
                 return StatusCode(502, "The service is not responding:" + ex.Message);
             }
             catch(Exception ex)

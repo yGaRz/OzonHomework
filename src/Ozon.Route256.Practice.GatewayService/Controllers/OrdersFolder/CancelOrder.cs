@@ -26,7 +26,8 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 if (responce.ReasonCancelError == "")
                     return Ok();
                 else
-                    return StatusCode(400, responce.ReasonCancelError);
+                    
+                    return BadRequest(responce.ReasonCancelError);
             }
             catch (RpcException ex)
             {

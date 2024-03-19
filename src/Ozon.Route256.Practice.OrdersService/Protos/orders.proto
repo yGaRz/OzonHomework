@@ -22,21 +22,27 @@ service Orders
 
 //Ручка отмены заказа
 message CancelOrderByIdRequest{
-  int64 id =1;}
+  int64 id =1;
+}
 message CancelOrderByIdResponse{
   int64 id=1;
-  string reason_cancel_error = 2;}
+  string reason_cancel_error = 2;
+}
 
 //Ручка возврата статуса заказа
 message	GetOrderStatusByIdRequest{
-  int64 id =1;}
+  int64 id =1;
+}
 message GetOrderStatusByIdResponse{
-  OrderState logistic_status =1;}
+  OrderState logistic_status =1;
+}
 
 //Ручка возврата списка регионов
-message GetRegionRequest{}
+message GetRegionRequest{
+}
 message GetRegionResponse{
-  repeated string region=1;}
+  repeated string region=1;
+}
 
 //Ручка возврата списка заказов
 message GetOrdersRequest{
@@ -45,7 +51,8 @@ message GetOrdersRequest{
   uint32 page_size=3;
   uint32 page_index=4;
   SortParam sort_param=5;
-  string sort_field=6;}
+  string sort_field=6;
+}
 message GetOrdersResponse{
   repeated Order orders=1;
   uint32 page_number=2;
@@ -54,7 +61,8 @@ message GetOrdersResponse{
 //Ручка агрегации заказов по региону
 message GetRegionStatisticRequest{
   google.protobuf.Timestamp start_time = 1;
-  repeated string region=2;}
+  repeated string region=2;
+}
 message GetRegionStatisticResponse{
 	repeated RegionStatisticMessage statistic=1;
 }
@@ -76,17 +84,18 @@ enum OrderState{
     SentToCustomer=1;
     Delivered=2;
     Lost=3;
-    Cancelled=4;}
+    Cancelled=4;
+}
 enum SortParam{
 	None=0;
 	ASC=1; 
-	DESC=2;
-		
+	DESC=2;		
 }
 enum OrderSource{
     WebSite = 0;
     Mobile = 1;
-    Api = 2;}
+    Api = 2;
+}
 
 message Order{
 	int64 id=1;
@@ -99,7 +108,8 @@ message Order{
 	OrderState order_state=8;
 	string name_customer=9;
 	Address address_customer=10;
-	string phone_number=11;}
+	string phone_number=11;
+}
 
 
 message RegionStatisticMessage{
