@@ -18,21 +18,19 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         [SwaggerResponse(404, "Order not found")]
         [Produces("application/json")]
         public async Task<ActionResult<string>> CancelOrder(long id, CancellationToken cancellationToken)
-        {
+        {            
             try
             {
                 CancelOrderByIdRequest request = new CancelOrderByIdRequest { Id = id };
                 var responce = await _ordersClient.CancelOrderAsync(request, null, null, cancellationToken);
-                if (responce.ReasonCancelError == "")
-                    return Ok();
-                else
-                    
-                    return BadRequest(responce.ReasonCancelError);
+                return Ok();
             }
             catch (RpcException ex)
             {
-                if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return NotFound();
+                if (ex.StatusCode == Grpc.Core.StatusCode.Cancelled)
+                    return BadRequest(ex.Message);
+                if(ex.StatusCode == Grpc.Core.StatusCode.NotFound)
+                    return NotFound(ex.Message);
                 else
                     return StatusCode(502, "The service is not responding:" + ex.Message);
             }

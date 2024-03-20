@@ -47,7 +47,8 @@ namespace Ozon.Route256.Practice.OrdersService
             regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(0, "Moscow"));
             regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(1, "StPetersburg"));
             regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(2, "Novosibirsk"));
-            serviceCollection.AddSingleton<IRegionRepository>(regionRepository);
+            serviceCollection.AddScoped<IRegionRepository,RegionRepository>();
+            serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
 
 
             serviceCollection.AddSingleton<IDbStore, DbStore>();

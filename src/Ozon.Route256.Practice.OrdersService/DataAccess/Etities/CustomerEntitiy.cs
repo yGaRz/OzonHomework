@@ -2,10 +2,5 @@
 {
     public record CustomerEntity(
         int Id,
-        string FirstName,
-        string LastName,
-        string MobileNumber,
-        string Email,
-        Address DefaultAddress,
-        Address[] Addressed);
+        AddressEntity Address);
 }

@@ -7,5 +7,5 @@
         string MobileNumber,
         string Email,
         AddressEntity DefaultAddress,
-        List<AddressEntity> Addressed);
+        AddressEntity[] Addressed);
 

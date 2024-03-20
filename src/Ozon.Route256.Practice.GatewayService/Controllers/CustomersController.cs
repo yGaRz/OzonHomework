@@ -29,22 +29,19 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         [HttpGet]
         [SwaggerResponse(200, "Customer list", Type = typeof(List<CustomerEntity>))]
         [Produces("application/json")]
-        public async Task<ActionResult<List<CustomerEntity>>> GetCustomersAsync(CancellationToken cancellationToken)
+        public async Task<ActionResult<CustomerEntity>> GetCustomersAsync(CancellationToken cancellationToken)
         {
             try
             {
                 var responce = await _customersClient.GetCustomersAsync(new GetCustomersRequest(), null, null, cancellationToken);
-                var customersList = new List<CustomerEntity>();
-                if (responce != null)
-                {
-                    customersList = responce.Customers.Select(From).ToList();
-                }
-                return Ok(customersList);
+                //if (responce != null)
+                return Ok(responce.Customers.Select(From).ToList());
+                //return Ok(new List<CustomerEntity>());
             }
             catch (RpcException ex)
             {
                 if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return Ok(new List<Customer>());
+                    return NotFound(new List<Customer>());
                 else
                     return StatusCode(502,ex);
             }
@@ -55,10 +52,10 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             }
         }
 
-
         private static AddressEntity From(Address address)
         {
-            return new AddressEntity(address.Region,
+            return new AddressEntity(
+                address.Region,
                 address.City,
                 address.Street,
                 address.Building,
@@ -74,8 +71,10 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 customer.MobileNumber,
                 customer.Email,
                 From(customer.DefaultAddress),
-                customer.Addressed.Select(From).ToList());
+                customer.Addressed.Select(From).ToArray()
+                );
 
         }
+
     }
 }

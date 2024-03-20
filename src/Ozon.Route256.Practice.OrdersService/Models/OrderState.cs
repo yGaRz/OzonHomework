@@ -1,6 +1,6 @@
 namespace Ozon.Route256.Practice.OrdersService.Models
 {
-    public enum OrderState
+    public enum OrderStateEnum
     {
         Created = 0,
         SentToCustomer = 1,
