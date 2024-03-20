@@ -1,4 +1,5 @@
 ﻿using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
+using Ozon.Route256.Practice.OrdersService.Models;
 using System.Collections.Concurrent;
 namespace Ozon.Route256.Practice.OrdersService.DataAccess
 {
@@ -14,7 +15,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
         Task<OrderEntity[]> GetAllOrdersAsync(CancellationToken token = default);
         
         //Смена состояния заказа
-        Task<bool> SetOrderStateAsync(long id, OrderState state, CancellationToken token = default);
+        Task<bool> SetOrderStateAsync(long id, OrderStateEnum state, CancellationToken token = default);
         
         //выборка списка заказов, тут сделаем выборку по типу(web/api/site) + регион, сортировать будем выше.
         Task<OrderEntity[]> GetOrdersByRegionAsync(List<string> regionList, 

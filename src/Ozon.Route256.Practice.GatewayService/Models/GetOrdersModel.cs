@@ -2,6 +2,7 @@
 
 namespace Ozon.Route256.Practice.GatewayService.Models
 {
+
     public class GetOrdersModel : IValidatableObject
     {
 
@@ -23,8 +24,11 @@ namespace Ozon.Route256.Practice.GatewayService.Models
             if (RegionsList.Count > 100)
                 errors.Add(new ValidationResult("Превышен размер списка регионов(<100 названий)"));
             foreach (var region in RegionsList)
-                if(region.Length<3|| region.Length>=50)
+                if (region.Length < 3 || region.Length >= 50)
+                {
                     errors.Add(new ValidationResult("Некорректная длинна названия региона(От 3 до 50 символов)"));
+                    break;
+                }
 
 
             return errors;

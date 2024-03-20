@@ -17,7 +17,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         [SwaggerResponse(400, "The order cannot be canceled")]
         [SwaggerResponse(404, "Order not found")]
         [Produces("application/json")]
-        public async Task<ActionResult<string>> CancelOrder(long id, CancellationToken cancellationToken)
+        public async Task<ActionResult> CancelOrder(long id, CancellationToken cancellationToken)
         {            
             try
             {

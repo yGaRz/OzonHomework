@@ -2,6 +2,7 @@
 using Ozon.Route256.Practice.OrdersService.DataAccess;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
+using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
 
 namespace Ozon.Route256.Practice.OrdersService.GrpcServices
 {
@@ -9,41 +10,60 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
     {
         public readonly IRegionRepository _regionRepository;
         public readonly IOrdersRepository _ordersRepository;
-        public OrdersService(IRegionRepository regionRepository, IOrdersRepository ordersRepository)
+        public readonly LogisticsSimulatorService.LogisticsSimulatorServiceClient _logisticsSimulatorServiceClient;
+        public OrdersService(IRegionRepository regionRepository, 
+            IOrdersRepository ordersRepository, 
+            LogisticsSimulatorService.LogisticsSimulatorServiceClient logisticsSimulatorServiceClient)
         {
             _regionRepository = regionRepository;
             _ordersRepository = ordersRepository;
+            _logisticsSimulatorServiceClient = logisticsSimulatorServiceClient;
         }
-
-        //TODO: Ручка отмены заказа
-        public override Task<CancelOrderByIdResponse> CancelOrder(CancelOrderByIdRequest request, ServerCallContext context)
-        {
-            //Логика:
-            //1. Проверяем наличие заказа
-            //2. Проверяем статус в логистике
-            //3. если можем отменить - отменяем и меняем статус заказа.
-            CancelOrderByIdResponse response = new CancelOrderByIdResponse();
-            if(request.Id==0)
-                return Task.FromResult(response);
-            if (request.Id == 1)
-                throw new RpcException(new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
-            if (request.Id == 2)
-                throw new RpcException(new Status(StatusCode.Cancelled, $"Order canceled faild, reason={response.ReasonCancelError}"));
-            throw new RpcException(new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
-            //throw new NotFoundException($"Order by Id = {request.Id} not founded");
-        }
-        
-        //TODO: Ручка возврата статуса заказа
+        //Ручка возврата статуса заказа
         public override async Task<GetOrderStatusByIdResponse> GetOrderStatusById(GetOrderStatusByIdRequest request, ServerCallContext context)
         {
-            var order = await _ordersRepository.GetOrderByIdAsync(request.Id,context.CancellationToken);
-            if (order != null)
-            {
-                throw new NotFoundException($"11111");
-            }
+            var order = await _ordersRepository.GetOrderByIdAsync(request.Id, context.CancellationToken);
+            if (order != null)       
+                return new GetOrderStatusByIdResponse() { LogisticStatus = (OrderState)order.State };
             else
                 throw new NotFoundException($"Order by Id = {request.Id} not founded");
         }
+        //Ручка отмены заказа
+        public override async Task<CancelOrderByIdResponse> CancelOrder(CancelOrderByIdRequest request, ServerCallContext context)
+        {
+            var id = request.Id;
+            var order = await _ordersRepository.GetOrderByIdAsync(id);
+            context.CancellationToken.ThrowIfCancellationRequested();
+            if(order!=null)
+            {
+                try
+                {
+                    var requestLogistic = new LogisticsSimulator.Grpc.Order() { Id = request.Id };
+                    var responceLogistic = await _logisticsSimulatorServiceClient.OrderCancelAsync(requestLogistic, null, null, context.CancellationToken);
+                    context.CancellationToken.ThrowIfCancellationRequested();
+                    if (responceLogistic.Success)
+                        throw new RpcException(new Status(StatusCode.Aborted, responceLogistic.Error));
+                    else
+                        throw new RpcException(new Status(StatusCode.Cancelled, responceLogistic.Error));
+                }
+                catch (RpcException e)
+                {
+                    throw new RpcException(new Status(StatusCode.Aborted,$"Logistic exception: {e.Message}"));
+                }
+            }
+            else
+                throw new RpcException(new Status(StatusCode.NotFound, $"Order by Id = {request.Id} not founded"));
+            //CancelOrderByIdResponse response = new CancelOrderByIdResponse();
+            //if(request.Id==0)
+            //    return Task.FromResult(response);
+            //if (request.Id == 1)
+            //    throw new RpcException(new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
+            //if (request.Id == 2)
+            //    throw new RpcException(new Status(StatusCode.Cancelled, $"Order canceled faild, reason={response.ReasonCancelError}"));
+            //throw new RpcException(new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
+        }
+        
+
         
         //Ручка возврата списка регионов
         public override async Task<GetRegionResponse> GetRegion(GetRegionRequest request, ServerCallContext context)

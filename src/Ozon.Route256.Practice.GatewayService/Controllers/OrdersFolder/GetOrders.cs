@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Ozon.Route256.Practice.GatewayService.Models;
 using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
 {
@@ -22,6 +24,17 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                                                                 [FromBody]GetOrdersModel model,
                                                                 CancellationToken cancellationToken)
         {
+            var results = new List<ValidationResult>();
+            var context = new ValidationContext(model);
+            if(!Validator.TryValidateObject(model,context,results,true))
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach(var item in results)
+                    sb.Append(item.ErrorMessage+"\r\n");
+                return BadRequest(sb.ToString());
+            }
+
+
             try
             {
                 GetOrdersRequest request = new GetOrdersRequest()

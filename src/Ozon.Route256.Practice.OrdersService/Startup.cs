@@ -1,10 +1,6 @@
-﻿using Grpc.Core;
-using Grpc.Net.Client.Configuration;
-using Ozon.Route256.Practice.CustomerService.ClientBalancing;
+﻿using Ozon.Route256.Practice.CustomerService.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
-using Ozon.Route256.Practice;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
-using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -28,7 +24,7 @@ namespace Ozon.Route256.Practice.OrdersService
 
                 option.Address = new Uri(url);
             });
-            serviceCollection.AddGrpcClient<LogisticsSimulatorService.LogisticsSimulatorServiceClient>(option =>
+            serviceCollection.AddGrpcClient<LogisticsSimulator.Grpc.LogisticsSimulatorService.LogisticsSimulatorServiceClient>(option =>
             {
                 var url = _configuration.GetValue<string>("ROUTE256_LS_ADDRESS");
                 if (string.IsNullOrEmpty(url))
