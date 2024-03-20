@@ -2,22 +2,12 @@
 
 namespace Ozon.Route256.Practice.GatewayService.Models
 {
-    public class GetOrdersModel
+    public class GetOrdersModel : IValidatableObject
     {
-        private List<string> _list = new List<string>();
 
         [Required]
-        public List<string> RegionsList
-        {
-            get
-            {
-                return _list;
-            }
-            set
-            {
-                _list = value;
-            }
-        }
+        public List<string> RegionsList { get; set; } = new List<string>();
+
         [Required(ErrorMessage = "Не указан тип заказа")]
         [Range(0, 5, ErrorMessage = "Недопустимый тип заказа")]
         public OrderStateEnum State { get; set; }
@@ -26,5 +16,12 @@ namespace Ozon.Route256.Practice.GatewayService.Models
         [Range(0, 1)]
         public SortParam? SortParam { get; set; }
         public string? SortField { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            List<ValidationResult> errors = new List<ValidationResult>();
+
+            return errors;
+        }
     }
 }

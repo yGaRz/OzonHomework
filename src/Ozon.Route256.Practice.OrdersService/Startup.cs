@@ -42,7 +42,7 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();
 
-
+            ///TODO: Убрать тестовые данные.
             RegionRepository regionRepository = new RegionRepository();
             regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(0, "Moscow"));
             regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(1, "StPetersburg"));
