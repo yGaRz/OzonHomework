@@ -1,4 +1,5 @@
 using Ozon.Route256.Practice.GatewayService;
+using Ozon.Route256.Practice.GatewayService.Exceptions;
 using Ozon.Route256.Practice.GatewayService.Models;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
@@ -59,6 +60,5 @@ namespace TestServices
 
             Assert.True(result == 2);
         }
-
     }
 }

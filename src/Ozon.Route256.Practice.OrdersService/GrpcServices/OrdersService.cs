@@ -95,12 +95,25 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             throw new NotFoundException($"Client with id = {request.Id} not founded");
         }
 
-        //TODO: Ручка агрегации заказов по региону
-        public override Task<GetRegionStatisticResponse> GetRegionStatistic(GetRegionStatisticRequest request, ServerCallContext context)
+        //Ручка агрегации заказов по региону
+        public override async Task<GetRegionStatisticResponse> GetRegionStatistic(GetRegionStatisticRequest request, ServerCallContext context)
         {
-            //Получение агрегации по регионам
-            //проверям имена, и если есть делаем выборку из репозитория
-            return base.GetRegionStatistic(request, context);
+            if (!await _regionRepository.IsRegionInRepository(request.Region.ToArray(), context.CancellationToken))
+                throw new RpcException(new Status(StatusCode.NotFound, "Region not found"));
+            GetRegionStatisticResponse regionStatisticResponse = new GetRegionStatisticResponse();
+            var result = await _ordersRepository.GetRegionsStatisticAsync(request.Region.ToList(), request.StartTime, context.CancellationToken);
+            foreach ( var item in result )
+            {
+                regionStatisticResponse.Statistic.Add(new RegionStatisticMessage()
+                {
+                    Region = item.RegionName,
+                    CountCustomer = (int)item.TotalCustomer,
+                    TotalCountOrders= (int)item.TotalCountOrders,
+                    TotalSumOrders= (int)item.TotalSumOrders,
+                    TotalWightOrders= item.TotalWigthOrder
+                });
+            }
+            return regionStatisticResponse;
         }
 
 

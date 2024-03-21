@@ -34,6 +34,18 @@ namespace Ozon.Route256.Practice.OrdersService
 
                 option.Address = new Uri(url);
             });
+            serviceCollection.AddGrpcClient<Customers.CustomersClient>(option =>
+            {
+                var url = _configuration.GetValue<string>("ROUTE256_CS_ADDRESS");
+                if (string.IsNullOrEmpty(url))
+                {
+                    throw new ArgumentException("ROUTE256_CS_ADDRESS variable is null or empty");
+                }
+
+                option.Address = new Uri(url);
+            });
+
+
             serviceCollection.AddSwaggerGen();
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();

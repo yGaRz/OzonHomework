@@ -1,4 +1,5 @@
-﻿using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
+﻿using Google.Protobuf.WellKnownTypes;
+using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.Models;
 using System.Collections.Concurrent;
 namespace Ozon.Route256.Practice.OrdersService.DataAccess
@@ -22,8 +23,8 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
                                                             OrderSource source, 
                                                             CancellationToken token = default);
         //Получение агегации(статистики) заказов по региону
-        Task<RegionStatisticEntity[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default);
+        Task<RegionStatisticEntity[]> GetRegionsStatisticAsync(List<string> regionList, Timestamp dateStart, CancellationToken token = default);
         //Получение всех заказов клиента
-        Task<OrderEntity[]> GetOrdersByCutomer(long idCustomer, DateTime dateStart, CancellationToken token = default);
+        Task<OrderEntity[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default);
     }
 }

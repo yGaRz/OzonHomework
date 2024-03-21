@@ -1,4 +1,5 @@
 ﻿using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
+using Ozon.Route256.Practice.OrdersService.Exceptions;
 using System.Collections.Concurrent;
 
 namespace Ozon.Route256.Practice.OrdersService.DataAccess
@@ -24,16 +25,37 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
         public Task<string> GetNameByIdRegionAsync(int id, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
-            return Task.FromResult(RegionsIntString[id]);
+            if (RegionsIntString.TryGetValue(id, out var res))
+                return Task.FromResult(res);
+            else
+                throw new NotFoundException($"Region with name={id} is not found");
         }
         public Task<int> GetIdByRegionNameAsync(string regionName, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
-            return Task.FromResult(RegionsStringInt[regionName]);
+            if (RegionsStringInt.TryGetValue(regionName, out var res))
+                return Task.FromResult(res);
+            else
+                throw new NotFoundException($"Region with name={regionName} is not found");
         }
         public Task<string[]> GetRegionsAsync(CancellationToken token = default)
         {
             return Task.FromResult(RegionsIntString.Values.ToArray());
+        }
+        public Task<bool> IsRegionInRepository(string regionName, CancellationToken cancellationToken = default)
+        {
+            if (RegionsStringInt.TryGetValue(regionName, out _))
+                return Task.FromResult(true);
+            else
+                return Task.FromResult(false);
+        }
+
+        public Task<bool> IsRegionInRepository(string[] regionName, CancellationToken cancellationToken = default)
+        {
+            foreach(var r in regionName)
+                if (!RegionsStringInt.TryGetValue(r, out _))
+                    return Task.FromResult(false);
+            return Task.FromResult(true);
         }
     }
 }
