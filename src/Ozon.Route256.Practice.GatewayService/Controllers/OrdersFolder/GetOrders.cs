@@ -39,7 +39,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             {
                 GetOrdersRequest request = new GetOrdersRequest()
                 {
-                    TypeOrder = (OrderState)model.State,
+                    Source = (OrderSource)model.Source,
                     PageIndex = pageIndex,
                     PageSize = model.PageSize,
                     SortField = model.SortField,

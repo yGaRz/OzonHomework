@@ -8,7 +8,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
     public partial class OrdersController
     {
         /// <summary>
-        /// Get region list
+        /// Запрос списка регионов в системе
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns>Region list or empty</returns>

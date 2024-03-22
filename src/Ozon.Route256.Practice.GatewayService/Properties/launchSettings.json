@@ -12,7 +12,9 @@
         "ROUTE256_OS1_ADDRESS": "localhost",
         "ROUTE256_OS1_PORT": "5191",
         "ROUTE256_OS2_ADDRESS": "localhost",
-        "ROUTE256_OS2_PORT": "5192"
+        "ROUTE256_OS2_PORT": "5192",
+        "ROUTE256_OS3_ADDRESS": "localhost",
+        "ROUTE256_OS3_PORT": "5005"
       },
       "applicationUrl": "http://localhost:5033"
     }

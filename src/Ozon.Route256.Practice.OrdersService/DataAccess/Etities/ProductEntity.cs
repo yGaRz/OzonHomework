@@ -1,9 +1,9 @@
 ﻿namespace Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 
-public record GoodEntity(
+public record ProductEntity(
     long Id,
     string Name,
     int Quantity,
-    decimal Price,
-    uint Weight
+    double Price,
+    double Weight
 );

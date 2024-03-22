@@ -20,7 +20,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
         
         //выборка списка заказов, тут сделаем выборку по типу(web/api/site) + регион, сортировать будем выше.
         Task<OrderEntity[]> GetOrdersByRegionAsync(List<string> regionList, 
-                                                            OrderSource source, 
+                                                            OrderSourceEnum source, 
                                                             CancellationToken token = default);
         //Получение агегации(статистики) заказов по региону
         Task<RegionStatisticEntity[]> GetRegionsStatisticAsync(List<string> regionList, Timestamp dateStart, CancellationToken token = default);

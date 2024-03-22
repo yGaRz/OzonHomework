@@ -1,6 +1,10 @@
 ﻿using Ozon.Route256.Practice.CustomerService.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
+using Microsoft.Extensions.DependencyInjection;
+using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
+using Google.Protobuf.WellKnownTypes;
+using Bogus;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -50,11 +54,11 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();
 
+
+
             ///TODO: Убрать тестовые данные.
-            RegionRepository regionRepository = new RegionRepository();
-            regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(0, "Moscow"));
-            regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(1, "StPetersburg"));
-            regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(2, "Novosibirsk"));
+            _ = GenerateTestDataAsync();
+
             serviceCollection.AddScoped<IRegionRepository,RegionRepository>();
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
 
@@ -76,8 +80,67 @@ namespace Ozon.Route256.Practice.OrdersService
 
         }
 
+        private static async Task GenerateTestDataAsync()
+        {
+            RegionRepository regionRepository = new RegionRepository();
+            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(0, "Moscow"));
+            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(1, "StPetersburg"));
+            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(2, "Novosibirsk"));
 
+            OrdersRepository ordersRepository = new OrdersRepository();
+            Random rand = new Random(0);
+            List<CustomerEntity> customerEntities = new List<CustomerEntity>();
+            Faker faker = new Faker();
+
+            for(int i=1;i<=6;i++)
+            {
+                string regionName  = await regionRepository.GetNameByIdRegionAsync(i % 3);
+                AddressEntity address = new AddressEntity()
+                {
+                    Apartment=faker.Address.StreetSuffix(),
+                    Building = faker.Address.BuildingNumber(),
+                    Street = faker.Address.StreetName(),
+                    City = faker.Address.City(),
+                    Latitude= faker.Address.Latitude(),
+                    Longitude= faker.Address.Longitude(),
+                    Region= regionName
+                };
+                CustomerEntity cusromer = new CustomerEntity()
+                {
+                    Id = i,
+                    Address = address
+                };
+                customerEntities.Add(cusromer);
+            }
+
+
+            for (int i=1;i<10;i++)
+            {
+                List<ProductEntity> goods = new List<ProductEntity>();
+                int cnt = rand.Next(1, 3);
+                for (int j=0;j<cnt;j++)
+                {
+                    ProductEntity good = new ProductEntity(faker.Random.Int(0,555555),
+                        faker.Commerce.Product(),
+                        faker.Random.Int(1,5),
+                        faker.Random.Double(1,500),
+                        faker.Random.UInt(1,20)
+                        );
+                    goods.Add(good);
+                }
+                OrderEntity order = new OrderEntity(i, Models.OrderSourceEnum.Mobile, Models.OrderStateEnum.Created, customerEntities[rand.Next(1, 3)], goods);
+                await ordersRepository.CreateOrderAsync(order);
+            }
+
+
+
+        }
 
 
     }
+
+
+
+
+
 }

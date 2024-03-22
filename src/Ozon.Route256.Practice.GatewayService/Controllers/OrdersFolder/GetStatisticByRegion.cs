@@ -11,11 +11,11 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
     {
         public record StatisticByRegion()
         {
-            public string? Region;
-            public int CountOrders;
-            public double TotalSum;
-            public double TotalWigth;
-            public int CountCustomer;
+            public string? Region { get; init; }
+            public int CountOrders {  get; init; }
+            public double TotalSum { get; init; }
+            public double TotalWigth { get; init; }
+            public int CountCustomer { get; init; }
         }
 
         /// <summary>

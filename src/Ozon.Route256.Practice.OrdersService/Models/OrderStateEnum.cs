@@ -1,6 +1,5 @@
-namespace Ozon.Route256.Practice.OrdersService.Models
-{
-    public enum OrderStateEnum
+namespace Ozon.Route256.Practice.OrdersService.Models;
+public enum OrderStateEnum
     {
         Created = 0,
         SentToCustomer = 1,
@@ -8,4 +7,3 @@ namespace Ozon.Route256.Practice.OrdersService.Models
         Lost = 3,
         Cancelled = 4
     }
-}

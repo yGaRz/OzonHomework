@@ -9,9 +9,9 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
     public partial class OrdersController
     {
         /// <summary>
-        /// Order status in logistic service
+        /// Получение статуса заказа
         /// </summary>
-        /// <param name="id">id order</param>
+        /// <param name="id">Номер заказа</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("[action]")]

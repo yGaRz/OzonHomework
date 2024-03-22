@@ -7,9 +7,9 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
     public partial class OrdersController
     {
         /// <summary>
-        /// Cancel order
+        /// Отмена заказа
         /// </summary>
-        /// <param name="id">Id order</param>
+        /// <param name="id">Номер заказа</param>
         /// <param name="cancellationToken"></param>        
         /// <returns></returns>   
         [HttpDelete("[action]")]

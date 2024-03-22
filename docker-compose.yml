@@ -116,6 +116,8 @@ services:
       "ROUTE256_OS1_PORT": "5005"
       "ROUTE256_OS2_ADDRESS": "orders-service-2"
       "ROUTE256_OS2_PORT": "5005"
+      "ROUTE256_OS3_ADDRESS": "localhost"
+      "ROUTE256_OS3_PORT": "5005"
 
   orders-service-1:
     build: 
@@ -215,7 +217,7 @@ services:
       - broker-2
     container_name: logistic-simulator
     ports:
-      - "5131:5238"
+      - "5131:80"
     
 
 

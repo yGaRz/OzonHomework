@@ -26,12 +26,12 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure
             }
             catch (RpcException ex)
             {
-                _logger.LogError(ex, "Some exception happened");
+                _logger.LogError(ex, "Rpc exception happened");
                 throw;
             }
             catch (NotFoundException ex)
             {
-                _logger.LogError(ex, "Some exception happened");
+                _logger.LogError(ex, "Not Found  exception happened");
                 throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
             }
             catch (Exception ex)

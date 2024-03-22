@@ -10,8 +10,8 @@ namespace Ozon.Route256.Practice.GatewayService.Models
         public List<string> RegionsList { get; set; } = new List<string>();
 
         [Required(ErrorMessage = "Не указан тип заказа")]
-        [Range(0, 5, ErrorMessage = "Недопустимый тип заказа")]
-        public OrderStateEnum State { get; set; }
+        [Range(1, 3, ErrorMessage = "Недопустимый тип заказа")]
+        public OrderSourceEnum Source { get; set; }
         [Range(10, 100, ErrorMessage = "Превышен размер страницы[10,100]")]
         public uint PageSize { get; set; } = 25;
         [Range(0, 1)]
