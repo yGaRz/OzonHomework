@@ -26,7 +26,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("[action]")]
-        [SwaggerResponse(200, "Orders aggregation", typeof(OrdersListModel))]
+        [SwaggerResponse(200, "Orders aggregation", typeof(StatisticByRegion))]
         [SwaggerResponse(400, "Region not found")]
         public async Task<ActionResult<List<StatisticByRegion>>> GetStatisticByRegion(DateTime start,
                                                                                     [FromBody]List<string>? regions,

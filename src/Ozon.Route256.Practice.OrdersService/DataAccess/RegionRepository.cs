@@ -42,7 +42,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
         {
             return Task.FromResult(RegionsIntString.Values.ToArray());
         }
-        public Task<bool> IsRegionInRepository(string regionName, CancellationToken cancellationToken = default)
+        public Task<bool> IsRegionExist(string regionName, CancellationToken cancellationToken = default)
         {
             if (RegionsStringInt.TryGetValue(regionName, out _))
                 return Task.FromResult(true);
@@ -50,7 +50,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
                 return Task.FromResult(false);
         }
 
-        public Task<bool> IsRegionInRepository(string[] regionName, CancellationToken cancellationToken = default)
+        public Task<bool> IsRegionExists(string[] regionName, CancellationToken cancellationToken = default)
         {
             foreach(var r in regionName)
                 if (!RegionsStringInt.TryGetValue(r, out _))

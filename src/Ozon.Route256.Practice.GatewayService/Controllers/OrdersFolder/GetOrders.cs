@@ -25,15 +25,13 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                                                                 CancellationToken cancellationToken)
         {
             var results = new List<ValidationResult>();
-            var context = new ValidationContext(model);
-            if(!Validator.TryValidateObject(model,context,results,true))
+            if(!ModelState.IsValid)
             {
                 StringBuilder sb = new StringBuilder();
                 foreach(var item in results)
                     sb.Append(item.ErrorMessage+"\r\n");
                 return BadRequest(sb.ToString());
             }
-
 
             try
             {

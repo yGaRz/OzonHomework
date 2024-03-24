@@ -29,19 +29,17 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         [HttpGet]
         [SwaggerResponse(200, "Customer list", Type = typeof(List<CustomerEntity>))]
         [Produces("application/json")]
-        public async Task<ActionResult<CustomerEntity>> GetCustomersAsync(CancellationToken cancellationToken)
+        public async Task<ActionResult<List<CustomerEntity>>> GetCustomersAsync(CancellationToken cancellationToken)
         {
             try
             {
                 var responce = await _customersClient.GetCustomersAsync(new GetCustomersRequest(), null, null, cancellationToken);
-                //if (responce != null)
-                return Ok(responce.Customers.Select(From).ToList());
-                //return Ok(new List<CustomerEntity>());
+                return Ok(responce.Customers.Select(Convert).ToList());
             }
             catch (RpcException ex)
             {
                 if (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    return NotFound(new List<Customer>());
+                    return NotFound(new List<CustomerEntity>());
                 else
                     return StatusCode(502,ex);
             }
@@ -52,7 +50,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             }
         }
 
-        private static AddressEntity From(Address address)
+        private static AddressEntity Convert(Address address)
         {
             return new AddressEntity(
                 address.Region,
@@ -63,15 +61,15 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 address.Latitude,
                 address.Longitude);
         }
-        private static CustomerEntity From(Customer customer)
+        private static CustomerEntity Convert(Customer customer)
         {
             return new CustomerEntity(customer.Id, customer.
                 FirstName,
                 customer.LastName,
                 customer.MobileNumber,
                 customer.Email,
-                From(customer.DefaultAddress),
-                customer.Addressed.Select(From).ToArray()
+                Convert(customer.DefaultAddress),
+                customer.Addressed.Select(Convert).ToArray()
                 );
 
         }

@@ -119,6 +119,12 @@ services:
       "ROUTE256_OS3_ADDRESS": "localhost"
       "ROUTE256_OS3_PORT": "5005"
 
+  orders-redis:
+    image: redis:latest
+    container_name: orders-redis
+    ports:
+      - "6380:6379"
+
   orders-service-1:
     build: 
       context: ./src/Ozon.Route256.Practice.OrdersService
@@ -128,6 +134,7 @@ services:
       - broker-1
       - broker-2
       - orders-db
+      - orders-redis 
     container_name: orders-service-1
     ports:
       - "5091:80"
@@ -137,7 +144,6 @@ services:
       "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
       "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
       "ROUTE256_GRPC_PORT": "5005"
-
  
   orders-service-2:
     build: 
@@ -148,6 +154,7 @@ services:
       - broker-1
       - broker-2
       - orders-db
+      - orders-redis
     container_name: orders-service-2
     ports:
       - "5092:80"
@@ -208,6 +215,12 @@ services:
       - ROUTE256_ORDER_SOURCE=Api
       - ROUTE256_ORDER_REQUEST_TOPIC=pre_orders
       - ROUTE256_KAFKA_BROKERS=broker-1:9091
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
                 
   logistic-simulator:
     image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/logistics-simulator:latest
@@ -215,9 +228,9 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - redis
     container_name: logistic-simulator
     ports:
       - "5131:80"
-    
 
 

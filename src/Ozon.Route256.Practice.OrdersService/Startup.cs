@@ -95,16 +95,13 @@ namespace Ozon.Route256.Practice.OrdersService
             for(int i=1;i<=6;i++)
             {
                 string regionName  = await regionRepository.GetNameByIdRegionAsync(i % 3);
-                AddressEntity address = new AddressEntity()
-                {
-                    Apartment=faker.Address.StreetSuffix(),
-                    Building = faker.Address.BuildingNumber(),
-                    Street = faker.Address.StreetName(),
-                    City = faker.Address.City(),
-                    Latitude= faker.Address.Latitude(),
-                    Longitude= faker.Address.Longitude(),
-                    Region= regionName
-                };
+                AddressEntity address = new AddressEntity(regionName,
+                                                                faker.Address.City(),
+                                                                faker.Address.StreetName(),
+                                                                faker.Address.BuildingNumber(),
+                                                                faker.Address.StreetSuffix(),
+                                                                faker.Address.Latitude(),
+                                                                faker.Address.Longitude());               
                 CustomerEntity cusromer = new CustomerEntity()
                 {
                     Id = i,
@@ -128,7 +125,7 @@ namespace Ozon.Route256.Practice.OrdersService
                         );
                     goods.Add(good);
                 }
-                OrderEntity order = new OrderEntity(i, Models.OrderSourceEnum.Mobile, Models.OrderStateEnum.Created, customerEntities[rand.Next(1, 3)], goods);
+                OrderEntity order = new OrderEntity(i, Models.OrderSourceEnum.WebSite, Models.OrderStateEnum.Created, customerEntities[rand.Next(1, 3)], goods);
                 await ordersRepository.CreateOrderAsync(order);
             }
 

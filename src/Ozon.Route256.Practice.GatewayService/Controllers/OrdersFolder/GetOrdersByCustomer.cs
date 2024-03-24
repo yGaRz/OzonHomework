@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
+using Ozon.Route256.Practice.GatewayService.Etities;
 using Ozon.Route256.Practice.GatewayService.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -18,9 +19,9 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("[action]")]
-        [SwaggerResponse(200, "Orders list", typeof(OrdersListModel))]
+        [SwaggerResponse(200, "Orders list", typeof(CustomerOrdersListModel))]
         [SwaggerResponse(400, "Customer not found")]
-        public async Task<ActionResult<OrdersListModel>> GetOrderByCustomer([FromHeader] int id,
+        public async Task<ActionResult<CustomerOrdersListModel>> GetOrderByCustomer([FromHeader] int id,
                                                                     [FromHeader] uint pageIndex = 1,
                                                                     DateTime start = default,                                                                    
                                                                     uint pageSize = 50,
@@ -36,8 +37,14 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                     StartTime = Timestamp.FromDateTimeOffset(start)
                 };
                 var responce = await _ordersClient.GetOrdersByCustomerIDAsync(request, null, null, cancellationToken);
-                OrdersListModel result = new OrdersListModel() { PageIndex = responce.PageNumber };
-                //TODO: добавить отображение агрегированной статистики по клиенту в модель, телефон ФИО и адрес
+
+                CustomerOrdersListModel result = new CustomerOrdersListModel() { 
+                    PageIndex = responce.PageNumber,
+                    address = Convert(responce.AddressCustomer),
+                    CustomerName = responce.NameCustomer,
+                    Phone=responce.PhoneNumber,
+                    Region=responce.Region                   
+                };
                 foreach(var a in responce.Orders)
                     result.ListOrder.Add(a);
                 return Ok(result);
@@ -53,6 +60,18 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             {
                 return StatusCode(500,ex.Message);
             }
+        }
+
+        private static AddressEntity Convert(Address address)
+        {
+            return new AddressEntity(
+                address.Region,
+                address.City,
+                address.Street,
+                address.Building,
+                address.Apartment,
+                address.Latitude,
+                address.Longitude);
         }
     }
 }

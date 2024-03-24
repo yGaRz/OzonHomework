@@ -10,12 +10,12 @@ namespace Ozon.Route256.Practice.GatewayService.Models
         public List<string> RegionsList { get; set; } = new List<string>();
 
         [Required(ErrorMessage = "Не указан тип заказа")]
-        [Range(1, 3, ErrorMessage = "Недопустимый тип заказа")]
+        [Range(0, 2, ErrorMessage = "Недопустимый тип заказа. WebSite = 0, Mobile = 1, Api = 2")]
         public OrderSourceEnum Source { get; set; }
         [Range(10, 100, ErrorMessage = "Превышен размер страницы[10,100]")]
         public uint PageSize { get; set; } = 25;
-        [Range(0, 1)]
-        public SortParamEnum? SParam { get; set; }
+        [Range(0, 2)]
+        public SortParamEnum SParam { get; set; }= SortParamEnum.None;
         public string? SortField { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
