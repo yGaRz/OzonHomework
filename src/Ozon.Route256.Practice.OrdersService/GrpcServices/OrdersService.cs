@@ -218,7 +218,6 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
 
             return genericList;
         }
-
     }
 
 }
