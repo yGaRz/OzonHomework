@@ -16,6 +16,7 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
         public readonly IOrdersRepository _ordersRepository;
         public readonly LogisticsSimulatorService.LogisticsSimulatorServiceClient _logisticsSimulatorServiceClient;
         public readonly Customers.CustomersClient _customersClient;
+
         public OrdersService(IRegionRepository regionRepository, 
             IOrdersRepository ordersRepository, 
             LogisticsSimulatorService.LogisticsSimulatorServiceClient logisticsSimulatorServiceClient,
