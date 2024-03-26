@@ -2,7 +2,6 @@
 using Grpc.Core;
 using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
-using Ozon.Route256.Practice.OrdersService.DataAccess.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
@@ -18,19 +17,16 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
         public readonly IOrdersRepository _ordersRepository;
         public readonly LogisticsSimulatorService.LogisticsSimulatorServiceClient _logisticsSimulatorServiceClient;
         public readonly Customers.CustomersClient _customersClient;
-        public readonly ICacheCustomers _customerCache;
         public OrdersService(IRegionRepository regionRepository, 
             IOrdersRepository ordersRepository, 
             LogisticsSimulatorService.LogisticsSimulatorServiceClient logisticsSimulatorServiceClient,
-            Customers.CustomersClient customersClient,
-            RedisCustomerRepository customerCache
+            Customers.CustomersClient customersClient
             )
         {
             _regionRepository = regionRepository;
             _ordersRepository = ordersRepository;
             _logisticsSimulatorServiceClient = logisticsSimulatorServiceClient;
             _customersClient = customersClient;
-            _customerCache = customerCache;
         }
 
         public override async Task<GetOrderStatusByIdResponse> GetOrderStatusById(GetOrderStatusByIdRequest request, ServerCallContext context)
