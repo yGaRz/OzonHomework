@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Google.Protobuf.WellKnownTypes;
 using Bogus;
+using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
+using StackExchange.Redis;
+using Ozon.Route256.Practice.OrdersService.DataAccess.CacheCustomers;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -54,14 +57,14 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();
 
-
-
             ///TODO: Убрать тестовые данные.
             _ = GenerateTestDataAsync();
 
             serviceCollection.AddScoped<IRegionRepository,RegionRepository>();
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
 
+            serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("orders-redis"));
+            serviceCollection.AddScoped<ICacheCustomers,RedisCustomerRepository>();
 
             serviceCollection.AddSingleton<IDbStore, DbStore>();
             serviceCollection.AddHostedService<SdConsumerHostedService>();

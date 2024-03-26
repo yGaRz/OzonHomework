@@ -5,7 +5,7 @@ using Ozon.Route256.Practice.OrdersService.Models;
 using System.Collections.Concurrent;
 using System.Reflection;
 
-namespace Ozon.Route256.Practice.OrdersService.DataAccess
+namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders
 {
     public class OrdersRepository : IOrdersRepository
     {
@@ -23,12 +23,12 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
         public Task<OrderEntity> GetOrderByIdAsync(long id, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
-            if(OrdersRep.TryGetValue(id,out var order))
+            if (OrdersRep.TryGetValue(id, out var order))
                 return Task.FromResult(order);
             else
                 return Task.FromException<OrderEntity>(new NotFoundException($"Заказ с номером {id} не найден"));
         }
-        
+
         public Task<OrderEntity[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
@@ -39,16 +39,16 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
         }
 
         //Сортировку надо делать будет снаружи
-        public Task<OrderEntity[]> GetOrdersByRegionAsync(List<string> regionList, 
-                                                            OrderSourceEnum source, 
+        public Task<OrderEntity[]> GetOrdersByRegionAsync(List<string> regionList,
+                                                            OrderSourceEnum source,
                                                             CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             return Task.FromResult(OrdersRep.Values.Where(x => regionList.Contains(x.Customer.Address.Region) && x.Source == source).ToArray());
         }
 
-        Task<OrderEntity[]> IOrdersRepository.GetOrdersByRegionAsync(List<string> regionList, 
-                                                                        DateTime dateStart, 
+        Task<OrderEntity[]> IOrdersRepository.GetOrdersByRegionAsync(List<string> regionList,
+                                                                        DateTime dateStart,
                                                                         CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
@@ -59,15 +59,15 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
         {
             List<RegionStatisticEntity> regions = new List<RegionStatisticEntity>();
 
-            foreach(var region in regionList)
+            foreach (var region in regionList)
             {
-                uint countOrders = (uint)OrdersRep.Values.Where(x => x.Customer.Address.Region == region && x.TimeCreate>dateStart).Count();
+                uint countOrders = (uint)OrdersRep.Values.Where(x => x.Customer.Address.Region == region && x.TimeCreate > dateStart).Count();
                 double sumOrders = (double)OrdersRep.Values.Where(x => x.Customer.Address.Region == region && x.TimeCreate > dateStart)
-                                                    .Sum(x=>x.Goods.Sum(z=>z.Price));
+                                                    .Sum(x => x.Goods.Sum(z => z.Price));
                 double weigthOrder = OrdersRep.Values.Where(x => x.Customer.Address.Region == region && x.TimeCreate > dateStart)
                                                     .Sum(x => x.Goods.Sum(z => z.Weight));
                 uint totalCustomer = (uint)OrdersRep.Values.Where(x => x.Customer.Address.Region == region && x.TimeCreate > dateStart)
-                                                    .GroupBy(x=>x.Customer.Id).Distinct().Count();
+                                                    .GroupBy(x => x.Customer.Id).Distinct().Count();
                 regions.Add(new RegionStatisticEntity(region, countOrders, sumOrders, weigthOrder, totalCustomer));
             }
             return Task.FromResult(regions.ToArray());

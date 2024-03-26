@@ -32,5 +32,32 @@ public record OrderEntity
         TimeCreate = DateTime.UtcNow;
         TimeUpdate = DateTime.UtcNow;
     }
+
+    public static Order ConvertOrder(OrderEntity order)
+    {
+        var orderEntity = new Order()
+        {
+            CountGoods = order.CountGoods,
+            DateCreate = order.TimeCreate.ToTimestamp(),
+            Id = order.Id,
+            TotalWeight = order.TotalWeigth,
+            OrderSource = (OrderSource)order.Source,
+            OrderState = (OrderState)order.State,
+            TotalSum = order.TotalSum
+        };
+        foreach (var g in order.Goods)
+        {
+            orderEntity.ProductList.Add(new Product()
+            {
+                Id = g.Id,
+                Name = g.Name,
+                Quantity = g.Quantity,
+                Price = g.Price,
+                Wight = g.Weight
+            });
+        }
+        return orderEntity;
+    }
 }
+
 

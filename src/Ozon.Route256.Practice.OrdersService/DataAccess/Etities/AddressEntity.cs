@@ -19,6 +19,12 @@ public record AddressEntity
         Latitude = lat;
         Longitude = lon;
     }
+
+    public static AddressEntity Convert(Address address)
+    {
+        return new AddressEntity(address.Region,address.City,address.Street,address.Building,address.Apartment,address.Latitude,address.Longitude);
+    }
+
 }
 
 

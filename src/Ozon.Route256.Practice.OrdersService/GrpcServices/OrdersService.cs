@@ -2,7 +2,9 @@
 using Grpc.Core;
 using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
+using Ozon.Route256.Practice.OrdersService.DataAccess.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
+using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Models;
 using System.Reflection;
@@ -16,17 +18,19 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
         public readonly IOrdersRepository _ordersRepository;
         public readonly LogisticsSimulatorService.LogisticsSimulatorServiceClient _logisticsSimulatorServiceClient;
         public readonly Customers.CustomersClient _customersClient;
-
+        public readonly ICacheCustomers _customerCache;
         public OrdersService(IRegionRepository regionRepository, 
             IOrdersRepository ordersRepository, 
             LogisticsSimulatorService.LogisticsSimulatorServiceClient logisticsSimulatorServiceClient,
-            Customers.CustomersClient customersClient
+            Customers.CustomersClient customersClient,
+            RedisCustomerRepository customerCache
             )
         {
             _regionRepository = regionRepository;
             _ordersRepository = ordersRepository;
             _logisticsSimulatorServiceClient = logisticsSimulatorServiceClient;
             _customersClient = customersClient;
+            _customerCache = customerCache;
         }
 
         public override async Task<GetOrderStatusByIdResponse> GetOrderStatusById(GetOrderStatusByIdRequest request, ServerCallContext context)
@@ -88,14 +92,14 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
                     else
                         result = DynamicSort1(orders.ToList(), sortField, "desc");
 
-                    responce.Orders.Add(result.Select(ConvertOrder));
+                    responce.Orders.Add(result.Select(OrderEntity.ConvertOrder));
                     return responce;
                 }
                 else
                     throw new RpcException(new Status(StatusCode.Cancelled, $"Sorted field ={sortField} not found"));
             }
 
-            responce.Orders.Add(orders.Select(ConvertOrder));
+            responce.Orders.Add(orders.Select(OrderEntity.ConvertOrder));
             return responce;
         }
         public override async Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, ServerCallContext context)
@@ -103,6 +107,16 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             try
             {
                 //TODO:Сходить в Redis за Customer и посмотреть, если не нашел, то сходь в Customer-service  и потом положить в Redis
+                CustomerFullEntity? customerFullEntity = await _customerCache.Find(request.Id, context.CancellationToken);
+                if(customerFullEntity != null)
+                {
+
+                }
+                else
+                {
+
+                }
+
                 GetCustomerByIdResponse respCustomer = new GetCustomerByIdResponse();
                 try
                 {
@@ -112,7 +126,6 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
                 {
                     throw new RpcException(new Status(StatusCode.InvalidArgument, $"Клиент с id={request.Id} не найден"));
                 }
-
                 var orders = await _ordersRepository.GetOrdersByCutomerAsync(request.Id, request.StartTime.ToDateTime());
 
                 GetOrdersByCustomerIDResponse responce = new GetOrdersByCustomerIDResponse
@@ -124,7 +137,7 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
                 };
 
                 foreach (var order in orders) 
-                    responce.Orders.Add(ConvertOrder(order));                    
+                    responce.Orders.Add(OrderEntity.ConvertOrder(order));                    
                 return responce;
             }
             catch (RpcException)
@@ -162,37 +175,12 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             return regionStatisticResponse;
         }
 
-
-
-
-        private Order ConvertOrder(OrderEntity order)
-        {
-            var orderEntity = new Order()
-            {
-                CountGoods = order.CountGoods,
-                DateCreate = order.TimeCreate.ToTimestamp(),
-                Id = order.Id,
-                TotalWeight = order.TotalWeigth,
-                OrderSource = (OrderSource)order.Source,
-                OrderState = (OrderState)order.State,
-                TotalSum = order.TotalSum
-            };
-            foreach (var g in order.Goods)
-            {
-                orderEntity.ProductList.Add(new Product()
-                {
-                    Id = g.Id,
-                    Name = g.Name,
-                    Quantity = g.Quantity,
-                    Price = g.Price,
-                    Wight = g.Weight
-                });
-            }
-            return orderEntity;
-        }
+#pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
+#pragma warning disable CS8600 // Преобразование литерала, допускающего значение NULL или возможного значения NULL в тип, не допускающий значение NULL.
         private static MethodInfo GetCompareToMethod<T>(T genericInstance, string sortExpression)
         {
             Type genericType = genericInstance.GetType();
+
             object sortExpressionValue = genericType.GetProperty(sortExpression).GetValue(genericInstance, null);
             Type sortExpressionType = sortExpressionValue.GetType();
             MethodInfo compareToMethodOfSortExpressionType = sortExpressionType.GetMethod("CompareTo", new Type[] { sortExpressionType });
@@ -219,6 +207,8 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
 
             return genericList;
         }
+#pragma warning restore CS8600 // Преобразование литерала, допускающего значение NULL или возможного значения NULL в тип, не допускающий значение NULL.
+#pragma warning restore CS8602 // Разыменование вероятной пустой ссылки.
     }
 
 }
