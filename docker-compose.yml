@@ -116,6 +116,8 @@ services:
       "ROUTE256_OS1_PORT": "5005"
       "ROUTE256_OS2_ADDRESS": "orders-service-2"
       "ROUTE256_OS2_PORT": "5005"
+      "ROUTE256_OS3_ADDRESS": "localhost"
+      "ROUTE256_OS3_PORT": "5005"
 
   orders-service-1:
     build: 
@@ -133,8 +135,8 @@ services:
     environment:
       "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
       "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
+      "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
       "ROUTE256_GRPC_PORT": "5005"
-
  
   orders-service-2:
     build: 
@@ -152,6 +154,7 @@ services:
     environment:
       "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
       "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
+      "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
       "ROUTE256_GRPC_PORT": "5005"
     
   customer-service:
@@ -213,7 +216,6 @@ services:
       - broker-2
     container_name: logistic-simulator
     ports:
-      - "5131:5238"
-    
+      - "5131:80"
 
 

@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
+using Ozon.Route256.Practice.GatewayService.Etities;
 using Ozon.Route256.Practice.GatewayService.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -9,22 +10,22 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
     public partial class OrdersController
     {
         /// <summary>
-        /// Get customer orders
+        /// Получение списка заказов клиента
         /// </summary>
-        /// <param name="id">id customer</param>
-        /// <param name="pageIndex">page index for pagination</param>
-        /// <param name="pageSize">count item on page</param>
-        /// <param name="start">start time for find</param>
+        /// <param name="id">Номер клиента</param>
+        /// <param name="pageIndex">Номер страницы запроса</param>
+        /// <param name="pageSize">Максимальное количество заказов на странице</param>
+        /// <param name="start">Время начиная с которого происходит поиск</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("[action]")]
-        [SwaggerResponse(200, "Orders list", typeof(OrdersListModel))]
+        [SwaggerResponse(200, "Orders list", typeof(CustomerOrdersListModel))]
         [SwaggerResponse(400, "Customer not found")]
-        public async Task<ActionResult<OrdersListModel>> GetOrderByCustomer([FromHeader]int id,
-                                                                    [FromHeader]uint pageIndex,
-                                                                    DateTime start,
-                                                                    CancellationToken cancellationToken,
-                                                                    uint pageSize = 50)
+        public async Task<ActionResult<CustomerOrdersListModel>> GetOrderByCustomer([FromHeader] int id,
+                                                                    [FromHeader] uint pageIndex = 1,
+                                                                    DateTime start = default,                                                                    
+                                                                    uint pageSize = 50,
+                                                                    CancellationToken cancellationToken = default)
         {
             try
             {
@@ -36,7 +37,14 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                     StartTime = Timestamp.FromDateTimeOffset(start)
                 };
                 var responce = await _ordersClient.GetOrdersByCustomerIDAsync(request, null, null, cancellationToken);
-                OrdersListModel result = new OrdersListModel() { PageIndex = responce.PageNumber };
+
+                CustomerOrdersListModel result = new CustomerOrdersListModel() { 
+                    PageIndex = responce.PageNumber,
+                    address = Convert(responce.AddressCustomer),
+                    CustomerName = responce.NameCustomer,
+                    Phone=responce.PhoneNumber,
+                    Region=responce.Region                   
+                };
                 foreach(var a in responce.Orders)
                     result.ListOrder.Add(a);
                 return Ok(result);
@@ -52,6 +60,18 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             {
                 return StatusCode(500,ex.Message);
             }
+        }
+
+        private static AddressEntity Convert(Address address)
+        {
+            return new AddressEntity(
+                address.Region,
+                address.City,
+                address.Street,
+                address.Building,
+                address.Apartment,
+                address.Latitude,
+                address.Longitude);
         }
     }
 }

@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Ozon.Route256.Practice.GatewayService.Models;
 using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
 {
@@ -22,15 +24,24 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                                                                 [FromBody]GetOrdersModel model,
                                                                 CancellationToken cancellationToken)
         {
+            var results = new List<ValidationResult>();
+            if(!ModelState.IsValid)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach(var item in results)
+                    sb.Append(item.ErrorMessage+"\r\n");
+                return BadRequest(sb.ToString());
+            }
+
             try
             {
                 GetOrdersRequest request = new GetOrdersRequest()
                 {
-                    TypeOrder = (OrderState)model.State,
+                    Source = (OrderSource)model.Source,
                     PageIndex = pageIndex,
                     PageSize = model.PageSize,
                     SortField = model.SortField,
-                    SortParam = model.SortParam != null ? (SortParam)model.SortParam : SortParam.None
+                    SortParam = model.SParam != null ? (SortParam)model.SParam : SortParam.None
                 };
                 request.Region.Add(model.RegionsList);
 

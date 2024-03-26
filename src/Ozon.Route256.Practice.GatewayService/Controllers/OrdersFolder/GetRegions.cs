@@ -8,7 +8,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
     public partial class OrdersController
     {
         /// <summary>
-        /// Get region list
+        /// Запрос списка регионов в системе
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns>Region list or empty</returns>
@@ -20,8 +20,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             try
             {
                 var responce = await _ordersClient.GetRegionAsync(new GetRegionRequest(), null, null, cancellationToken);
-                List<string> result = responce.Region.ToList();
-                return Ok(result);
+                return Ok(responce.Region.ToList());
             }
             catch(RpcException ex)
             {

@@ -21,7 +21,9 @@ namespace Ozon.Route256.Practice.GatewayService
                 new BalancerAddress(_configuration.GetValue<string>("ROUTE256_OS1_ADDRESS"),
                                                             int.Parse(_configuration.GetValue<string>("ROUTE256_OS1_PORT"))),
                 new BalancerAddress(_configuration.GetValue<string>("ROUTE256_OS2_ADDRESS"),
-                                                            int.Parse(_configuration.GetValue<string>("ROUTE256_OS2_PORT")))   
+                                                            int.Parse(_configuration.GetValue<string>("ROUTE256_OS2_PORT"))),
+                 new BalancerAddress(_configuration.GetValue<string>("ROUTE256_OS3_ADDRESS"),
+                                                            int.Parse(_configuration.GetValue<string>("ROUTE256_OS3_PORT"))) 
                 //new BalancerAddress("localhost", 5191),
                 //new BalancerAddress("localhost", 5192),                
                 //new BalancerAddress("orders-service-1", 5005),

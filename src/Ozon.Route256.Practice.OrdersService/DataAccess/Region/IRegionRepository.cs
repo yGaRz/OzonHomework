@@ -8,5 +8,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
         Task<int> GetIdByRegionNameAsync(string regionName,CancellationToken token=default);
         Task CreateRegionAsync(RegionEntity region, CancellationToken token=default);
         Task<string[]> GetRegionsAsync(CancellationToken token=default);
+        Task<bool> IsRegionExist(string regionName, CancellationToken cancellationToken = default);
+        Task<bool> IsRegionExists(string[] regionName, CancellationToken cancellationToken = default);
     }
 }
