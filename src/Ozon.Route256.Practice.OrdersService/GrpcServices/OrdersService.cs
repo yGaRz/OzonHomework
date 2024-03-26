@@ -102,17 +102,6 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
         {
             try
             {
-                //TODO:Сходить в Redis за Customer и посмотреть, если не нашел, то сходь в Customer-service  и потом положить в Redis
-                CustomerFullEntity? customerFullEntity = await _customerCache.Find(request.Id, context.CancellationToken);
-                if(customerFullEntity != null)
-                {
-
-                }
-                else
-                {
-
-                }
-
                 GetCustomerByIdResponse respCustomer = new GetCustomerByIdResponse();
                 try
                 {
