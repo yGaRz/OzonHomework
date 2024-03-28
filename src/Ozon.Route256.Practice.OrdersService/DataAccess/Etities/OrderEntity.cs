@@ -5,8 +5,9 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 public record OrderEntity
 {
     public long Id { get; init; }
+    public int CustomerId { get; init; }
     public OrderSourceEnum Source { get; init; }
-    public CustomerEntity Customer { get; init; }
+    public Address Address { get; init; }
     public IEnumerable<ProductEntity> Goods { get; init; }
     public int CountGoods => Goods.Count();
     public double TotalSum => Goods.Sum(x => x.Price * x.Quantity);
@@ -22,12 +23,42 @@ public record OrderEntity
     /// </summary>
     public DateTime TimeUpdate { get; set; }
 
-    public OrderEntity(int id, OrderSourceEnum source, OrderStateEnum state, CustomerEntity customer, IEnumerable<ProductEntity> goods)
+    public OrderEntity(int id, OrderSourceEnum source, OrderStateEnum state, int customerId, Address address, IEnumerable<ProductEntity> goods)
     {
         Id = id;
         Source = source;
         State = state;
-        Customer = customer;
+        CustomerId = customerId;
+        Address = new Address()
+        {
+            Apartment = address.Apartment,
+            Building = address.Building,
+            City = address.City,
+            Latitude = address.Latitude,
+            Longitude = address.Longitude,
+            Region = address.Region,
+            Street = address.Street
+        };
+        Goods = goods;
+        TimeCreate = DateTime.UtcNow;
+        TimeUpdate = DateTime.UtcNow;
+    }
+    public OrderEntity(int id, OrderSourceEnum source, OrderStateEnum state, int customerId, AddressEntity address, IEnumerable<ProductEntity> goods)
+    {
+        Id = id;
+        Source = source;
+        State = state;
+        CustomerId = customerId;
+        Address = new Address()
+        {
+            Apartment = address.Apartment,
+            Building = address.Building,
+            City = address.City,
+            Latitude = address.Latitude,
+            Longitude = address.Longitude,
+            Region = address.Region,
+            Street = address.Street
+        };
         Goods = goods;
         TimeCreate = DateTime.UtcNow;
         TimeUpdate = DateTime.UtcNow;

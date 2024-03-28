@@ -7,6 +7,7 @@ using Google.Protobuf.WellKnownTypes;
 using Bogus;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using StackExchange.Redis;
+using Ozon.Route256.Practice.OrdersService.DataAccess.CacheCustomers;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -59,8 +60,15 @@ namespace Ozon.Route256.Practice.OrdersService
             ///TODO: Убрать тестовые данные.
             _ = GenerateTestDataAsync();
 
+            serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6380"));
             serviceCollection.AddScoped<IRegionRepository,RegionRepository>();
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
+            serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
+
+
+
+
+
 
             serviceCollection.AddSingleton<IDbStore, DbStore>();
             serviceCollection.AddHostedService<SdConsumerHostedService>();
@@ -104,7 +112,7 @@ namespace Ozon.Route256.Practice.OrdersService
                 CustomerEntity cusromer = new CustomerEntity()
                 {
                     Id = i,
-                    Address = address
+                    DefaultAddress = address
                 };
                 customerEntities.Add(cusromer);
             }
@@ -124,7 +132,8 @@ namespace Ozon.Route256.Practice.OrdersService
                         );
                     goods.Add(good);
                 }
-                OrderEntity order = new OrderEntity(i, Models.OrderSourceEnum.WebSite, Models.OrderStateEnum.Created, customerEntities[rand.Next(1, 3)], goods);
+                int rnd = rand.Next(1, 3);
+                OrderEntity order = new OrderEntity(i, Models.OrderSourceEnum.WebSite, Models.OrderStateEnum.Created, customerEntities[rnd].Id, customerEntities[rnd].DefaultAddress, goods);
                 await ordersRepository.CreateOrderAsync(order);
             }
 

@@ -124,5 +124,5 @@ message RegionStatisticMessage{
   int32 total_count_orders=2;
   double total_sum_orders=3;
   double total_wight_orders=4;
-  int32 count_customer=5;
+  int32 count_customers=5;
 }

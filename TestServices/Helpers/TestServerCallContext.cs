@@ -38,7 +38,9 @@ public class TestServerCallContext : ServerCallContext
     protected override WriteOptions? WriteOptionsCore { get => _writeOptions; set { _writeOptions = value; } }
     protected override AuthContext AuthContextCore => _authContext;
 
+#pragma warning disable CS8765 // Допустимость значений NULL для типа параметра не соответствует переопределенному элементу (возможно, из-за атрибутов допустимости значений NULL).
     protected override ContextPropagationToken CreatePropagationTokenCore(ContextPropagationOptions options)
+#pragma warning restore CS8765 // Допустимость значений NULL для типа параметра не соответствует переопределенному элементу (возможно, из-за атрибутов допустимости значений NULL).
     {
         throw new NotImplementedException();
     }

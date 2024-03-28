@@ -2,6 +2,7 @@
 using Grpc.Core;
 using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
+using Ozon.Route256.Practice.OrdersService.DataAccess.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
@@ -17,16 +18,18 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
         public readonly IOrdersRepository _ordersRepository;
         public readonly LogisticsSimulatorService.LogisticsSimulatorServiceClient _logisticsSimulatorServiceClient;
         public readonly Customers.CustomersClient _customersClient;
+        public readonly ICacheCustomers _customerCache;
         public OrdersService(IRegionRepository regionRepository, 
             IOrdersRepository ordersRepository, 
             LogisticsSimulatorService.LogisticsSimulatorServiceClient logisticsSimulatorServiceClient,
-            Customers.CustomersClient customersClient
-            )
+            Customers.CustomersClient customersClient,
+            ICacheCustomers customerCache )
         {
             _regionRepository = regionRepository;
             _ordersRepository = ordersRepository;
             _logisticsSimulatorServiceClient = logisticsSimulatorServiceClient;
             _customersClient = customersClient;
+            _customerCache = customerCache;
         }
 
         public override async Task<GetOrderStatusByIdResponse> GetOrderStatusById(GetOrderStatusByIdRequest request, ServerCallContext context)
@@ -84,9 +87,9 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
                 {
                     List<OrderEntity> result;
                     if (sortParam == SortParam.Asc)
-                        result = DynamicSort1(orders.ToList(), sortField, "asc");
+                        result = ReflectionSortHelper.DynamicSort1(orders.ToList(), sortField, "asc");
                     else
-                        result = DynamicSort1(orders.ToList(), sortField, "desc");
+                        result = ReflectionSortHelper.DynamicSort1(orders.ToList(), sortField, "desc");
 
                     responce.Orders.Add(result.Select(OrderEntity.ConvertOrder));
                     return responce;
@@ -98,39 +101,52 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             responce.Orders.Add(orders.Select(OrderEntity.ConvertOrder));
             return responce;
         }
+        
+        
         public override async Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, ServerCallContext context)
         {
             try
             {
-                GetCustomerByIdResponse respCustomer = new GetCustomerByIdResponse();
-                try
+                CustomerEntity? customerEntity = await _customerCache.Find(request.Id, context.CancellationToken);
+                if(customerEntity == null)
                 {
-                    respCustomer = await _customersClient.GetCustomerByIdAsync(new GetCustomerByIdRequest() { Id = request.Id });
+                    GetCustomerByIdResponse respCustomer = new GetCustomerByIdResponse();
+                    try
+                    {
+                        respCustomer = await _customersClient.GetCustomerByIdAsync(new GetCustomerByIdRequest() { Id = request.Id });
+                    }
+                    catch (RpcException)
+                    {
+                        throw new RpcException(new Status(StatusCode.InvalidArgument, $"Клиент с id={request.Id} не найден"));
+                    }
+                    customerEntity = CustomerEntity.Convert(respCustomer.Customer);
+                    await _customerCache.Insert(customerEntity,context.CancellationToken);
                 }
-                catch (RpcException)
-                {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, $"Клиент с id={request.Id} не найден"));
-                }
-                var orders = await _ordersRepository.GetOrdersByCutomerAsync(request.Id, request.StartTime.ToDateTime());
 
+                var orders = await _ordersRepository.GetOrdersByCutomerAsync(request.Id, request.StartTime.ToDateTime());
                 GetOrdersByCustomerIDResponse responce = new GetOrdersByCustomerIDResponse
                 {
-                    NameCustomer = $"{respCustomer.Customer.FirstName} {respCustomer.Customer.LastName}",
-                    PhoneNumber = respCustomer.Customer.MobileNumber,
-                    Region = respCustomer.Customer.DefaultAddress.Region,
-                    AddressCustomer = respCustomer.Customer.DefaultAddress
+                    NameCustomer = $"{customerEntity.FirstName} {customerEntity.LastName}",
+                    PhoneNumber = customerEntity.Phone,
+                    Region = customerEntity.DefaultAddress.Region,
+                    AddressCustomer = AddressEntity.Convert(customerEntity.DefaultAddress)                    
                 };
-
-                foreach (var order in orders) 
-                    responce.Orders.Add(OrderEntity.ConvertOrder(order));                    
+                foreach (var order in orders)
+                    responce.Orders.Add(OrderEntity.ConvertOrder(order));
                 return responce;
             }
-            catch (RpcException)
+            catch (RpcException ex)
             {
-                throw new RpcException(new Status(StatusCode.NotFound, $"Client with id = {request.Id} not founded"));
+                if(ex.StatusCode == StatusCode.InvalidArgument)
+                    throw new RpcException(new Status(StatusCode.NotFound, ex.Message));
             }
-            throw new RpcException(new Status(StatusCode.NotFound, $"Client with id = {request.Id} not founded"));
+            catch(Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
+            }
+            throw new RpcException(new Status(StatusCode.Internal, "Эта строчка не должна быть вызвана."));
         }
+        
         public override async Task<GetRegionStatisticResponse> GetRegionStatistic(GetRegionStatisticRequest request, ServerCallContext context)
         {
             if (!await _regionRepository.IsRegionExists(request.Region.ToArray(), context.CancellationToken))
@@ -150,8 +166,8 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             {
                 regionStatisticResponse.Statistic.Add(new RegionStatisticMessage()
                 {
-                    Region = item.RegionName,
-                    CountCustomer = (int)item.TotalCustomers,
+                    Region = item.RegionName,                    
+                    CountCustomers = (int)item.TotalCustomers,
                     TotalCountOrders= (int)item.TotalCountOrders,
                     TotalSumOrders= (int)item.TotalSumOrders,
                     TotalWightOrders= item.TotalWigthOrders
@@ -160,40 +176,6 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             return regionStatisticResponse;
         }
 
-#pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
-#pragma warning disable CS8600 // Преобразование литерала, допускающего значение NULL или возможного значения NULL в тип, не допускающий значение NULL.
-        private static MethodInfo GetCompareToMethod<T>(T genericInstance, string sortExpression)
-        {
-            Type genericType = genericInstance.GetType();
-
-            object sortExpressionValue = genericType.GetProperty(sortExpression).GetValue(genericInstance, null);
-            Type sortExpressionType = sortExpressionValue.GetType();
-            MethodInfo compareToMethodOfSortExpressionType = sortExpressionType.GetMethod("CompareTo", new Type[] { sortExpressionType });
-            return compareToMethodOfSortExpressionType;
-        }
-        private static List<T> DynamicSort1<T>(List<T> genericList, string sortExpression, string sortDirection)
-        {
-            int sortReverser = sortDirection.ToLower().StartsWith("asc") ? 1 : -1;
-            Comparison<T> comparisonDelegate = new Comparison<T>((x, y) =>
-            {
-                // Just to get the compare method info to compare the values.
-                MethodInfo compareToMethod = GetCompareToMethod<T>(x, sortExpression);
-                // Getting current object value.
-                object xSortExpressionValue = x.GetType().GetProperty(sortExpression).GetValue(x, null);
-                // Getting the previous value.
-                object ySortExpressionValue = y.GetType().GetProperty(sortExpression).GetValue(y, null);
-                // Comparing the current and next object value of collection.
-                object result = compareToMethod.Invoke(xSortExpressionValue, new object[] { ySortExpressionValue });
-                // Result tells whether the compared object is equal, greater, or lesser.
-                return sortReverser * Convert.ToInt16(result);
-            });
-            // Using the comparison delegate to sort the object by its property.
-            genericList.Sort(comparisonDelegate);
-
-            return genericList;
-        }
-#pragma warning restore CS8600 // Преобразование литерала, допускающего значение NULL или возможного значения NULL в тип, не допускающий значение NULL.
-#pragma warning restore CS8602 // Разыменование вероятной пустой ссылки.
     }
 
 }

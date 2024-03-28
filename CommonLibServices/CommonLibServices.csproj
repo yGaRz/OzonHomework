@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="Protos\customers.proto">
+      <Type>Both</Type>
+    </None>
+    <None Update="Protos\logistic.proto">
+      <Type>Both</Type>
+    </None>
+    <None Update="Protos\orders.proto">
+      <Type>Both</Type>
+    </None>
+    <None Update="Protos\sd.proto">
+      <Type>Both</Type>
+    </None>
+  </ItemGroup>
+
+</Project>

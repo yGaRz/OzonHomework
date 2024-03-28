@@ -18,7 +18,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ozon.Route256.Practice.Orde
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ozon.Route256.Practice.GatewayService", "src\Ozon.Route256.Practice.GatewayService\Ozon.Route256.Practice.GatewayService.csproj", "{3B728430-7815-4B32-AE65-AA59A584B8D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestServices", "TestServices\TestServices.csproj", "{5A297042-0E50-41F1-8D46-89F2F4267CEE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestServices", "TestServices\TestServices.csproj", "{5A297042-0E50-41F1-8D46-89F2F4267CEE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5F8F0E2F-3C90-4EC7-AE75-64C2A0B516EA}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

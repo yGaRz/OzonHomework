@@ -27,7 +27,7 @@ namespace TestServices.Helpers
             CustomerEntity cusromer = new CustomerEntity()
             {
                 Id = idCustomer,
-                Address = address
+                DefaultAddress = address
             };
             List<ProductEntity> goods = new List<ProductEntity>();
             int cnt = faker.Random.Int(1,4);
@@ -42,7 +42,7 @@ namespace TestServices.Helpers
                 goods.Add(good);
             }
 
-            return new OrderEntity(idOrder, OrderSourceEnum.WebSite, OrderStateEnum.Created, customer, goods);
+            return new OrderEntity(idOrder, OrderSourceEnum.WebSite, OrderStateEnum.Created, customer.Id,customer.DefaultAddress, goods);
         }
     }
 }

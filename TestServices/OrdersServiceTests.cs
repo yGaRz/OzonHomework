@@ -26,7 +26,7 @@ public class OrdersServiceTests
                                 return regions;
                             });
 
-        var service = new OrdersService(mockRegion.Object,null,null,null);
+        var service = new OrdersService(mockRegion.Object,null,null,null,null);
 
         var request = new Ozon.Route256.Practice.GetRegionRequest() { };        
         var regionResponce = await service.GetRegion(request, context);
@@ -47,7 +47,7 @@ public class OrdersServiceTests
                                 return regions;
                             });
 
-        var service = new OrdersService(mockRegion.Object, null, null, null);
+        var service = new OrdersService(mockRegion.Object, null, null, null,null);
 
         var request = new GetRegionRequest() { };
         var regionResponce = await service.GetRegion(request, context);
@@ -64,7 +64,7 @@ public class OrdersServiceTests
         int idOrder = 1;
         mockOrders.Setup(m => m.GetOrderByIdAsync(idOrder, context.CancellationToken)).ReturnsAsync(
             () =>  { return OrderGenerator.GenerateOrder(1, idOrder); });
-        var service = new OrdersService(null, mockOrders.Object, null, null);
+        var service = new OrdersService(null, mockOrders.Object, null, null,null);
         var request = new GetOrderStatusByIdRequest() { Id = idOrder };
 
 
@@ -82,7 +82,7 @@ public class OrdersServiceTests
         var context = TestServerCallContext.Create();
         long id = 1;
         mockOrders.Setup(m => m.GetOrderByIdAsync(id, context.CancellationToken)).ThrowsAsync(new NotFoundException($"Заказ с номером {id} не найден"));
-        var service = new OrdersService(null, mockOrders.Object, null, null);
+        var service = new OrdersService(null, mockOrders.Object, null, null, null);
 
         var request = new GetOrderStatusByIdRequest() { Id = id };
 
