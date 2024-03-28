@@ -16,7 +16,6 @@ public record CustomerEntity
     public string Email { get; init; } = "";
     public AddressEntity DefaultAddress { get; init; }=null;
     public AddressEntity[] Addressed { get; init; } = { };
-
     public static CustomerEntity Convert(Customer customer)
     {
         return new CustomerEntity()
@@ -29,5 +28,19 @@ public record CustomerEntity
             DefaultAddress = AddressEntity.Convert(customer.DefaultAddress),
             Addressed = customer.Addressed.Select(AddressEntity.Convert).ToArray()
         };
+    }
+    public static Customer Convert(CustomerEntity customer)
+    {
+        var result =  new Customer()
+        {
+            Id = customer.Id,
+            FirstName = customer.FirstName,
+            LastName = customer.LastName,
+            MobileNumber = customer.Phone,
+            Email = customer.Email,
+            DefaultAddress = AddressEntity.Convert(customer.DefaultAddress)
+        };
+        result.Addressed.Add(customer.Addressed.Select(AddressEntity.Convert));
+        return result;
     }
 }

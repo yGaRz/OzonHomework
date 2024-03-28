@@ -2,10 +2,10 @@
 using Grpc.Core;
 using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
-using Ozon.Route256.Practice.OrdersService.DataAccess.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Models;
 using System.Reflection;
 using Type = System.Type;
@@ -17,19 +17,17 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
         public readonly IRegionRepository _regionRepository;
         public readonly IOrdersRepository _ordersRepository;
         public readonly LogisticsSimulatorService.LogisticsSimulatorServiceClient _logisticsSimulatorServiceClient;
-        public readonly Customers.CustomersClient _customersClient;
-        public readonly ICacheCustomers _customerCache;
+        public readonly IGetCustomer _customersClient;
+
         public OrdersService(IRegionRepository regionRepository, 
             IOrdersRepository ordersRepository, 
             LogisticsSimulatorService.LogisticsSimulatorServiceClient logisticsSimulatorServiceClient,
-            Customers.CustomersClient customersClient,
-            ICacheCustomers customerCache )
+            IGetCustomer customersClient)
         {
             _regionRepository = regionRepository;
             _ordersRepository = ordersRepository;
             _logisticsSimulatorServiceClient = logisticsSimulatorServiceClient;
             _customersClient = customersClient;
-            _customerCache = customerCache;
         }
 
         public override async Task<GetOrderStatusByIdResponse> GetOrderStatusById(GetOrderStatusByIdRequest request, ServerCallContext context)
@@ -107,21 +105,7 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
         {
             try
             {
-                CustomerEntity? customerEntity = await _customerCache.Find(request.Id, context.CancellationToken);
-                if(customerEntity == null)
-                {
-                    GetCustomerByIdResponse respCustomer = new GetCustomerByIdResponse();
-                    try
-                    {
-                        respCustomer = await _customersClient.GetCustomerByIdAsync(new GetCustomerByIdRequest() { Id = request.Id });
-                    }
-                    catch (RpcException)
-                    {
-                        throw new RpcException(new Status(StatusCode.InvalidArgument, $"Клиент с id={request.Id} не найден"));
-                    }
-                    customerEntity = CustomerEntity.Convert(respCustomer.Customer);
-                    await _customerCache.Insert(customerEntity,context.CancellationToken);
-                }
+                CustomerEntity customerEntity = await _customersClient.GetCustomer(request.Id, context.CancellationToken);
 
                 var orders = await _ordersRepository.GetOrdersByCutomerAsync(request.Id, request.StartTime.ToDateTime());
                 GetOrdersByCustomerIDResponse responce = new GetOrdersByCustomerIDResponse

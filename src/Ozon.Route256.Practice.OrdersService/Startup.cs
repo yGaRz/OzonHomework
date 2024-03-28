@@ -7,7 +7,9 @@ using Google.Protobuf.WellKnownTypes;
 using Bogus;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using StackExchange.Redis;
-using Ozon.Route256.Practice.OrdersService.DataAccess.CacheCustomers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumers;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -64,10 +66,15 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddScoped<IRegionRepository,RegionRepository>();
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
             serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
+            serviceCollection.AddScoped<IGetCustomer,GetCustomerService>();
+            //serviceCollection.AddScoped<IAddOrderdHandler, AddOrderHandler>();
 
 
+            serviceCollection.AddSingleton<IKafkaDataProvider<long, string>, OrderDataProvider>();
+            //TODO: добавить продюсера
+            //serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
 
-
+            serviceCollection.AddHostedService<PreOrderConsumer>();
 
 
             serviceCollection.AddSingleton<IDbStore, DbStore>();
