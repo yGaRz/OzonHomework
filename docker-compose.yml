@@ -75,6 +75,7 @@ services:
     container_name: broker-3
     depends_on:
       - zookeeper
+      - service-discovery
     ports:
       - "29093:29093"
     environment:
@@ -123,6 +124,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
     container_name: gateway-service
     ports:
       - "5071:80"
@@ -150,6 +152,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
       - orders-db
       - orders-redis 
     container_name: orders-service-1
@@ -161,6 +164,7 @@ services:
       "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
       "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
       "ROUTE256_GRPC_PORT": "5005"
+      "ROUTE256_REDIS_ADDRESS": "orders-redis:6379"
  
   orders-service-2:
     build: 
@@ -170,6 +174,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
       - orders-db
       - orders-redis
     container_name: orders-service-2
@@ -181,6 +186,7 @@ services:
       "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
       "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
       "ROUTE256_GRPC_PORT": "5005"
+      "ROUTE256_REDIS_ADDRESS": "orders-redis:6379"
     
   customer-service:
     image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/customer-service:latest
@@ -188,6 +194,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
       - customer-service-db
     container_name: customer-service
     ports:
@@ -203,6 +210,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
     container_name: orders-generator-web
     environment:
       - ROUTE256_ORDER_SOURCE=WebSite
@@ -215,6 +223,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
     container_name: orders-generator-mobile
     environment:
       - ROUTE256_ORDER_SOURCE=Mobile
@@ -227,6 +236,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
     container_name: orders-generator-api
     environment:
       - ROUTE256_ORDER_SOURCE=Api
@@ -245,6 +255,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
       - redis
     container_name: logistic-simulator
     ports:

@@ -1,4 +1,5 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using Bogus;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
@@ -17,12 +18,12 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
         public readonly IRegionRepository _regionRepository;
         public readonly IOrdersRepository _ordersRepository;
         public readonly LogisticsSimulatorService.LogisticsSimulatorServiceClient _logisticsSimulatorServiceClient;
-        public readonly IGetCustomer _customersClient;
+        public readonly IGrcpCustomerService _customersClient;
 
         public OrdersService(IRegionRepository regionRepository, 
             IOrdersRepository ordersRepository, 
             LogisticsSimulatorService.LogisticsSimulatorServiceClient logisticsSimulatorServiceClient,
-            IGetCustomer customersClient)
+            IGrcpCustomerService customersClient)
         {
             _regionRepository = regionRepository;
             _ordersRepository = ordersRepository;
@@ -99,8 +100,6 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             responce.Orders.Add(orders.Select(OrderEntity.ConvertOrder));
             return responce;
         }
-        
-        
         public override async Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, ServerCallContext context)
         {
             try
@@ -130,7 +129,6 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             }
             throw new RpcException(new Status(StatusCode.Internal, "Эта строчка не должна быть вызвана."));
         }
-        
         public override async Task<GetRegionStatisticResponse> GetRegionStatistic(GetRegionStatisticRequest request, ServerCallContext context)
         {
             if (!await _regionRepository.IsRegionExists(request.Region.ToArray(), context.CancellationToken))
@@ -159,7 +157,37 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             }
             return regionStatisticResponse;
         }
+       public override async Task<GetGenerateCustomerResponse> GetGenerateCustomer(GetGenerateCustomerRequest request, ServerCallContext context)
+        {
 
+            for (int i = 1; i <= request.Count; i++)
+            {
+                Faker faker = new Faker();
+                string regionName = await _regionRepository.GetNameByIdRegionAsync(faker.Random.Int(0, 2));
+                AddressEntity address = new AddressEntity(regionName,
+                                                        faker.Address.City(),
+                                                        faker.Address.StreetName(),
+                                                        faker.Address.BuildingNumber(),
+                                                        faker.Address.StreetSuffix(),
+                                                        faker.Address.Latitude(),
+                                                        faker.Address.Longitude());
+                CustomerEntity cusromer = new CustomerEntity()
+                {
+                    Id = i,
+                    DefaultAddress = address,
+                    Email = faker.Person.Email,
+                    FirstName = faker.Person.FirstName,
+                    LastName = faker.Person.LastName,
+                    Phone = faker.Phone.PhoneNumber()
+                };
+                try
+                {
+                    await _customersClient.CreateCustomer(cusromer);
+                }
+                catch { }
+            }
+            return new GetGenerateCustomerResponse();
+        }
     }
 
 }

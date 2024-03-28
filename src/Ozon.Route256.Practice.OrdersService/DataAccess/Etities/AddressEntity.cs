@@ -2,7 +2,7 @@
 
 public record AddressEntity
 {
-    public string Region { get; init; }
+    public string Region { get; set; }
     public string City { get; init; }
     public string Street { get; init; }
     public string Building { get; init; }

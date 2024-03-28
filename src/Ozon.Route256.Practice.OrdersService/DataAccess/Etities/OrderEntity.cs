@@ -1,69 +1,64 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Ozon.Route256.Practice.OrdersService.Models;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 
 public record OrderEntity
 {
     public long Id { get; init; }
-    public int CustomerId { get; init; }
+    public int CustomerId { get; set; }
     public OrderSourceEnum Source { get; init; }
-    public Address Address { get; init; }
-    public IEnumerable<ProductEntity> Goods { get; init; }
+    public AddressEntity Address { get; init; }
+    public List<ProductEntity> Goods { get; init; }=new List<ProductEntity>();
+    public OrderStateEnum State { get; set; }
+    public DateTime TimeCreate { get; set; }
+    public DateTime TimeUpdate { get; set; }
+    public string Region =>Address.Region;
     public int CountGoods => Goods.Count();
     public double TotalSum => Goods.Sum(x => x.Price * x.Quantity);
     public double TotalWeigth => Goods.Sum(x => x.Weight);
-    public OrderStateEnum State { get; set; }
-    /// <summary>
-    /// Время создания заказа
-    /// </summary>
-    public DateTime TimeCreate { get; set; }
-
-    /// <summary>
-    /// Время изменения последнего стауса
-    /// </summary>
-    public DateTime TimeUpdate { get; set; }
-
-    public OrderEntity(int id, OrderSourceEnum source, OrderStateEnum state, int customerId, Address address, IEnumerable<ProductEntity> goods)
+    public OrderEntity(long id, OrderSourceEnum source, OrderStateEnum state, int customerId, Address address, IEnumerable<ProductEntity> goods)
     {
         Id = id;
         Source = source;
         State = state;
         CustomerId = customerId;
-        Address = new Address()
-        {
-            Apartment = address.Apartment,
-            Building = address.Building,
-            City = address.City,
-            Latitude = address.Latitude,
-            Longitude = address.Longitude,
-            Region = address.Region,
-            Street = address.Street
-        };
-        Goods = goods;
+        Address = AddressEntity.Convert(address);
+        Goods = goods.ToList();
         TimeCreate = DateTime.UtcNow;
         TimeUpdate = DateTime.UtcNow;
     }
-    public OrderEntity(int id, OrderSourceEnum source, OrderStateEnum state, int customerId, AddressEntity address, IEnumerable<ProductEntity> goods)
+    public OrderEntity(long id, OrderSourceEnum source, OrderStateEnum state, int customerId, AddressEntity address, IEnumerable<ProductEntity> goods)
     {
         Id = id;
         Source = source;
         State = state;
         CustomerId = customerId;
-        Address = new Address()
-        {
-            Apartment = address.Apartment,
-            Building = address.Building,
-            City = address.City,
-            Latitude = address.Latitude,
-            Longitude = address.Longitude,
-            Region = address.Region,
-            Street = address.Street
-        };
-        Goods = goods;
+        Address = address;
+        Goods = goods.ToList();
         TimeCreate = DateTime.UtcNow;
         TimeUpdate = DateTime.UtcNow;
     }
 
+    public OrderEntity(long id, string message,DateTime timeCreate)    
+    {
+        var doc = JsonNode.Parse(message);   
+        Id = id;
+        TimeCreate = timeCreate;
+        TimeUpdate= timeCreate;
+        Source = (OrderSourceEnum)((int)doc["Source"] - 1);
+        var customer = doc["Customer"];
+        var goods = doc["Goods"].AsArray();
+        CustomerId = (int)customer["Id"];
+        var address = customer["Address"];
+        Address = JsonSerializer.Deserialize<AddressEntity>(address);
+        foreach (var good in goods)
+        {
+            var d = JsonSerializer.Deserialize<ProductEntity>(good.ToJsonString());
+            Goods.Add(d);   
+        }
+    }
     public static Order ConvertOrder(OrderEntity order)
     {
         var orderEntity = new Order()

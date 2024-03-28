@@ -5,7 +5,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
 
 public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundService
 {
-    //TODO: вынести название топика в переменные окружения
+
     private const string TopicName = "pre_orders";
     private readonly IKafkaDataProvider<TKey, TValue> _dataProvider;
     private readonly ILogger<ConsumerBackgroundService<TKey, TValue>> _logger;
@@ -48,8 +48,6 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
                 await Task.Delay(100, cancellationToken);
                 return;
             }
-
-            //TODO: делаем обрабоку данных
             await HandleAsync(message, cancellationToken);
             //_logger.LogInformation($"Message: {message}");  
             _dataProvider.Consumer.Commit();

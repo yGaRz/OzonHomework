@@ -9,6 +9,7 @@ internal class OrderDataProvider : IKafkaDataProvider<long, string>
         var consumerConfig = new ConsumerConfig
         {
             GroupId = "new_orders_group",
+            //BootstrapServers = "broker-1:9091",
             BootstrapServers = "localhost:29091",
             AutoOffsetReset = AutoOffsetReset.Earliest,
             EnableAutoCommit = false,
@@ -22,7 +23,8 @@ internal class OrderDataProvider : IKafkaDataProvider<long, string>
 
         var producerConfig = new ProducerConfig
         {
-            BootstrapServers = "localhost:29092",
+            //BootstrapServers = "broker-1:9091",
+            BootstrapServers = "localhost:29091",
         };
 
         ProducerBuilder<long, string> producerBuilder = new(producerConfig);

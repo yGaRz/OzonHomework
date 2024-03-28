@@ -18,6 +18,15 @@ service Orders
 	rpc GetRegionStatistic(GetRegionStatisticRequest) returns(GetRegionStatisticResponse);
 	//Ручка получения всех заказов клиента
 	rpc GetOrdersByCustomerID(GetOrdersByCustomerIDRequest) returns(GetOrdersByCustomerIDResponse);
+	//ручка генерации клиентов
+	rpc GetGenerateCustomer(GetGenerateCustomerRequest) returns (GetGenerateCustomerResponse);
+
+}
+
+message GetGenerateCustomerRequest{
+	int32 count=1;
+}
+message GetGenerateCustomerResponse{
 }
 
 //Ручка отмены заказа

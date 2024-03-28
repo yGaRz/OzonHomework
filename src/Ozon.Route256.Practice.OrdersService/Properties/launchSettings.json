@@ -8,6 +8,7 @@
         "ROUTE256_SD_ADDRESS": "http://localhost:6081",
         "ROUTE256_LS_ADDRESS": "http://localhost:5131",
         "ROUTE256_CS_ADDRESS": "http://localhost:5181",
+        "ROUTE256_REDIS_ADDRESS": "localhost:6380",
         "ROUTE256_GRPC_PORT": "5005"
       },
       "dotnetRunMessages": true,

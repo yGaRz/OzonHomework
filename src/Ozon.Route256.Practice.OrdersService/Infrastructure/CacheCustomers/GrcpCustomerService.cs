@@ -3,11 +3,11 @@ using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
 {
-    public class GetCustomerService : IGetCustomer
+    public class GrcpCustomerService : IGrcpCustomerService
     {
         public readonly Customers.CustomersClient _customersClient;
         public readonly ICacheCustomers _customerCache;
-        public GetCustomerService(Customers.CustomersClient customersClient,
+        public GrcpCustomerService(Customers.CustomersClient customersClient,
                                         ICacheCustomers customerCache)
         { 
             _customersClient = customersClient;
@@ -32,6 +32,13 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
                 await _customerCache.Insert(customerEntity, cancellationToken);
             }
             return customerEntity;
+        }
+
+        public async Task CreateCustomer(CustomerEntity customer, CancellationToken cancellationToken = default)
+        {
+            CreateCustomerRequest request = new CreateCustomerRequest();
+            request.Customer = CustomerEntity.Convert(customer);
+            var resp = await _customersClient.CreateCustomerAsync(request);
         }
     }
 }

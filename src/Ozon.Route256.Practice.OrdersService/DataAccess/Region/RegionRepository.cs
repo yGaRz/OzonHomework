@@ -6,7 +6,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
 {
     public class RegionRepository : IRegionRepository
     {
-        private static readonly ConcurrentDictionary<int,string> RegionsIntString = new ();
+        private static readonly ConcurrentDictionary<int,RegionEntity> RegionsIntString = new ();
         private static readonly ConcurrentDictionary<string, int> RegionsStringInt = new();
         public Task CreateRegionAsync(RegionEntity region, CancellationToken token = default)
         {
@@ -17,7 +17,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
                 return Task.FromException(new Exception($"Region with name={region.Name} already exists"));
             else
             {
-                RegionsIntString.TryAdd(region.Id, region.Name);
+                RegionsIntString.TryAdd(region.Id, region);
                 RegionsStringInt.TryAdd(region.Name, region.Id);
                 return Task.CompletedTask;
             }
@@ -26,7 +26,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
         {
             token.ThrowIfCancellationRequested();
             if (RegionsIntString.TryGetValue(id, out var res))
-                return Task.FromResult(res);
+                return Task.FromResult(res.Name);
             else
                 throw new NotFoundException($"Region with name={id} is not found");
         }
@@ -40,7 +40,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
         }
         public Task<string[]> GetRegionsAsync(CancellationToken token = default)
         {
-            return Task.FromResult(RegionsIntString.Values.ToArray());
+            return Task.FromResult(RegionsIntString.Values.Select(x=>x.Name).ToArray());
         }
         public Task<bool> IsRegionExist(string regionName, CancellationToken cancellationToken = default)
         {
@@ -56,6 +56,15 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
                 if (!RegionsStringInt.TryGetValue(r, out _))
                     return Task.FromResult(false);
             return Task.FromResult(true);
+        }
+
+        public Task<RegionEntity> GetRegionEntityById(int regionId, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (RegionsIntString.TryGetValue(regionId, out var regEntity))
+                return Task.FromResult(regEntity);
+            else
+                throw new NotFoundException($"Region with id={regionId} is not found");
         }
     }
 }
