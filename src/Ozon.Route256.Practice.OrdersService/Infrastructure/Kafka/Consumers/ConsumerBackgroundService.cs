@@ -6,7 +6,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
 public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundService
 {
 
-    private const string TopicName = "pre_orders";
+    protected string TopicName = "";
     private readonly IKafkaDataProvider<TKey, TValue> _dataProvider;
     private readonly ILogger<ConsumerBackgroundService<TKey, TValue>> _logger;
     protected readonly IServiceScope _scope;
@@ -17,7 +17,10 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
         _dataProvider = kafkaDataProvider;
         _logger = logger;
         _scope = serviceProvider.CreateScope();
+        //ConsumerPreOrder=_dataProvider.ConsumerPreOrder;
     }
+
+    //protected IConsumer<TKey,TValue> ConsumerPreOrder=null;
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -25,8 +28,13 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
         if (stoppingToken.IsCancellationRequested)
             return;
 
+        TopicName = "pre_orders";
         _dataProvider.ConsumerPreOrder.Subscribe(TopicName);
-        _logger.LogInformation("Start consumer topic {Topic}", TopicName);
+        _logger.LogInformation("Start consumer topic {Topic} ", TopicName);
+
+        TopicName = "orders_events";
+        _dataProvider.ConsumerOrderEvent.Subscribe(TopicName);
+        _logger.LogInformation("Start consumer topic {Topic} ", TopicName);
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -34,6 +42,7 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
         }
 
         _dataProvider.ConsumerPreOrder.Unsubscribe();
+        _dataProvider.ConsumerOrderEvent.Unsubscribe();
         _logger.LogInformation("Stop consumer topic {Topic}", TopicName);
     }
     private async Task ConsumeAsync(CancellationToken cancellationToken)
@@ -42,15 +51,22 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
         try
         {
             message = _dataProvider.ConsumerPreOrder.Consume(TimeSpan.FromMilliseconds(100));
-
-            if (message is null)
+            if (message is not null)
             {
-                await Task.Delay(100, cancellationToken);
-                return;
+                await HandleAsync(message, cancellationToken);
+                _logger.LogInformation($"Message: {message}");  
+                _dataProvider.ConsumerPreOrder.Commit();
             }
-            await HandleAsync(message, cancellationToken);
-            //_logger.LogInformation($"Message: {message}");  
-            _dataProvider.ConsumerPreOrder.Commit();
+
+            message=_dataProvider.ConsumerOrderEvent.Consume(TimeSpan.FromMilliseconds(100));
+            if (message is not null)
+            {
+                await HandleAsync(message, cancellationToken);
+                _logger.LogInformation($"Message: {message}");
+                _dataProvider.ConsumerOrderEvent.Commit();
+            }
+            await Task.Delay(100, cancellationToken);
+            return;
         }
         catch (Exception exc)
         {

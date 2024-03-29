@@ -77,18 +77,18 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders
             token.ThrowIfCancellationRequested();
             return Task.FromResult(OrdersRep.Values.ToArray());
         }
-        public Task<bool> SetOrderStateAsync(long id, OrderStateEnum state, CancellationToken token)
+        
+        public Task<bool> SetOrderStateAsync(long id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             if (OrdersRep.TryGetValue(id, out var result))
             {
                 result.State = state;
+                result.TimeUpdate = timeUpdate;
                 return Task.FromResult(true);
             }
             else
                 return Task.FromResult(false);
         }
-
-
     }
 }

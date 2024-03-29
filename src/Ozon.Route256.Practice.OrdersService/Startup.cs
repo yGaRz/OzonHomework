@@ -11,6 +11,7 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Handlers;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -73,12 +74,14 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
             serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
             serviceCollection.AddScoped<IGrcpCustomerService, Infrastructure.CacheCustomers.GrcpCustomerService>();
-            serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
-            serviceCollection.AddScoped<IAddOrderdHandler, AddOrderHandler>();
 
+            serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
+            serviceCollection.AddScoped<IAddOrderHandler, AddOrderHandler>();
+            serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();
             serviceCollection.AddSingleton<IKafkaDataProvider<long, string>, OrderDataProvider>();
 
-            serviceCollection.AddHostedService<PreOrderConsumer>(); 
+            serviceCollection.AddHostedService<ConsumerKafka>();
+            //serviceCollection.AddHostedService<OrderEventConsumer>();
 
             serviceCollection.AddSingleton<IDbStore, DbStore>();
             serviceCollection.AddHostedService<SdConsumerHostedService>();

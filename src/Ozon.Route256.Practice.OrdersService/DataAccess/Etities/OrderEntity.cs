@@ -41,8 +41,10 @@ public record OrderEntity
         TimeUpdate = DateTime.UtcNow;
     }
 
+
+#pragma warning disable CS8618,CS8602,CS8604,CS8601 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
     public OrderEntity(long id, string message,DateTime timeCreate)    
-    {
+   {
         var doc = JsonNode.Parse(message);   
         Id = id;
         TimeCreate = timeCreate;
@@ -59,6 +61,8 @@ public record OrderEntity
             Goods.Add(d);   
         }
     }
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
+
     public static Order ConvertOrder(OrderEntity order)
     {
         var orderEntity = new Order()
