@@ -54,7 +54,7 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
             if (message is not null)
             {
                 await HandleAsync(message, cancellationToken);
-                _logger.LogInformation($"Message: {message}");  
+                //_logger.LogInformation($"Message: {message}");  
                 _dataProvider.ConsumerPreOrder.Commit();
             }
 
@@ -62,7 +62,7 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
             if (message is not null)
             {
                 await HandleAsync(message, cancellationToken);
-                _logger.LogInformation($"Message: {message}");
+                //_logger.LogInformation($"Message: {message}");
                 _dataProvider.ConsumerOrderEvent.Commit();
             }
             await Task.Delay(100, cancellationToken);
