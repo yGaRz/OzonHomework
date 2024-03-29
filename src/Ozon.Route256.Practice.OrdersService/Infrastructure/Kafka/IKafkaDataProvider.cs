@@ -4,7 +4,10 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka;
 
 public interface IKafkaDataProvider<TKey, TValue>
 {
-    public IConsumer<TKey, TValue> Consumer { get; }
+    public IConsumer<TKey, TValue> ConsumerPreOrder { get; }
 
-    public IProducer<TKey, TValue> Producer { get; }
+    public IConsumer<TKey, TValue> ConsumerOrderEvent { get; }
+
+    public IProducer<TKey, TValue> ProducerNewOrder { get; }
+
 }

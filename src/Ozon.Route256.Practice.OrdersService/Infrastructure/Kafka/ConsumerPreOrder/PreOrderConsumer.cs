@@ -24,6 +24,6 @@ public class PreOrderConsumer : ConsumerBackgroundService<long, string>
     {
         var order = new OrderEntity(message.Message.Key,message.Message.Value,message.Message.Timestamp.UtcDateTime);
         await _addOrderdHandler.Handle(order, cancellationToken);
-        _logger.LogInformation($"{message.Message.Value} получено");
+        _logger.LogInformation($"Заказ Id = {order.Id}, Region = {order.Region}, Customer={order.CustomerId}, Source={order.Source} получен.");
     }
 }

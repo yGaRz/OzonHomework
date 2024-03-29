@@ -10,6 +10,7 @@ using StackExchange.Redis;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -63,15 +64,19 @@ namespace Ozon.Route256.Practice.OrdersService
                 throw new ArgumentException("ROUTE256_REDIS_ADDRESS variable is null or empty");
             serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redis_url));
 
+            var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
+            if (string.IsNullOrEmpty(redis_url))
+                throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
+            OrderDataProvider.Kafka_url = kafka_url;
+
             serviceCollection.AddScoped<IRegionRepository,RegionRepository>();
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
             serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
             serviceCollection.AddScoped<IGrcpCustomerService, Infrastructure.CacheCustomers.GrcpCustomerService>();
+            serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
             serviceCollection.AddScoped<IAddOrderdHandler, AddOrderHandler>();
 
             serviceCollection.AddSingleton<IKafkaDataProvider<long, string>, OrderDataProvider>();
-            //TODO: добавить продюсера
-            //serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
 
             serviceCollection.AddHostedService<PreOrderConsumer>(); 
 

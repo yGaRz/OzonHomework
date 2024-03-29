@@ -58,6 +58,7 @@ services:
     depends_on:
       - zookeeper
       - service-discovery
+      - broker-1
     ports:
       - "29092:29092"
     environment:
@@ -76,6 +77,8 @@ services:
     depends_on:
       - zookeeper
       - service-discovery
+      - broker-1
+      - broker-2 
     ports:
       - "29093:29093"
     environment:
@@ -165,6 +168,7 @@ services:
       "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
       "ROUTE256_GRPC_PORT": "5005"
       "ROUTE256_REDIS_ADDRESS": "orders-redis:6379"
+      "ROUTE256_KAFKA_ADDRESS": "broker-1:9091"
  
   orders-service-2:
     build: 
@@ -187,6 +191,7 @@ services:
       "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
       "ROUTE256_GRPC_PORT": "5005"
       "ROUTE256_REDIS_ADDRESS": "orders-redis:6379"
+      "ROUTE256_KAFKA_ADDRESS": "broker-1:9091"
     
   customer-service:
     image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/customer-service:latest

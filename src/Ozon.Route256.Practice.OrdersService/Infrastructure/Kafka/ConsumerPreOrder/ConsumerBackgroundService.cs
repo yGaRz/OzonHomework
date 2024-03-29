@@ -18,14 +18,14 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
         _logger = logger;
         _scope = serviceProvider.CreateScope();
     }
-
+    
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await Task.Yield();
         if (stoppingToken.IsCancellationRequested)
             return;
 
-        _dataProvider.Consumer.Subscribe(TopicName);
+        _dataProvider.ConsumerPreOrder.Subscribe(TopicName);
         _logger.LogInformation("Start consumer topic {Topic}", TopicName);
 
         while (!stoppingToken.IsCancellationRequested)
@@ -33,7 +33,7 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
             await ConsumeAsync(stoppingToken);
         }
 
-        _dataProvider.Consumer.Unsubscribe();
+        _dataProvider.ConsumerPreOrder.Unsubscribe();
         _logger.LogInformation("Stop consumer topic {Topic}", TopicName);
     }
     private async Task ConsumeAsync(CancellationToken cancellationToken)
@@ -41,7 +41,7 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
         ConsumeResult<TKey, TValue>? message = null;
         try
         {
-            message = _dataProvider.Consumer.Consume(TimeSpan.FromMilliseconds(100));
+            message = _dataProvider.ConsumerPreOrder.Consume(TimeSpan.FromMilliseconds(100));
 
             if (message is null)
             {
@@ -50,7 +50,7 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
             }
             await HandleAsync(message, cancellationToken);
             //_logger.LogInformation($"Message: {message}");  
-            _dataProvider.Consumer.Commit();
+            _dataProvider.ConsumerPreOrder.Commit();
         }
         catch (Exception exc)
         {
