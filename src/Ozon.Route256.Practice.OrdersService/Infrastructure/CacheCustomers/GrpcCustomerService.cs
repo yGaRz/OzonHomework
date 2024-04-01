@@ -3,11 +3,11 @@ using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
 {
-    public class GrcpCustomerService : IGrcpCustomerService
+    public class GrpcCustomerService : IGrcpCustomerService
     {
         public readonly Customers.CustomersClient _customersClient;
         public readonly ICacheCustomers _customerCache;
-        public GrcpCustomerService(Customers.CustomersClient customersClient,
+        public GrpcCustomerService(Customers.CustomersClient customersClient,
                                         ICacheCustomers customerCache)
         { 
             _customersClient = customersClient;

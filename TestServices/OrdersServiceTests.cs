@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
 using Grpc.Core.Utils;
 using Moq;
 using Ozon.Route256.Practice;
@@ -8,6 +9,7 @@ using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.GrpcServices;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Models;
 using System.Data;
 using TestServices.Helpers;
@@ -161,9 +163,53 @@ public class OrdersServiceTests
         mockLogistic.Setup(m => m.OrderCancelAsync(new Ozon.Route256.Practice.LogisticsSimulator.Grpc.Order() { Id = idOrder }, null, null, context.CancellationToken)).Returns(mockCall);
         var service = new OrdersService(null, mockOrders.Object, mockLogistic.Object, null);
         var request = new CancelOrderByIdRequest() { Id = idOrder };
-
+        //Act
         var responce = await service.CancelOrder(request, context);
-
+        //Assert
         Assert.NotNull(responce);
+    }
+
+    [Fact]
+    public void Get_Get_Customer_Orders_Customer_NotFound()
+    {
+        var mockCustomer = new Mock<IGrcpCustomerService>();
+        var context = TestServerCallContext.Create();
+        int id = 1;
+        mockCustomer.Setup(m => m.GetCustomer(id, context.CancellationToken)).Throws(new RpcException(new Status(StatusCode.InvalidArgument, $"Клиент с id={id} не найден")));
+
+        var request = new GetOrdersByCustomerIDRequest() { Id = id, PageIndex = 1, PageSize = 20, StartTime = DateTime.Now.ToUniversalTime().ToTimestamp() };
+        var service = new OrdersService(null, null, null, mockCustomer.Object);
+
+        Assert.ThrowsAsync<RpcException>(async () => { await service.GetOrdersByCustomerID(request, context); });
+    }
+    [Fact]
+    public async void Get_Get_Customer_Orders_Customer_Responce_Valid()
+    {
+        var mockCustomer = new Mock<IGrcpCustomerService>();
+        var context = TestServerCallContext.Create();
+        int id = 1;
+        mockCustomer.Setup(m => m.GetCustomer(id, context.CancellationToken)).ReturnsAsync(() =>
+        {
+            return new CustomerEntity()
+            {
+                Id = id,
+                FirstName= "Name",
+                LastName= "Surname",
+                Email="xxx@yyy.ru",
+                DefaultAddress = new AddressEntity("","","","","",1,1),
+                Phone=""
+            };
+        }
+            );
+        var request = new GetOrdersByCustomerIDRequest() { Id = id, PageIndex = 1, PageSize = 20, StartTime = DateTime.Now.ToUniversalTime().ToTimestamp() };
+        IOrdersRepository rep = new OrdersRepository();
+
+        var service = new OrdersService(null, rep, null, mockCustomer.Object);
+
+        var responce =await service.GetOrdersByCustomerID(request,context);
+
+        Assert.NotNull(responce);   
+
+        //Assert.ThrowsAsync<RpcException>(async () => { await service.GetOrdersByCustomerID(request, context); });
     }
 }

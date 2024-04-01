@@ -74,7 +74,7 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
 
             serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
-            serviceCollection.AddScoped<IGrcpCustomerService, Infrastructure.CacheCustomers.GrcpCustomerService>();
+            serviceCollection.AddScoped<IGrcpCustomerService, Infrastructure.CacheCustomers.GrpcCustomerService>();
 
 
             serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
