@@ -25,11 +25,6 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Handlers
             {
                 await _orderRepository.SetOrderStateAsync(id,state,timeUpdate, token);
                 _logger.LogInformation($"{id}");
-                //if (GetDistance(order.Address.Latitude, order.Address.Longitude, region.Latitude, region.Longitude) < 5000)
-                //{
-                //    await _producer.ProduceAsync(new[] { order }, token);
-                //    _logger.LogInformation($"Заказ {order.Id} отправлен");
-                //}
             }
             catch (Exception ex)
             {

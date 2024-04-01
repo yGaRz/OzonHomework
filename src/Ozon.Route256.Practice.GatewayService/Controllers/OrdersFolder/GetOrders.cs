@@ -41,7 +41,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                     PageIndex = pageIndex,
                     PageSize = model.PageSize,
                     SortField = model.SortField,
-                    SortParam = model.SParam != null ? (SortParam)model.SParam : SortParam.None
+                    SortParam = (SortParam)model.SParam
                 };
                 request.Region.Add(model.RegionsList);
 

@@ -24,6 +24,8 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Handlers
         {
             try
             {
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
                 order.CustomerId = order.CustomerId % 10 + 1;
                 Faker faker = new Faker();
                 var region = await _regionRepository.GetRegionEntityById(faker.Random.Int(0, 2));
@@ -37,7 +39,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Handlers
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex.Message);
+                _logger.LogWarning($"При обработке заказа {order.Id} возникла ошибка {ex.Message}");
                 return false;
             }
             return true;

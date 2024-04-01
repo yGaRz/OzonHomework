@@ -33,10 +33,7 @@ internal class OrderProducer : IOrderProducer
         foreach (var order in updatedOrders)
         {
             if (token.IsCancellationRequested)
-            {
                 token.ThrowIfCancellationRequested();
-            }
-
             var key = order.Id;
             var value = JsonSerializer.Serialize(new new_order(order.Id), _jsonSerializerOptions);
 

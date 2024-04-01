@@ -17,7 +17,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders
             if (OrdersRep.TryAdd(order.Id, order))
                 return Task.CompletedTask;
             else
-                return Task.FromException(new Exception($"Order with id={order.Id} is already exists"));
+                return Task.FromException(new ArgumentException($"Order with id={order.Id} is already exists"));
         }
 
         public Task<OrderEntity> GetOrderByIdAsync(long id, CancellationToken token = default)

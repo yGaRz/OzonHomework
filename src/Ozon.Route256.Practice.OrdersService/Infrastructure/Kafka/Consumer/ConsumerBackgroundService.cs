@@ -38,14 +38,15 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            await ConsumeAsync(stoppingToken);
+            await ConsumeAsync1(stoppingToken);
+            await ConsumeAsync2(stoppingToken);
         }
 
         _dataProvider.ConsumerPreOrder.Unsubscribe();
         _dataProvider.ConsumerOrderEvent.Unsubscribe();
         _logger.LogInformation("Stop consumer topic {Topic}", TopicName);
     }
-    private async Task ConsumeAsync(CancellationToken cancellationToken)
+    private async Task ConsumeAsync1(CancellationToken cancellationToken)
     {
         ConsumeResult<TKey, TValue>? message = null;
         try
@@ -57,15 +58,8 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
                 //_logger.LogInformation($"Message: {message}");  
                 _dataProvider.ConsumerPreOrder.Commit();
             }
-
-            message=_dataProvider.ConsumerOrderEvent.Consume(TimeSpan.FromMilliseconds(100));
-            if (message is not null)
-            {
-                await HandleAsync(message, cancellationToken);
-                //_logger.LogInformation($"Message: {message}");
-                _dataProvider.ConsumerOrderEvent.Commit();
-            }
-            await Task.Delay(100, cancellationToken);
+            else
+                await Task.Delay(100, cancellationToken);
             return;
         }
         catch (Exception exc)
@@ -75,7 +69,29 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
             _logger.LogError(exc, "Error process message Key:{Key} Value:{Value}", key, value);
         }
     }
-
+    private async Task ConsumeAsync2(CancellationToken cancellationToken)
+    {
+        ConsumeResult<TKey, TValue>? message = null;
+        try
+        {
+            message = _dataProvider.ConsumerOrderEvent.Consume(TimeSpan.FromMilliseconds(100));
+            if (message is not null)
+            {
+                await HandleAsync(message, cancellationToken);
+                //_logger.LogInformation($"Message: {message}");
+                _dataProvider.ConsumerOrderEvent.Commit();
+            }
+            else
+                await Task.Delay(100, cancellationToken);
+            return;
+        }
+        catch (Exception exc)
+        {
+            var key = message is not null ? message.Message.Key!.ToString() : "No key";
+            var value = message is not null ? message.Message.Value!.ToString() : "No value";
+            _logger.LogError(exc, "Error process message Key:{Key} Value:{Value}", key, value);
+        }
+    }
     protected abstract Task HandleAsync(ConsumeResult<TKey, TValue> message, CancellationToken cancellationToken);
     public override void Dispose()
     {
