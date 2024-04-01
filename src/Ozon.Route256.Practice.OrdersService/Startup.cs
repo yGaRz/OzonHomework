@@ -72,16 +72,17 @@ namespace Ozon.Route256.Practice.OrdersService
 
             serviceCollection.AddScoped<IRegionRepository,RegionRepository>();
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
+
             serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
             serviceCollection.AddScoped<IGrcpCustomerService, Infrastructure.CacheCustomers.GrcpCustomerService>();
+
 
             serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
             serviceCollection.AddScoped<IAddOrderHandler, AddOrderHandler>();
             serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();
             serviceCollection.AddSingleton<IKafkaDataProvider<long, string>, OrderDataProvider>();
-
             serviceCollection.AddHostedService<ConsumerKafka>();
-            //serviceCollection.AddHostedService<OrderEventConsumer>();
+
 
             serviceCollection.AddSingleton<IDbStore, DbStore>();
             serviceCollection.AddHostedService<SdConsumerHostedService>();
