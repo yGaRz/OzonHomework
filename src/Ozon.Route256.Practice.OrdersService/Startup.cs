@@ -87,11 +87,11 @@ namespace Ozon.Route256.Practice.OrdersService
 
             serviceCollection.AddSingleton<KafkaPreOrderProvider>(x =>
                 new KafkaPreOrderProvider(x.GetRequiredService<ILogger<KafkaPreOrderProvider>>(), kafka_url));
-            serviceCollection.AddHostedService<ConcumerKafkaPreOrder>();
+            serviceCollection.AddHostedService<ConsumerKafkaPreOrder>();
 
             serviceCollection.AddSingleton< KafkaOrdersEventsProvider>(x =>
                 new KafkaOrdersEventsProvider(x.GetRequiredService<ILogger<KafkaOrdersEventsProvider>>(), kafka_url));
-            serviceCollection.AddHostedService<ConcumerOrdersEvents>();
+            serviceCollection.AddHostedService<ConsumerKafkaOrdersEvents>();
 
             serviceCollection.AddSingleton<IDbStore, DbStore>();
             serviceCollection.AddHostedService<SdConsumerHostedService>();

@@ -90,14 +90,14 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
                     else
                         result = ReflectionSortHelper.DynamicSort1(orders.ToList(), sortField, "desc");
 
-                    responce.Orders.Add(result.Select(OrderEntity.ConvertOrder));
+                    responce.Orders.Add(result.Select(OrderEntity.ConvertToOrderGrpc));
                     return responce;
                 }
                 else
                     throw new RpcException(new Status(StatusCode.Cancelled, $"Sorted field ={sortField} not found"));
             }
 
-            responce.Orders.Add(orders.Select(OrderEntity.ConvertOrder));
+            responce.Orders.Add(orders.Select(OrderEntity.ConvertToOrderGrpc));
             return responce;
         }
         public override async Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, ServerCallContext context)
@@ -112,10 +112,10 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
                     NameCustomer = $"{customerEntity.FirstName} {customerEntity.LastName}",
                     PhoneNumber = customerEntity.Phone,
                     Region = customerEntity.DefaultAddress.Region,
-                    AddressCustomer = AddressEntity.Convert(customerEntity.DefaultAddress)                    
+                    AddressCustomer = AddressEntity.ConvertToAddressGrpc(customerEntity.DefaultAddress)                    
                 };
                 foreach (var order in orders)
-                    responce.Orders.Add(OrderEntity.ConvertOrder(order));
+                    responce.Orders.Add(OrderEntity.ConvertToOrderGrpc(order));
                 return responce;
             }
             catch (RpcException ex)

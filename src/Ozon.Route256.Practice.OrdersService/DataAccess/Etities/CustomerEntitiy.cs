@@ -16,7 +16,7 @@ public record CustomerEntity
     public string Email { get; init; } = "";
     public AddressEntity DefaultAddress { get; init; }=null;
     public AddressEntity[] Addressed { get; init; } = { };
-    public static CustomerEntity Convert(Customer customer)
+    public static CustomerEntity ConvertFromCustomerGrpc(Customer customer)
     {
         return new CustomerEntity()
         {
@@ -25,11 +25,11 @@ public record CustomerEntity
             LastName = customer.LastName,
             Phone = customer.MobileNumber,
             Email = customer.Email,
-            DefaultAddress = AddressEntity.Convert(customer.DefaultAddress),
-            Addressed = customer.Addressed.Select(AddressEntity.Convert).ToArray()
+            DefaultAddress = AddressEntity.ConvertFromAddressGrpc(customer.DefaultAddress),
+            Addressed = customer.Addressed.Select(AddressEntity.ConvertFromAddressGrpc).ToArray()
         };
     }
-    public static Customer Convert(CustomerEntity customer)
+    public static Customer ConvertToCustomerGrpc(CustomerEntity customer)
     {
         var result =  new Customer()
         {
@@ -38,9 +38,9 @@ public record CustomerEntity
             LastName = customer.LastName,
             MobileNumber = customer.Phone,
             Email = customer.Email,
-            DefaultAddress = AddressEntity.Convert(customer.DefaultAddress)
+            DefaultAddress = AddressEntity.ConvertToAddressGrpc(customer.DefaultAddress)
         };
-        result.Addressed.Add(customer.Addressed.Select(AddressEntity.Convert));
+        result.Addressed.Add(customer.Addressed.Select(AddressEntity.ConvertToAddressGrpc));
         return result;
     }
 }

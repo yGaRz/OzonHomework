@@ -5,20 +5,19 @@ using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer
 {
-    public class ConcumerKafkaPreOrder : ConsumerBackgroundService<long, string>
+    public class ConsumerKafkaPreOrder : ConsumerBackgroundService<long, string>
     {
         private const string topicName = "pre_orders";
-        private readonly ILogger<ConcumerKafkaPreOrder> _logger;
+        private readonly ILogger<ConsumerKafkaPreOrder> _logger;
         private readonly IAddOrderHandler _addOrderdHandler;
-        public ConcumerKafkaPreOrder(
+        public ConsumerKafkaPreOrder(
             IServiceProvider serviceProvider,
             KafkaPreOrderProvider kafkaPreOrderProvider,
-            ILogger<ConcumerKafkaPreOrder> logger)
+            ILogger<ConsumerKafkaPreOrder> logger)
             : base(serviceProvider, kafkaPreOrderProvider, logger, topicName)
         {
             _logger = logger;
             _addOrderdHandler = _scope.ServiceProvider.GetRequiredService<IAddOrderHandler>();
-            //_setOrderStateHandler = _scope.ServiceProvider.GetRequiredService<ISetOrderStateHandler>();
         }
 
         private record OrderEvent(long OrderId, string OrderState, DateTimeOffset ChangedAt);

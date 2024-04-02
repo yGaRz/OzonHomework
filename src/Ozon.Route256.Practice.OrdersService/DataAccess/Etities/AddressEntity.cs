@@ -20,11 +20,11 @@ public record AddressEntity
         Longitude = longitude;
     }
 
-    public static AddressEntity Convert(Address address)
+    public static AddressEntity ConvertFromAddressGrpc(Address address)
     {
         return new AddressEntity(address.Region,address.City,address.Street,address.Building,address.Apartment,address.Latitude,address.Longitude);
     }
-    public static Address Convert(AddressEntity address)
+    public static Address ConvertToAddressGrpc(AddressEntity address)
     {
         return new Address()
         {

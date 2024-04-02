@@ -28,7 +28,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
                 {
                     throw new RpcException(new Status(StatusCode.InvalidArgument, $"Клиент с id={customerId} не найден"));
                 }
-                customerEntity = CustomerEntity.Convert(respCustomer.Customer);
+                customerEntity = CustomerEntity.ConvertFromCustomerGrpc(respCustomer.Customer);
                 await _customerCache.Insert(customerEntity, cancellationToken);
             }
             return customerEntity;
@@ -37,7 +37,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
         public async Task CreateCustomer(CustomerEntity customer, CancellationToken cancellationToken = default)
         {
             CreateCustomerRequest request = new CreateCustomerRequest();
-            request.Customer = CustomerEntity.Convert(customer);
+            request.Customer = CustomerEntity.ConvertToCustomerGrpc(customer);
             var resp = await _customersClient.CreateCustomerAsync(request);
         }
     }

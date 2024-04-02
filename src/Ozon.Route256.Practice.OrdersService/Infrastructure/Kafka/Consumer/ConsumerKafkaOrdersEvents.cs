@@ -1,20 +1,19 @@
 ﻿using Confluent.Kafka;
-using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
 using Ozon.Route256.Practice.OrdersService.Models;
 using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer
 {
-    public class ConcumerOrdersEvents : ConsumerBackgroundService<long, string>
+    public class ConsumerKafkaOrdersEvents : ConsumerBackgroundService<long, string>
     {
         private const string topicName = "orders_events";
-        private readonly ILogger<ConcumerOrdersEvents> _logger;
+        private readonly ILogger<ConsumerKafkaOrdersEvents> _logger;
         private readonly ISetOrderStateHandler _setOrderStateHandler;
-        public ConcumerOrdersEvents(
+        public ConsumerKafkaOrdersEvents(
             IServiceProvider serviceProvider,
             KafkaOrdersEventsProvider kafkaOrdersEventsProvider,
-            ILogger<ConcumerOrdersEvents> logger)
+            ILogger<ConsumerKafkaOrdersEvents> logger)
             : base(serviceProvider, kafkaOrdersEventsProvider, logger, topicName)
         {
             _logger = logger;
