@@ -2,13 +2,14 @@
 using System.Text.Json.Serialization;
 using Confluent.Kafka;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
 
 internal class OrderProducer : IOrderProducer
 {
     private const string TOPIC_NAME = "new_orders";
-    private readonly IKafkaDataProvider<long, string> _kafkaDataProvider;
+    private readonly IKafkaProducer<long, string> _kafkaDataProvider;
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -18,7 +19,7 @@ internal class OrderProducer : IOrderProducer
         }
     };
 
-    public OrderProducer(IKafkaDataProvider<long, string> kafkaDataProvider)
+    public OrderProducer(IKafkaProducer<long, string> kafkaDataProvider)
     {
         _kafkaDataProvider = kafkaDataProvider;
     }
@@ -43,7 +44,7 @@ internal class OrderProducer : IOrderProducer
                 Key = key,
                 Value = value
             };
-            var task = _kafkaDataProvider.ProducerNewOrder.ProduceAsync(TOPIC_NAME, message, token);
+            var task = _kafkaDataProvider.Producer.ProduceAsync(TOPIC_NAME, message, token);
             tasks.Add(task);
         }
 

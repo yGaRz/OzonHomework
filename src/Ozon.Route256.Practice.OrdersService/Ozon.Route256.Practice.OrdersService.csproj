@@ -22,6 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Infrastructure\Kafka\Consumer\ConsumerKafka.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Protos\customers.proto" />
     <None Remove="Protos\logistic.proto" />
   </ItemGroup>

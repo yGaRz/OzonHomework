@@ -4,7 +4,7 @@ using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Handlers
+namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers
 {
     public class AddOrderHandler : IAddOrderHandler
     {
@@ -24,6 +24,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Handlers
         {
             try
             {
+                //TODO: Когда появится понятная история с Region и Customer убрать хеширование и рандом.
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
                 order.CustomerId = order.CustomerId % 10 + 1;

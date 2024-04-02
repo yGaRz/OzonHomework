@@ -3,7 +3,7 @@ using Confluent.Kafka;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Handlers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
 using Ozon.Route256.Practice.OrdersService.Models;
 using System.Text.Json;
 using System.Text.Json.Nodes;
