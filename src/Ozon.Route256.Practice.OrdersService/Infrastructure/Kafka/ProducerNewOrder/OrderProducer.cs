@@ -7,6 +7,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewO
 
 internal class OrderProducer : IOrderProducer
 {
+    private const string TOPIC_NAME = "new_orders";
     private readonly IKafkaDataProvider<long, string> _kafkaDataProvider;
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
@@ -42,7 +43,7 @@ internal class OrderProducer : IOrderProducer
                 Key = key,
                 Value = value
             };
-            var task = _kafkaDataProvider.ProducerNewOrder.ProduceAsync("new_orders", message, token);
+            var task = _kafkaDataProvider.ProducerNewOrder.ProduceAsync(TOPIC_NAME, message, token);
             tasks.Add(task);
         }
 

@@ -180,7 +180,7 @@ public class OrdersServiceTests
         var request = new GetOrdersByCustomerIDRequest() { Id = id, PageIndex = 1, PageSize = 20, StartTime = DateTime.Now.ToUniversalTime().ToTimestamp() };
         var service = new OrdersService(null, null, null, mockCustomer.Object);
 
-        Assert.ThrowsAsync<RpcException>(async () => { await service.GetOrdersByCustomerID(request, context); });
+        Assert.ThrowsAsync<RpcException>(() => service.GetOrdersByCustomerID(request, context));
     }
     [Fact]
     public async void Get_Get_Customer_Orders_Customer_Responce_Valid()

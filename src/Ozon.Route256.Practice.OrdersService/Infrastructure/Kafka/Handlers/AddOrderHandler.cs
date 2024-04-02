@@ -36,6 +36,8 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Handlers
                     await _producer.ProduceAsync(new[] { order }, token);
                     _logger.LogInformation($"Заказ {order.Id} отправлен");
                 }
+                else
+                    _logger.LogInformation($"Заказ {order.Id} не будет отправлен из-за превышения расстояния до склада");
             }
             catch (Exception ex)
             {

@@ -51,16 +51,18 @@ public class ConsumerKafka : ConsumerBackgroundService<long, string>
     protected async Task OrdersEventsWorker(ConsumeResult<long, string> message, CancellationToken cancellationToken)
     {
         var orderEvent = JsonSerializer.Deserialize<OrderEvent>(message.Message.Value);
-        OrderStateEnum q = orderEvent.OrderState switch
+        if (orderEvent == null)
+            throw new Exception($"Заказ с номером ={message.Message.Key} не получилось десериализовать");
+        OrderStateEnum orderStateString = orderEvent.OrderState switch
         {
             "Created" => OrderStateEnum.Created,
             "SentToCustomer" => OrderStateEnum.SentToCustomer,
             "Delivered" => OrderStateEnum.Delivered,
             "Lost" => OrderStateEnum.Lost,
-            _ => OrderStateEnum.Lost
+            _ => throw new ArgumentException($"State order id={message.Message.Key} is not correct")
         };
 
-        await _setOrderStateHandler.Handle(orderEvent.OrderId, q, orderEvent.ChangedAt.DateTime, cancellationToken);
+        await _setOrderStateHandler.Handle(orderEvent.OrderId, orderStateString, orderEvent.ChangedAt.DateTime, cancellationToken);
         _logger.LogInformation($"Заказ Id = {orderEvent.OrderId} сменил статус на {orderEvent.OrderState}");
     }
 }

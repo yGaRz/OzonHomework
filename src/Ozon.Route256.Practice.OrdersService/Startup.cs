@@ -22,7 +22,7 @@ namespace Ozon.Route256.Practice.OrdersService
         {
             _configuration = configuration;
         }
-        public void ConfigureServices(IServiceCollection serviceCollection)
+        public async void ConfigureServices(IServiceCollection serviceCollection)
         {
             serviceCollection.AddGrpc(option => option.Interceptors.Add<LoggerInterceptor>());
             serviceCollection.AddGrpcClient<SdService.SdServiceClient>(option =>
@@ -87,7 +87,7 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddSingleton<IDbStore, DbStore>();
             serviceCollection.AddHostedService<SdConsumerHostedService>();
 
-            _ = GenerateRegionAsync(serviceCollection);
+            await GenerateRegionAsync(serviceCollection);
         }
 
         public void Configure(IApplicationBuilder applicationBuilder)

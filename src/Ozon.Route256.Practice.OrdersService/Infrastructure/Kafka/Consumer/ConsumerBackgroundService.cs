@@ -6,7 +6,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
 public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundService
 {
 
-    protected string TopicName = "";
+
     private readonly IKafkaDataProvider<TKey, TValue> _dataProvider;
     private readonly ILogger<ConsumerBackgroundService<TKey, TValue>> _logger;
     protected readonly IServiceScope _scope;
@@ -28,7 +28,7 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
         if (stoppingToken.IsCancellationRequested)
             return;
 
-        TopicName = "pre_orders";
+        string TopicName = "pre_orders";
         _dataProvider.ConsumerPreOrder.Subscribe(TopicName);
         _logger.LogInformation("Start consumer topic {Topic} ", TopicName);
 
@@ -38,15 +38,15 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            await ConsumeAsync1(stoppingToken);
-            await ConsumeAsync2(stoppingToken);
+            await ConsumePreOrderAsync(stoppingToken);
+            await ConsumeOrderEventAsync(stoppingToken);
         }
 
         _dataProvider.ConsumerPreOrder.Unsubscribe();
         _dataProvider.ConsumerOrderEvent.Unsubscribe();
         _logger.LogInformation("Stop consumer topic {Topic}", TopicName);
     }
-    private async Task ConsumeAsync1(CancellationToken cancellationToken)
+    private async Task ConsumePreOrderAsync(CancellationToken cancellationToken)
     {
         ConsumeResult<TKey, TValue>? message = null;
         try
@@ -69,7 +69,7 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
             _logger.LogError(exc, "Error process message Key:{Key} Value:{Value}", key, value);
         }
     }
-    private async Task ConsumeAsync2(CancellationToken cancellationToken)
+    private async Task ConsumeOrderEventAsync(CancellationToken cancellationToken)
     {
         ConsumeResult<TKey, TValue>? message = null;
         try
