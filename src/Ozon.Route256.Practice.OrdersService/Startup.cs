@@ -9,9 +9,10 @@ using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using StackExchange.Redis;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Handlers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -65,10 +66,7 @@ namespace Ozon.Route256.Practice.OrdersService
                 throw new ArgumentException("ROUTE256_REDIS_ADDRESS variable is null or empty");
             serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redis_url));
 
-            var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
-            if (string.IsNullOrEmpty(redis_url))
-                throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
-            OrderDataProvider.Kafka_url = kafka_url;
+
 
             serviceCollection.AddScoped<IRegionRepository,RegionRepository>();
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
@@ -76,13 +74,24 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
             serviceCollection.AddScoped<IGrcpCustomerService, Infrastructure.CacheCustomers.GrpcCustomerService>();
 
+            var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
+            if (string.IsNullOrEmpty(redis_url))
+                throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
+
+            serviceCollection.AddSingleton<IKafkaProducer<long,string>, KafkaProducerProvider>(x=>
+                    new KafkaProducerProvider(x.GetRequiredService<ILogger<KafkaProducerProvider>>(),kafka_url));
 
             serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
             serviceCollection.AddScoped<IAddOrderHandler, AddOrderHandler>();
             serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();
-            serviceCollection.AddSingleton<IKafkaDataProvider<long, string>, OrderDataProvider>();
-            serviceCollection.AddHostedService<ConsumerKafka>();
 
+            serviceCollection.AddSingleton<KafkaPreOrderProvider>(x =>
+                new KafkaPreOrderProvider(x.GetRequiredService<ILogger<KafkaPreOrderProvider>>(), kafka_url));
+            serviceCollection.AddHostedService<ConcumerKafkaPreOrder>();
+
+            serviceCollection.AddSingleton< KafkaOrdersEventsProvider>(x =>
+                new KafkaOrdersEventsProvider(x.GetRequiredService<ILogger<KafkaOrdersEventsProvider>>(), kafka_url));
+            serviceCollection.AddHostedService<ConcumerOrdersEvents>();
 
             serviceCollection.AddSingleton<IDbStore, DbStore>();
             serviceCollection.AddHostedService<SdConsumerHostedService>();
