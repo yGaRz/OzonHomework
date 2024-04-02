@@ -24,8 +24,9 @@ public record OrderEntity
         Source = source;
         State = state;
         CustomerId = customerId;
-        Address = AddressEntity.Convert(address);
-        Goods = goods.ToList();
+        Address = AddressEntity.ConvertFromAddressGrpc(address);
+        Goods = new List<ProductEntity>();
+        Goods.AddRange(goods);  
         TimeCreate = DateTime.UtcNow;
         TimeUpdate = DateTime.UtcNow;
     }
@@ -36,7 +37,8 @@ public record OrderEntity
         State = state;
         CustomerId = customerId;
         Address = address;
-        Goods = goods.ToList();
+        Goods = new List<ProductEntity>();
+        Goods.AddRange(goods);
         TimeCreate = DateTime.UtcNow;
         TimeUpdate = DateTime.UtcNow;
     }
@@ -70,7 +72,7 @@ public record OrderEntity
     }
 #pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
 
-    public static Order ConvertOrder(OrderEntity order)
+    public static Order ConvertToOrderGrpc(OrderEntity order)
     {
         var orderEntity = new Order()
         {
