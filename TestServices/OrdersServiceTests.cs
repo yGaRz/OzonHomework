@@ -163,8 +163,10 @@ public class OrdersServiceTests
         mockLogistic.Setup(m => m.OrderCancelAsync(new Ozon.Route256.Practice.LogisticsSimulator.Grpc.Order() { Id = idOrder }, null, null, context.CancellationToken)).Returns(mockCall);
         var service = new OrdersService(null, mockOrders.Object, mockLogistic.Object, null);
         var request = new CancelOrderByIdRequest() { Id = idOrder };
+
         //Act
         var responce = await service.CancelOrder(request, context);
+
         //Assert
         Assert.NotNull(responce);
     }

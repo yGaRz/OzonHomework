@@ -5,7 +5,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
 
 public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundService
 {
-
+    
 
     private readonly IKafkaDataProvider<TKey, TValue> _dataProvider;
     private readonly ILogger<ConsumerBackgroundService<TKey, TValue>> _logger;
@@ -17,10 +17,7 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
         _dataProvider = kafkaDataProvider;
         _logger = logger;
         _scope = serviceProvider.CreateScope();
-        //ConsumerPreOrder=_dataProvider.ConsumerPreOrder;
     }
-
-    //protected IConsumer<TKey,TValue> ConsumerPreOrder=null;
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
