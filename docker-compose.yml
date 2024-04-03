@@ -51,6 +51,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_INTERNAL'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'LISTENER_INTERNAL:PLAINTEXT,LISTENER_LOCAL:PLAINTEXT'
       KAFKA_DEFAULT_REPLICATION_FACTOR: '2'
+      KAFKA_NUM_PARTITIONS: '2'
 
   broker-2:
     image: confluentinc/cp-kafka:7.3.2
@@ -58,6 +59,7 @@ services:
     depends_on:
       - zookeeper
       - service-discovery
+      - broker-1
     ports:
       - "29092:29092"
     environment:
@@ -69,6 +71,28 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_INTERNAL'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'LISTENER_INTERNAL:PLAINTEXT,LISTENER_LOCAL:PLAINTEXT'
       KAFKA_DEFAULT_REPLICATION_FACTOR: '2'
+      KAFKA_NUM_PARTITIONS: '2'
+
+  broker-3:
+    image: confluentinc/cp-kafka:7.3.2
+    container_name: broker-3
+    depends_on:
+      - zookeeper
+      - service-discovery
+      - broker-1
+      - broker-2 
+    ports:
+      - "29093:29093"
+    environment:
+      KAFKA_BROKER_ID: '3'
+      KAFKA_BROKER_RACK: '3'
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENERS: 'LISTENER_INTERNAL://:9091,LISTENER_LOCAL://:29093'
+      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_INTERNAL://broker-3:9091,LISTENER_LOCAL://localhost:29093'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_INTERNAL'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'LISTENER_INTERNAL:PLAINTEXT,LISTENER_LOCAL:PLAINTEXT'
+      KAFKA_DEFAULT_REPLICATION_FACTOR: '2'
+      KAFKA_NUM_PARTITIONS: '2'
 
   customer-service-db:
     image: postgres:latest
@@ -106,6 +130,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
     container_name: gateway-service
     ports:
       - "5071:80"
@@ -119,6 +144,12 @@ services:
       "ROUTE256_OS3_ADDRESS": "localhost"
       "ROUTE256_OS3_PORT": "5005"
 
+  orders-redis:
+    image: redis:latest
+    container_name: orders-redis
+    ports:
+      - "6380:6379"
+
   orders-service-1:
     build: 
       context: ./src/Ozon.Route256.Practice.OrdersService
@@ -127,7 +158,9 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
       - orders-db
+      - orders-redis 
     container_name: orders-service-1
     ports:
       - "5091:80"
@@ -137,6 +170,8 @@ services:
       "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
       "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
       "ROUTE256_GRPC_PORT": "5005"
+      "ROUTE256_REDIS_ADDRESS": "orders-redis:6379"
+      "ROUTE256_KAFKA_ADDRESS": "broker-1:9091"
  
   orders-service-2:
     build: 
@@ -146,7 +181,9 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
       - orders-db
+      - orders-redis
     container_name: orders-service-2
     ports:
       - "5092:80"
@@ -156,6 +193,8 @@ services:
       "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
       "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
       "ROUTE256_GRPC_PORT": "5005"
+      "ROUTE256_REDIS_ADDRESS": "orders-redis:6379"
+      "ROUTE256_KAFKA_ADDRESS": "broker-1:9091"
     
   customer-service:
     image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/customer-service:latest
@@ -163,6 +202,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
       - customer-service-db
     container_name: customer-service
     ports:
@@ -178,6 +218,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
     container_name: orders-generator-web
     environment:
       - ROUTE256_ORDER_SOURCE=WebSite
@@ -190,6 +231,7 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
     container_name: orders-generator-mobile
     environment:
       - ROUTE256_ORDER_SOURCE=Mobile
@@ -202,11 +244,18 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
     container_name: orders-generator-api
     environment:
       - ROUTE256_ORDER_SOURCE=Api
       - ROUTE256_ORDER_REQUEST_TOPIC=pre_orders
       - ROUTE256_KAFKA_BROKERS=broker-1:9091
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
                 
   logistic-simulator:
     image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/logistics-simulator:latest
@@ -214,6 +263,8 @@ services:
       - service-discovery
       - broker-1
       - broker-2
+      - broker-3
+      - redis
     container_name: logistic-simulator
     ports:
       - "5131:80"

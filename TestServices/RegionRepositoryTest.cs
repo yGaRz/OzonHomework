@@ -8,7 +8,7 @@ public class RegionRepositoryTest
     {
         RegionRepository regionRepository = new RegionRepository();
 
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "Moscow"));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "Moscow",1,1));
         var result = await regionRepository.GetNameByIdRegionAsync(0);    
         
         Assert.True(result == "Moscow");
@@ -19,8 +19,8 @@ public class RegionRepositoryTest
     {
         RegionRepository regionRepository = new RegionRepository();
 
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "Moscow"));
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "London"));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "Moscow", 1, 1));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "London", 1, 1));
         var result = await regionRepository.GetNameByIdRegionAsync(0);
 
         Assert.True(result != "London");
@@ -31,11 +31,11 @@ public class RegionRepositoryTest
     {
         RegionRepository regionRepository = new RegionRepository();
 
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "Moscow"));
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "London"));
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(2, "London"));
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(1, "Berlin"));
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(6, "London"));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "Moscow", 1, 1));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "London", 1, 1));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(2, "London", 1, 1));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(1, "Berlin", 1, 1));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(6, "London", 1, 1));
         var result = await regionRepository.GetRegionsAsync();
 
         Assert.True(result.Count() == 3);
@@ -46,11 +46,11 @@ public class RegionRepositoryTest
     {
         RegionRepository regionRepository = new RegionRepository();
 
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "Moscow"));
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "London"));
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(2, "London"));
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(1, "Berlin"));
-        _ = regionRepository.CreateRegionAsync(new RegionEntity(6, "London"));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "Moscow", 1, 1));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(0, "London", 1, 1));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(2, "London", 1, 1));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(1, "Berlin", 1, 1));
+        _ = regionRepository.CreateRegionAsync(new RegionEntity(6, "London", 1, 1));
         var result = await regionRepository.GetIdByRegionNameAsync("London");
 
         Assert.True(result == 2);

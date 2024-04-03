@@ -15,7 +15,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
             public int CountOrders {  get; init; }
             public double TotalSum { get; init; }
             public double TotalWigth { get; init; }
-            public int CountCustomer { get; init; }
+            public int CountCustomers { get; init; }
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                     foreach (var a in responce.Statistic)
                         result.Add(new StatisticByRegion()
                         {
-                            CountCustomer = a.CountCustomer,
+                            CountCustomers = a.CountCustomers,
                             Region = a.Region,
                             CountOrders = a.TotalCountOrders,
                             TotalSum = a.TotalSumOrders,

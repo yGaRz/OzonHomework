@@ -7,6 +7,12 @@ using Google.Protobuf.WellKnownTypes;
 using Bogus;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using StackExchange.Redis;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -17,7 +23,7 @@ namespace Ozon.Route256.Practice.OrdersService
         {
             _configuration = configuration;
         }
-        public void ConfigureServices(IServiceCollection serviceCollection)
+        public async void ConfigureServices(IServiceCollection serviceCollection)
         {
             serviceCollection.AddGrpc(option => option.Interceptors.Add<LoggerInterceptor>());
             serviceCollection.AddGrpcClient<SdService.SdServiceClient>(option =>
@@ -51,19 +57,46 @@ namespace Ozon.Route256.Practice.OrdersService
                 option.Address = new Uri(url);
             });
 
-
             serviceCollection.AddSwaggerGen();
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();
 
-            ///TODO: Убрать тестовые данные.
-            _ = GenerateTestDataAsync();
+            var redis_url = _configuration.GetValue<string>("ROUTE256_REDIS_ADDRESS");
+            if (string.IsNullOrEmpty(redis_url))
+                throw new ArgumentException("ROUTE256_REDIS_ADDRESS variable is null or empty");
+            serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redis_url));
+
+
 
             serviceCollection.AddScoped<IRegionRepository,RegionRepository>();
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
 
+            serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
+            serviceCollection.AddScoped<IGrcpCustomerService, Infrastructure.CacheCustomers.GrpcCustomerService>();
+
+            var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
+            if (string.IsNullOrEmpty(redis_url))
+                throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
+
+            serviceCollection.AddSingleton<IKafkaProducer<long,string>, KafkaProducerProvider>(x=>
+                    new KafkaProducerProvider(x.GetRequiredService<ILogger<KafkaProducerProvider>>(),kafka_url));
+
+            serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
+            serviceCollection.AddScoped<IAddOrderHandler, AddOrderHandler>();
+            serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();
+
+            serviceCollection.AddSingleton<KafkaPreOrderProvider>(x =>
+                new KafkaPreOrderProvider(x.GetRequiredService<ILogger<KafkaPreOrderProvider>>(), kafka_url));
+            serviceCollection.AddHostedService<ConsumerKafkaPreOrder>();
+
+            serviceCollection.AddSingleton< KafkaOrdersEventsProvider>(x =>
+                new KafkaOrdersEventsProvider(x.GetRequiredService<ILogger<KafkaOrdersEventsProvider>>(), kafka_url));
+            serviceCollection.AddHostedService<ConsumerKafkaOrdersEvents>();
+
             serviceCollection.AddSingleton<IDbStore, DbStore>();
             serviceCollection.AddHostedService<SdConsumerHostedService>();
+
+            await GenerateRegionAsync(serviceCollection);
         }
 
         public void Configure(IApplicationBuilder applicationBuilder)
@@ -79,57 +112,12 @@ namespace Ozon.Route256.Practice.OrdersService
 
         }
 
-        private static async Task GenerateTestDataAsync()
+        private static async Task GenerateRegionAsync(IServiceCollection services)
         {
             RegionRepository regionRepository = new RegionRepository();
-            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(0, "Moscow"));
-            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(1, "StPetersburg"));
-            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(2, "Novosibirsk"));
-
-            OrdersRepository ordersRepository = new OrdersRepository();
-            Random rand = new Random(0);
-            List<CustomerEntity> customerEntities = new List<CustomerEntity>();
-            Faker faker = new Faker();
-
-            for(int i=1;i<=6;i++)
-            {
-                string regionName  = await regionRepository.GetNameByIdRegionAsync(i % 3);
-                AddressEntity address = new AddressEntity(regionName,
-                                                                faker.Address.City(),
-                                                                faker.Address.StreetName(),
-                                                                faker.Address.BuildingNumber(),
-                                                                faker.Address.StreetSuffix(),
-                                                                faker.Address.Latitude(),
-                                                                faker.Address.Longitude());               
-                CustomerEntity cusromer = new CustomerEntity()
-                {
-                    Id = i,
-                    Address = address
-                };
-                customerEntities.Add(cusromer);
-            }
-
-
-            for (int i=1;i<10;i++)
-            {
-                List<ProductEntity> goods = new List<ProductEntity>();
-                int cnt = rand.Next(1, 3);
-                for (int j=0;j<cnt;j++)
-                {
-                    ProductEntity good = new ProductEntity(faker.Random.Int(0,555555),
-                        faker.Commerce.Product(),
-                        faker.Random.Int(1,5),
-                        faker.Random.Double(1,500),
-                        faker.Random.UInt(1,20)
-                        );
-                    goods.Add(good);
-                }
-                OrderEntity order = new OrderEntity(i, Models.OrderSourceEnum.WebSite, Models.OrderStateEnum.Created, customerEntities[rand.Next(1, 3)], goods);
-                await ordersRepository.CreateOrderAsync(order);
-            }
-
-
-
+            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(0, "Moscow",55.72,37.65));
+            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(1, "StPetersburg",59.88,82.55));
+            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(2, "Novosibirsk",55.01,82.55));
         }
 
 
