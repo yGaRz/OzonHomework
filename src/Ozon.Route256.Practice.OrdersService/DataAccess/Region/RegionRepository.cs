@@ -66,5 +66,15 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
             else
                 throw new NotFoundException($"Region with id={regionId} is not found");
         }
+
+        public Task<RegionEntity> GetRegionsEntityById(int[] regionId, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<RegionEntity> GetRegionsEntityByName(string[] regionName, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

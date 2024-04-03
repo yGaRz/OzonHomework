@@ -14,6 +14,32 @@
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5140"
+    },
+    "Ozon.Route256.Practice.OrdersService.MigrateUp": {
+      "commandName": "Project",
+      "commandLineArgs": "migrateUp",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ROUTE256_SD_ADDRESS": "http://localhost:6081",
+        "ROUTE256_LS_ADDRESS": "http://localhost:5131",
+        "ROUTE256_CS_ADDRESS": "http://localhost:5181",
+        "ROUTE256_REDIS_ADDRESS": "localhost:6380",
+        "ROUTE256_KAFKA_ADDRESS": "localhost:29091",
+        "ROUTE256_GRPC_PORT": "5005"
+      }
+    },
+    "Ozon.Route256.Practice.OrdersService.MigrateDown": {
+      "commandName": "Project",
+      "commandLineArgs": "migrateDown",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ROUTE256_SD_ADDRESS": "http://localhost:6081",
+        "ROUTE256_LS_ADDRESS": "http://localhost:5131",
+        "ROUTE256_CS_ADDRESS": "http://localhost:5181",
+        "ROUTE256_REDIS_ADDRESS": "localhost:6380",
+        "ROUTE256_KAFKA_ADDRESS": "localhost:29091",
+        "ROUTE256_GRPC_PORT": "5005"
+      }
     }
   }
 }

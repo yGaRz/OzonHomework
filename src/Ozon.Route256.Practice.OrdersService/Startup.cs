@@ -13,6 +13,9 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
+using FluentMigrator.Runner.Processors;
+using FluentMigrator.Runner;
+using Ozon.Route256.Practice.OrdersService.DAL.Common;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -95,6 +98,24 @@ namespace Ozon.Route256.Practice.OrdersService
 
             serviceCollection.AddSingleton<IDbStore, DbStore>();
             serviceCollection.AddHostedService<SdConsumerHostedService>();
+
+            var connectionString = _configuration.GetConnectionString("CustomerDatabase");
+            serviceCollection.AddFluentMigratorCore()
+                .ConfigureRunner(
+                    builder => builder
+                        .AddPostgres()
+                        .ScanIn(GetType().Assembly)
+                        .For.Migrations())
+                .AddOptions<ProcessorOptions>()
+                .Configure(
+                    options =>
+                    {
+                        options.ProviderSwitches = "Force Quote=false";
+                        options.Timeout = TimeSpan.FromMinutes(10);
+                        options.ConnectionString = connectionString;
+                    });
+            
+            //PostgresMapping.MapCompositeTypes();
 
             await GenerateRegionAsync(serviceCollection);
         }

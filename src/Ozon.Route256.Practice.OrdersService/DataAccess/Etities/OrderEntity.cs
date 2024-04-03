@@ -16,7 +16,7 @@ public record OrderEntity
     public DateTime TimeUpdate { get; set; }
     public string Region =>Address.Region;
     public int CountGoods => Goods.Count();
-    public double TotalSum => Goods.Sum(x => x.Price * x.Quantity);
+    public double TotalPrice => Goods.Sum(x => x.Price * x.Quantity);
     public double TotalWeigth => Goods.Sum(x => x.Weight);
     public OrderEntity(long id, OrderSourceEnum source, OrderStateEnum state, int customerId, Address address, IEnumerable<ProductEntity> goods)
     {
@@ -82,7 +82,7 @@ public record OrderEntity
             TotalWeight = order.TotalWeigth,
             OrderSource = (OrderSource)order.Source,
             OrderState = (OrderState)order.State,
-            TotalSum = order.TotalSum
+            TotalSum = order.TotalPrice
         };
         foreach (var g in order.Goods)
         {
