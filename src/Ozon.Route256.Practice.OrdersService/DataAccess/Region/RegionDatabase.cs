@@ -1,4 +1,5 @@
-﻿using Ozon.Route256.Practice.OrdersService.DAL.Repositories;
+﻿using Ozon.Route256.Practice.OrdersService.DAL.Models;
+using Ozon.Route256.Practice.OrdersService.DAL.Repositories;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using System.Collections.Concurrent;
@@ -15,13 +16,15 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
             _regionRepositoryPg = regionRepositoryPg;
         }
 
-        public Task CreateRegionAsync(RegionEntity region, CancellationToken token = default)
+        public async Task<Task> CreateRegionAsync(RegionEntity region, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             if(RegionsDictionary.TryGetValue(region.Id,out _))
                 return Task.FromException(new Exception($"Region with id={region.Id} already exists"));
             else
             {
+                RegionDal[] dals= new RegionDal[1]{ new RegionDal(region.Id,region.Name,region.Latitude,region.Longitude)};
+                await _regionRepositoryPg.Create(dals, token);
                 RegionsDictionary.TryAdd(region.Id, region);
                 return Task.CompletedTask;
             }

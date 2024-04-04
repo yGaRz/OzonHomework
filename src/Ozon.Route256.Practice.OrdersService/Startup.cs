@@ -78,7 +78,7 @@ namespace Ozon.Route256.Practice.OrdersService
                 throw new Exception($"Connection string not found or empty");
 
             serviceCollection.AddScoped<RegionRepositoryPg>();
-            serviceCollection.AddScoped<IRegionRepository,RegionDatabase>();
+            serviceCollection.AddScoped<IRegionRepository,RegionDatabase>();         
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
             //Редис
             serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
