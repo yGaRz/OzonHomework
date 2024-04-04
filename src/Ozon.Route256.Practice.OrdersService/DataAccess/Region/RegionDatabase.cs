@@ -23,19 +23,23 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
                 return Task.FromException(new Exception($"Region with id={region.Id} already exists"));
             else
             {
-                RegionDal[] dals= new RegionDal[1]{ new RegionDal(region.Id,region.Name,region.Latitude,region.Longitude)};
-                await _regionRepositoryPg.Create(dals, token);
+                await _regionRepositoryPg.Create(new RegionDal(region.Id, region.Name, region.Latitude, region.Longitude), token);
                 RegionsDictionary.TryAdd(region.Id, region);
                 return Task.CompletedTask;
             }
         }
 
-        public Task<bool> IsRegionsExistsAsync(string[] regionName, CancellationToken cancellationToken = default)
+        public async Task<bool> IsRegionsExistsAsync(string[] regionName, CancellationToken cancellationToken = default)
         {
-            if(RegionsDictionary.Values.Where(x => regionName.Contains(x.Name)).ToArray().Length==regionName.Length)
-                return Task.FromResult(true);
+            if (RegionsDictionary.Values.Where(x => regionName.Contains(x.Name)).ToArray().Length == regionName.Length)
+                return true;
             else
-                return Task.FromResult(false);  
+            {
+                await Update(cancellationToken);
+                if (RegionsDictionary.Values.Where(x => regionName.Contains(x.Name)).ToArray().Length == regionName.Length)
+                    return true;
+                return false;
+            }
         }
 
         public async Task<RegionEntity[]> GetRegionsEntityByIdAsync(int[] regionId, CancellationToken cancellationToken = default)
@@ -64,7 +68,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
                 await Update(cancellationToken);
 
             result = RegionsDictionary.Values.Where(x => regionName.Contains(x.Name)).ToArray();
-            if (result.Length != regionName.Length)
+            if (result.Length == regionName.Length)
                 return await Task.FromResult(result);
             else
                 throw new NotFoundException($"Region with name={regionName} is not found");

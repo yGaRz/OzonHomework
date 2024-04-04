@@ -14,21 +14,23 @@ public class RegionRepositoryPg
     {
         _connectionFactory = connectionFactory;
     }
-    public async Task<int[]> Create( RegionDal[] regions, CancellationToken token)
+    public async Task<int> Create( RegionDal regions, CancellationToken token)
     {
         const string sql = @$"
             insert into {Table} ({FieldsForInsert})
-            select {FieldsForInsert} from unnest(:models)
+            values (:region_name, :latitude, :longitude)
             returning id;
         ";
 
         await using var connection = _connectionFactory.GetConnection();
         await using var command = new NpgsqlCommand(sql, connection);
-        command.Parameters.Add("models", regions);
+        command.Parameters.Add("region_name", regions.Name);
+        command.Parameters.Add("latitude", regions.Latitude);
+        command.Parameters.Add("longitude", regions.Longitude);
 
         await connection.OpenAsync(token);
         var reader = await command.ExecuteReaderAsync(token);
-        var result = await ReadIds(reader, token);
+        var result = await ReadId(reader, token);
         return result;
     }
 
@@ -69,15 +71,11 @@ public class RegionRepositoryPg
         return result.ToArray();
     }
 
-    private static async Task<int[]> ReadIds(
+    private static async Task<int> ReadId(
         NpgsqlDataReader reader,
         CancellationToken token)
     {
-        var result = new List<int>();
-        while (await reader.ReadAsync(token))
-        {
-            result.Add(reader.GetFieldValue<int>(0));
-        }
-        return result.ToArray();
+        await reader.ReadAsync(token);
+        return reader.GetFieldValue<int>(0);
     }
 }

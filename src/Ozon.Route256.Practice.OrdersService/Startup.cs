@@ -17,6 +17,7 @@ using FluentMigrator.Runner.Processors;
 using FluentMigrator.Runner;
 using Ozon.Route256.Practice.OrdersService.DAL.Common;
 using Ozon.Route256.Practice.OrdersService.DAL.Repositories;
+using Npgsql.Replication.PgOutput.Messages;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -78,7 +79,12 @@ namespace Ozon.Route256.Practice.OrdersService
                 throw new Exception($"Connection string not found or empty");
 
             serviceCollection.AddScoped<RegionRepositoryPg>();
-            serviceCollection.AddScoped<IRegionRepository,RegionDatabase>();         
+            serviceCollection.AddScoped<IRegionRepository, RegionDatabase>();
+            using (var serviceProvider = serviceCollection.BuildServiceProvider())
+            {
+                var regionRepository = serviceProvider.GetService<IRegionRepository>();
+                regionRepository.Update();
+            }
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
             //Редис
             serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
@@ -134,7 +140,6 @@ namespace Ozon.Route256.Practice.OrdersService
                 endpointRouteBuilder.MapGrpcService<GrpcServices.OrdersService>();
                 endpointRouteBuilder.MapGrpcReflectionService();
             });
-
         }
     }
 
