@@ -30,6 +30,7 @@ namespace Ozon.Route256.Practice.OrdersService
         }
         public void ConfigureServices(IServiceCollection serviceCollection)
         {
+            //Grpc--------------------------------------------------------------------
             serviceCollection.AddGrpc(option => option.Interceptors.Add<LoggerInterceptor>());
             serviceCollection.AddGrpcClient<SdService.SdServiceClient>(option =>
             {
@@ -66,18 +67,12 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();
 
-            var redis_url = _configuration.GetValue<string>("ROUTE256_REDIS_ADDRESS");
-            if (string.IsNullOrEmpty(redis_url))
-                throw new ArgumentException("ROUTE256_REDIS_ADDRESS variable is null or empty");
-            serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redis_url));
-
-            //Репозитории
+            //Репозитории-----------------------------------------------------------
             var connectionString = _configuration.GetConnectionString("CustomerDatabase");
             if (!string.IsNullOrEmpty(connectionString))
                 serviceCollection.AddSingleton<IPostgresConnectionFactory>(_ => new PostgresConnectionFactory(connectionString));
             else
                 throw new Exception($"Connection string not found or empty");
-
             serviceCollection.AddScoped<RegionRepositoryPg>();
             serviceCollection.AddScoped<IRegionRepository, RegionDatabase>();
             using (var serviceProvider = serviceCollection.BuildServiceProvider())
@@ -86,10 +81,16 @@ namespace Ozon.Route256.Practice.OrdersService
                 regionRepository.Update();
             }
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
-            //Редис
+
+            //Редис--------------------------------------------------------------------
+            var redis_url = _configuration.GetValue<string>("ROUTE256_REDIS_ADDRESS");
+            if (string.IsNullOrEmpty(redis_url))
+                throw new ArgumentException("ROUTE256_REDIS_ADDRESS variable is null or empty");
+            serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redis_url));
             serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
-            serviceCollection.AddScoped<IGrcpCustomerService, Infrastructure.CacheCustomers.GrpcCustomerService>();
-            //Кафка
+            serviceCollection.AddScoped<IGrcpCustomerService, GrpcCustomerService>();
+
+            //Кафка--------------------------------------------------------------------
             var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
             if (string.IsNullOrEmpty(redis_url))
                 throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
@@ -108,11 +109,12 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddSingleton< KafkaOrdersEventsProvider>(x =>
                 new KafkaOrdersEventsProvider(x.GetRequiredService<ILogger<KafkaOrdersEventsProvider>>(), kafka_url));
             serviceCollection.AddHostedService<ConsumerKafkaOrdersEvents>();
-            //service-discovery
+
+            //service-discovery----------------------------------------------------------
             serviceCollection.AddSingleton<IDbStore, DbStore>();
             serviceCollection.AddHostedService<SdConsumerHostedService>();
 
-            //fluent-migration
+            //fluent-migration-----------------------------------------------------------
             serviceCollection.AddFluentMigratorCore()
                 .ConfigureRunner(
                     builder => builder
