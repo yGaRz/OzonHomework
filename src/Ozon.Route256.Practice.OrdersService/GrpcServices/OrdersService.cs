@@ -59,21 +59,21 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
         }        
         public override async Task<GetRegionResponse> GetRegion(GetRegionRequest request, ServerCallContext context)
         {
-            var regions = await _regionRepository.GetRegionsAsync();
+            var regions = await _regionRepository.GetRegionsEntityByIdAsync(Array.Empty<int>(), context.CancellationToken);
             var result = new GetRegionResponse
             {
-                Region = { regions.ToArray() }
+                Region = { regions.Select(x => x.Name).ToArray() }
             };
             return result;
         }
         public override async Task<GetOrdersResponse> GetOrders(GetOrdersRequest request, ServerCallContext context)
         {
-            if (!await _regionRepository.IsRegionExists(request.Region.ToArray(), context.CancellationToken))
+            if (!await _regionRepository.IsRegionsExistsAsync(request.Region.ToArray(), context.CancellationToken))
                 throw new RpcException(new Status(StatusCode.NotFound, "Region not found"));
 
-            var orders = request.Region.Count == 0 ?
-                    await _ordersRepository.GetOrdersByRegionAsync((await _regionRepository.GetRegionsAsync()).ToList(), (OrderSourceEnum)request.Source, context.CancellationToken)
-                : await _ordersRepository.GetOrdersByRegionAsync(request.Region.ToList(), (OrderSourceEnum)request.Source, context.CancellationToken);
+            var regions = await _regionRepository.GetRegionsEntityByNameAsync(request.Region.ToArray());
+            
+            var orders = await _ordersRepository.GetOrdersByRegionAsync(regions.Select(x=>x.Name).ToList(), (OrderSourceEnum)request.Source, context.CancellationToken);
 
             var sortParam = request.SortParam;
             var sortField = request.SortField;
@@ -131,17 +131,12 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
         }
         public override async Task<GetRegionStatisticResponse> GetRegionStatistic(GetRegionStatisticRequest request, ServerCallContext context)
         {
-            if (!await _regionRepository.IsRegionExists(request.Region.ToArray(), context.CancellationToken))
+            if (!await _regionRepository.IsRegionsExistsAsync(request.Region.ToArray(), context.CancellationToken))
                 throw new RpcException(new Status(StatusCode.NotFound, "Region not found"));
 
             RegionStatisticEntity[]? result = null;
-            if(request.Region.Count==0)
-            {
-                string[] allRegions = await _regionRepository.GetRegionsAsync(context.CancellationToken);
-                result = await _ordersRepository.GetRegionsStatisticAsync(allRegions.ToList(), request.StartTime.ToDateTime(), context.CancellationToken);
-            }
-            else
-                result = await _ordersRepository.GetRegionsStatisticAsync(request.Region.ToList(), request.StartTime.ToDateTime(), context.CancellationToken);
+            var regions = await _regionRepository.GetRegionsEntityByNameAsync(request.Region.ToArray());
+            result = await _ordersRepository.GetRegionsStatisticAsync(regions.Select(x => x.Name).ToList(), request.StartTime.ToDateTime(), context.CancellationToken);
             
             GetRegionStatisticResponse regionStatisticResponse = new GetRegionStatisticResponse();
             foreach ( var item in result )
@@ -163,8 +158,8 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             for (int i = 1; i <= request.Count; i++)
             {
                 Faker faker = new Faker();
-                string regionName = await _regionRepository.GetNameByIdRegionAsync(faker.Random.Int(0, 2));
-                AddressEntity address = new AddressEntity(regionName,
+                var regionName = await _regionRepository.GetRegionEntityByIdAsync(faker.Random.Int(0, 2),context.CancellationToken);
+                AddressEntity address = new AddressEntity(regionName.Name,
                                                         faker.Address.City(),
                                                         faker.Address.StreetName(),
                                                         faker.Address.BuildingNumber(),

@@ -20,18 +20,7 @@ create table orders(
     count_goods int,
     total_weigth numeric,
     total_price numeric,
-    address_id int
-);
-
-create table addresses(
-    id serial primary key,
-    region_id int,
-    city text,
-    street text,
-    building text,
-    apartment text,
-    latitude numeric,
-    longitude numeric
+    address jsonb
 );
 
 create table regions(
@@ -46,7 +35,6 @@ create table regions(
         IServiceProvider services) => @"
 
 drop table orders;
-drop table addresses;
 drop table regions;
 ";
 }

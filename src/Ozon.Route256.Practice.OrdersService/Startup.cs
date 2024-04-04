@@ -16,6 +16,7 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder
 using FluentMigrator.Runner.Processors;
 using FluentMigrator.Runner;
 using Ozon.Route256.Practice.OrdersService.DAL.Common;
+using Ozon.Route256.Practice.OrdersService.DAL.Repositories;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -26,7 +27,7 @@ namespace Ozon.Route256.Practice.OrdersService
         {
             _configuration = configuration;
         }
-        public async void ConfigureServices(IServiceCollection serviceCollection)
+        public void ConfigureServices(IServiceCollection serviceCollection)
         {
             serviceCollection.AddGrpc(option => option.Interceptors.Add<LoggerInterceptor>());
             serviceCollection.AddGrpcClient<SdService.SdServiceClient>(option =>
@@ -69,14 +70,20 @@ namespace Ozon.Route256.Practice.OrdersService
                 throw new ArgumentException("ROUTE256_REDIS_ADDRESS variable is null or empty");
             serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redis_url));
 
+            //Репозитории
+            var connectionString = _configuration.GetConnectionString("CustomerDatabase");
+            if (!string.IsNullOrEmpty(connectionString))
+                serviceCollection.AddSingleton<IPostgresConnectionFactory>(_ => new PostgresConnectionFactory(connectionString));
+            else
+                throw new Exception($"Connection string not found or empty");
 
-
-            serviceCollection.AddScoped<IRegionRepository,RegionRepository>();
+            serviceCollection.AddScoped<RegionRepositoryPg>();
+            serviceCollection.AddScoped<IRegionRepository,RegionDatabase>();
             serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
-
+            //Редис
             serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
             serviceCollection.AddScoped<IGrcpCustomerService, Infrastructure.CacheCustomers.GrpcCustomerService>();
-
+            //Кафка
             var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
             if (string.IsNullOrEmpty(redis_url))
                 throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
@@ -95,11 +102,11 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddSingleton< KafkaOrdersEventsProvider>(x =>
                 new KafkaOrdersEventsProvider(x.GetRequiredService<ILogger<KafkaOrdersEventsProvider>>(), kafka_url));
             serviceCollection.AddHostedService<ConsumerKafkaOrdersEvents>();
-
+            //service-discovery
             serviceCollection.AddSingleton<IDbStore, DbStore>();
             serviceCollection.AddHostedService<SdConsumerHostedService>();
 
-            var connectionString = _configuration.GetConnectionString("CustomerDatabase");
+            //fluent-migration
             serviceCollection.AddFluentMigratorCore()
                 .ConfigureRunner(
                     builder => builder
@@ -114,11 +121,8 @@ namespace Ozon.Route256.Practice.OrdersService
                         options.Timeout = TimeSpan.FromMinutes(10);
                         options.ConnectionString = connectionString;
                     });
-            
-            //PostgresMapping.MapCompositeTypes();
-
-            await GenerateRegionAsync(serviceCollection);
-        }
+         
+       }
 
         public void Configure(IApplicationBuilder applicationBuilder)
         {
@@ -132,16 +136,6 @@ namespace Ozon.Route256.Practice.OrdersService
             });
 
         }
-
-        private static async Task GenerateRegionAsync(IServiceCollection services)
-        {
-            RegionRepository regionRepository = new RegionRepository();
-            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(0, "Moscow",55.72,37.65));
-            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(1, "StPetersburg",59.88,82.55));
-            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(2, "Novosibirsk",55.01,82.55));
-        }
-
-
     }
 
 
