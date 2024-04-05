@@ -15,12 +15,12 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
 {
     public sealed class OrdersService:Orders.OrdersBase
     {
-        public readonly IRegionRepository _regionRepository;
+        public readonly IRegionDatabase _regionRepository;
         public readonly IOrdersRepository _ordersRepository;
         public readonly LogisticsSimulatorService.LogisticsSimulatorServiceClient _logisticsSimulatorServiceClient;
         public readonly IGrcpCustomerService _customersClient;
 
-        public OrdersService(IRegionRepository regionRepository, 
+        public OrdersService(IRegionDatabase regionRepository, 
             IOrdersRepository ordersRepository, 
             LogisticsSimulatorService.LogisticsSimulatorServiceClient logisticsSimulatorServiceClient,
             IGrcpCustomerService customersClient)

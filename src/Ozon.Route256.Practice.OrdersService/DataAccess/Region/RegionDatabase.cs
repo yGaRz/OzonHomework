@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Ozon.Route256.Practice.OrdersService.DataAccess
 {
-    public class RegionDatabase : IRegionRepository
+    public class RegionDatabase : IRegionDatabase
     {
         private static readonly ConcurrentDictionary<int,RegionEntity> RegionsDictionary = new ();
         private readonly RegionRepositoryPg _regionRepositoryPg;
@@ -92,6 +92,19 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
             var regions = await _regionRepositoryPg.GetAll(token);
             foreach (var region in regions)
                 RegionsDictionary.TryAdd(region.Id, new RegionEntity(region.Id, region.Name, region.Latitude, region.Longitude));
+        }
+
+        public async Task<RegionEntity> GetRegionEntityByNameAsync(string regionName, CancellationToken cancellationToken)
+        {
+            var result = RegionsDictionary.Values.Where(x => regionName == x.Name).FirstOrDefault();
+            if (result == null)
+                await Update(cancellationToken);
+
+            result = RegionsDictionary.Values.Where(x => regionName == x.Name).FirstOrDefault();
+            if (result != null)
+                return await Task.FromResult(result);
+            else
+                throw new NotFoundException($"Region with name={regionName} is not found");
         }
     }
 }

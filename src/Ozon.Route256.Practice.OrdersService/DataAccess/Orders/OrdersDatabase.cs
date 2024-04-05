@@ -1,4 +1,6 @@
 ﻿using Google.Protobuf.WellKnownTypes;
+using Ozon.Route256.Practice.OrdersService.DAL.Models;
+using Ozon.Route256.Practice.OrdersService.DAL.Repositories;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Models;
@@ -7,17 +9,31 @@ using System.Reflection;
 
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders
 {
-    public class OrdersRepository : IOrdersRepository
+    public class OrdersDatabase : IOrdersRepository
     {
         private static readonly ConcurrentDictionary<long, OrderEntity> OrdersRep = new ConcurrentDictionary<long, OrderEntity>();
-        public Task CreateOrderAsync(OrderEntity order, CancellationToken token = default)
+
+        private readonly OrdersRepositoryPg _ordersRepositoryPg;
+        private readonly IRegionDatabase _regionDatabase;
+        public OrdersDatabase(OrdersRepositoryPg ordersRepositoryPg, IRegionDatabase regionDatabase)
+        {
+            _ordersRepositoryPg = ordersRepositoryPg;
+            _regionDatabase = regionDatabase;
+        }
+
+        public async Task CreateOrderAsync(OrderEntity order, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
 
             if (OrdersRep.TryAdd(order.Id, order))
-                return Task.CompletedTask;
+            {
+                var region = await _regionDatabase.GetRegionEntityByNameAsync(order.Region, token);
+                var orderDal = ToInsertDal(order, region.Id);
+                await _ordersRepositoryPg.Create(orderDal, token);
+                //return Task.CompletedTask;
+            }
             else
-                return Task.FromException(new ArgumentException($"Order with id={order.Id} is already exists"));
+                throw new ArgumentException($"Order with id={order.Id} is already exists");
         }
 
         public Task<OrderEntity> GetOrderByIdAsync(long id, CancellationToken token = default)
@@ -77,7 +93,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders
             token.ThrowIfCancellationRequested();
             return Task.FromResult(OrdersRep.Values.ToArray());
         }
-        
+
         public Task<bool> SetOrderStateAsync(long id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
@@ -89,6 +105,23 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders
             }
             else
                 return Task.FromResult(false);
+        }
+
+
+
+        private OrderDal ToInsertDal(OrderEntity order, int regionId) {
+
+            return new OrderDal(order.Id,
+                order.CustomerId,
+                order.Source,
+                order.State,
+                order.TimeCreate.ToString(),
+                order.TimeUpdate.ToString(),
+                regionId,
+                order.CountGoods,
+                order.TotalWeigth,
+                order.TotalPrice,
+                "{}");
         }
     }
 }

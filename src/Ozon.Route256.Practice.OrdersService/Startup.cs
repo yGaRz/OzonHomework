@@ -74,13 +74,14 @@ namespace Ozon.Route256.Practice.OrdersService
             else
                 throw new Exception($"Connection string not found or empty");
             serviceCollection.AddScoped<RegionRepositoryPg>();
-            serviceCollection.AddScoped<IRegionRepository, RegionDatabase>();
+            serviceCollection.AddScoped<OrdersRepositoryPg>();
+            serviceCollection.AddScoped<IRegionDatabase, RegionDatabase>();
             using (var serviceProvider = serviceCollection.BuildServiceProvider())
             {
-                var regionRepository = serviceProvider.GetService<IRegionRepository>();
+                var regionRepository = serviceProvider.GetService<IRegionDatabase>();
                 regionRepository.Update();
             }
-            serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
+            serviceCollection.AddScoped<IOrdersRepository,OrdersDatabase>();
 
             //Редис--------------------------------------------------------------------
             var redis_url = _configuration.GetValue<string>("ROUTE256_REDIS_ADDRESS");

@@ -1,9 +1,16 @@
+using NpgsqlTypes;
+
 namespace Ozon.Route256.Practice.OrdersService.Models;
 public enum OrderStateEnum
-    {
-        Created = 0,
-        SentToCustomer = 1,
-        Delivered = 2,
-        Lost = 3,
-        Cancelled = 4
-    }
+{
+    [PgName("Created")]
+    Created = 0,
+    [PgName("SentToCustomer")]
+    SentToCustomer = 1,
+    [PgName("Delivered")]
+    Delivered = 2,
+    [PgName("Lost")]
+    Lost = 3,
+    [PgName("Cancelled")]
+    Cancelled = 4
+}
