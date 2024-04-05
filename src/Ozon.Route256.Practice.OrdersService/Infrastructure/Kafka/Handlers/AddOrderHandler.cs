@@ -31,6 +31,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewO
                 Faker faker = new Faker();
                 var region = await _regionRepository.GetRegionEntityByIdAsync( faker.Random.Int(1, 3));
                 order.Address.Region = region.Name;
+                order.Region = region.Name;
                 await _orderRepository.CreateOrderAsync(order, token);
                 if (GetDistance(order.Address.Latitude, order.Address.Longitude, region.Latitude, region.Longitude) < 5000)
                 {

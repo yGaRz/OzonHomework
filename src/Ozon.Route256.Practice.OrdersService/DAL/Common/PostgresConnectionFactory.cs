@@ -1,4 +1,8 @@
-﻿using Npgsql;
+﻿using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.Extensions.Options;
+using Npgsql;
+using System.Data;
 
 namespace Ozon.Route256.Practice.OrdersService.DAL.Common;
 public interface IPostgresConnectionFactory
@@ -15,6 +19,5 @@ public class PostgresConnectionFactory: IPostgresConnectionFactory
     {
         _connectionString = connectionString;
     }
-
     public NpgsqlConnection GetConnection() => new NpgsqlConnection(_connectionString);
 }

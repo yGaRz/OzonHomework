@@ -28,6 +28,8 @@ namespace Ozon.Route256.Practice.OrdersService
         {
             _configuration = configuration;
         }
+
+        [Obsolete]
         public void ConfigureServices(IServiceCollection serviceCollection)
         {
             //Grpc--------------------------------------------------------------------
@@ -68,11 +70,13 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddEndpointsApiExplorer();
 
             //Репозитории-----------------------------------------------------------
-            var connectionString = _configuration.GetConnectionString("CustomerDatabase");
+            PostgresMapping.MapCompositeTypes();
+            var connectionString = _configuration.GetConnectionString("OrdersDatabase");
             if (!string.IsNullOrEmpty(connectionString))
                 serviceCollection.AddSingleton<IPostgresConnectionFactory>(_ => new PostgresConnectionFactory(connectionString));
             else
                 throw new Exception($"Connection string not found or empty");
+            //PostgresMapping.MapEnums(connectionString);
             serviceCollection.AddScoped<RegionRepositoryPg>();
             serviceCollection.AddScoped<OrdersRepositoryPg>();
             serviceCollection.AddScoped<IRegionDatabase, RegionDatabase>();

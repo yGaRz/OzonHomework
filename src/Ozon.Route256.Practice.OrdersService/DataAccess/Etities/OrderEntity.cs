@@ -14,10 +14,10 @@ public record OrderEntity
     public OrderStateEnum State { get; set; }
     public DateTime TimeCreate { get; set; }
     public DateTime TimeUpdate { get; set; }
-    public string Region =>Address.Region;
-    public int CountGoods => Goods.Count();
-    public double TotalPrice => Goods.Sum(x => x.Price * x.Quantity);
-    public double TotalWeigth => Goods.Sum(x => x.Weight);
+    public string Region { get; set; }
+    public int CountGoods { get; init; }
+    public double TotalPrice { get; init; }
+    public double TotalWeigth { get; init; }
     public OrderEntity(long id, OrderSourceEnum source, OrderStateEnum state, int customerId, Address address, IEnumerable<ProductEntity> goods)
     {
         Id = id;
@@ -25,8 +25,12 @@ public record OrderEntity
         State = state;
         CustomerId = customerId;
         Address = AddressEntity.ConvertFromAddressGrpc(address);
+        Region = Address.Region;
         Goods = new List<ProductEntity>();
         Goods.AddRange(goods);  
+        CountGoods = Goods.Count();
+        TotalPrice = Goods.Sum(x => x.Price * x.Quantity);
+        TotalWeigth = Goods.Sum(x => x.Weight);
         TimeCreate = DateTime.UtcNow;
         TimeUpdate = DateTime.UtcNow;
     }
@@ -37,8 +41,12 @@ public record OrderEntity
         State = state;
         CustomerId = customerId;
         Address = address;
+        Region = Address.Region;
         Goods = new List<ProductEntity>();
         Goods.AddRange(goods);
+        CountGoods = Goods.Count();
+        TotalPrice = Goods.Sum(x => x.Price * x.Quantity);
+        TotalWeigth= Goods.Sum(x => x.Weight);
         TimeCreate = DateTime.UtcNow;
         TimeUpdate = DateTime.UtcNow;
     }
@@ -59,16 +67,24 @@ public record OrderEntity
             CustomerId = (int)customer["Id"];
             var address = customer["Address"];
             Address = JsonSerializer.Deserialize<AddressEntity>(address);
+            Region = Address.Region;
             foreach (var good in goods)
             {
                 var d = JsonSerializer.Deserialize<ProductEntity>(good.ToJsonString());
                 Goods.Add(d);
             }
+            CountGoods = Goods.Count();
+            TotalPrice = Goods.Sum(x => x.Price * x.Quantity);
+            TotalWeigth = Goods.Sum(x => x.Weight);
         }
         catch
         {
             throw new ArgumentException($"Ошибка при десериализации данных ID={id} message = {message}");
         }
+    }
+
+    public OrderEntity()
+    {
     }
 #pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
 
