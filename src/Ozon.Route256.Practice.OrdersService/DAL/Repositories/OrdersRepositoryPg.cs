@@ -118,16 +118,17 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             await reader.ReadAsync(token);
             return reader.GetFieldValue<OrderStateEnum>(0);
         }
-        public async Task<RegionStatisticDal[]> GetRegionStatistic(DateTime timeCreate, CancellationToken token)
+        public async Task<RegionStatisticDal[]> GetRegionStatistic(int[] regionsId, DateTime timeCreate, CancellationToken token)
         {
             const string sql = @$"
                     SELECT region_id,count(*),sum(total_price), sum(total_weigth), count(distinct customer_id)
                     FROM {Table}
-                    where time_create > Cast(:dateCreate as timestamptz)
+                    where time_create > Cast(:dateCreate as timestamptz) and region_id = any(:arrayid)
                     group by region_id";
             await using var connection = _connectionFactory.GetConnection();
             await using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.Add("dateCreate", timeCreate.ToString());
+            command.Parameters.Add("arrayid", regionsId);
             await connection.OpenAsync(token);
             await using var reader = await command.ExecuteReaderAsync(token);
             var result = await ReadRegionStatisticDal(reader, token);

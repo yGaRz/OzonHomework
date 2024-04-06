@@ -54,7 +54,8 @@ public class OrdersDatabase : IOrdersRepository
     public async Task<RegionStatisticEntity[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default)
     {
         List<RegionStatisticEntity> regions = new List<RegionStatisticEntity>();
-        var regionsStatistic = await _ordersRepositoryPg.GetRegionStatistic(dateStart, token);
+        var regionsId = await _regionDatabase.GetRegionsEntityByNameAsync(regionList.ToArray(), token);
+        var regionsStatistic = await _ordersRepositoryPg.GetRegionStatistic(regionsId.Select(x=>x.Id).ToArray(), dateStart, token);
 
         foreach(var rs in regionsStatistic)
             regions.Add(await FromStatisticDalAsync(rs));
