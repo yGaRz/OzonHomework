@@ -124,8 +124,8 @@ services:
 
   gateway-service:
     build: 
-      context: ./src/Ozon.Route256.Practice.GatewayService
-      dockerfile: Dockerfile
+      context: ./src
+      dockerfile: Dockerfile_gateway
     depends_on:
       - service-discovery
       - broker-1

@@ -1,0 +1,137 @@
+﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "Protos/customers.proto";
+option csharp_namespace = "Ozon.Route256.Practice.OrdersGrpcFile";
+
+
+service Orders
+{
+	//Ручка отмены заказа
+	rpc CancelOrder(CancelOrderByIdRequest) returns(CancelOrderByIdResponse);
+	//Ручка возврата статуса заказа
+	rpc GetOrderStatusById(GetOrderStatusByIdRequest) returns(GetOrderStatusByIdResponse);
+	//Ручка возврата списка регионов
+	rpc GetRegion(GetRegionRequest) returns(GetRegionResponse);
+	//Ручка возврата списка заказов
+	rpc GetOrders(GetOrdersRequest) returns(GetOrdersResponse);
+	//Ручка агрегации заказов по региону
+	rpc GetRegionStatistic(GetRegionStatisticRequest) returns(GetRegionStatisticResponse);
+	//Ручка получения всех заказов клиента
+	rpc GetOrdersByCustomerID(GetOrdersByCustomerIDRequest) returns(GetOrdersByCustomerIDResponse);
+	//ручка генерации клиентов
+	rpc GetGenerateCustomer(GetGenerateCustomerRequest) returns (GetGenerateCustomerResponse);
+
+}
+
+message GetGenerateCustomerRequest{
+	int32 count=1;
+}
+message GetGenerateCustomerResponse{
+}
+
+//Ручка отмены заказа
+message CancelOrderByIdRequest{
+  int64 id =1;
+}
+message CancelOrderByIdResponse{
+}
+
+//Ручка возврата статуса заказа
+message	GetOrderStatusByIdRequest{
+  int64 id =1;
+}
+message GetOrderStatusByIdResponse{
+  OrderState logistic_status =1;
+}
+
+//Ручка возврата списка регионов
+message GetRegionRequest{
+}
+message GetRegionResponse{
+  repeated string region=1;
+}
+
+//Ручка возврата списка заказов
+message GetOrdersRequest{
+  repeated string region=1;
+  OrderSource source=2;
+  uint32 page_size=3;
+  uint32 page_index=4;
+  SortParam sort_param=5;
+  string sort_field=6;
+}
+message GetOrdersResponse{
+  repeated Order orders=1;
+  uint32 page_number=2;
+}
+
+//Ручка агрегации заказов по региону
+message GetRegionStatisticRequest{
+  google.protobuf.Timestamp start_time = 1;
+  repeated string region=2;
+}
+message GetRegionStatisticResponse{
+	repeated RegionStatisticMessage statistic=1;
+}
+
+//Ручка получения всех заказов клиента
+message GetOrdersByCustomerIDRequest{
+  int32 id=1;
+  google.protobuf.Timestamp start_time = 2;
+  uint32 page_size=3;
+  uint32 page_index=4;
+}
+message GetOrdersByCustomerIDResponse{
+	uint32 page_number=1;
+	string name_customer=2;
+	Address address_customer=3;
+	string phone_number=4;
+	string region=5;
+	repeated Order orders=6;
+}
+
+enum OrderState{
+    Created=0;
+    SentToCustomer=1;
+    Delivered=2;
+    Lost=3;
+    Cancelled=4;
+}
+enum SortParam{
+	None=0;
+	ASC=1; 
+	DESC=2;		
+}
+enum OrderSource{
+    WebSite = 0;
+    Mobile = 1;
+    Api = 2;
+}
+
+message Order{
+	int64 id=1;
+	int32 count_goods=2;
+	double total_sum=3;
+	double total_weight=4;
+	OrderSource order_source=5;
+	google.protobuf.Timestamp date_create =6;
+	repeated Product ProductList =7;
+	OrderState order_state=8;
+}
+
+message Product{
+	int64 id=1;
+	string name=2;
+	int32 quantity=3;
+	double price=4;
+	double wight=5;
+}
+
+
+message RegionStatisticMessage{
+  string region =1;
+  int32 total_count_orders=2;
+  double total_sum_orders=3;
+  double total_wight_orders=4;
+  int32 count_customers=5;
+}
