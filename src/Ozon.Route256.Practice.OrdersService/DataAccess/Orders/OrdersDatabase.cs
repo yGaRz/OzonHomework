@@ -50,9 +50,14 @@ public class OrdersDatabase : IOrdersRepository
         return result.ToArray();
     }
 
-    public Task<OrderEntity[]> GetOrdersByRegionAsync(List<string> regionList, OrderSourceEnum source, CancellationToken token = default)
+    public async Task<OrderEntity[]> GetOrdersByRegionAsync(List<string> regionList, OrderSourceEnum source, CancellationToken token = default)
     {
-        throw new NotImplementedException();
+        var regionsId = await _regionDatabase.GetRegionsEntityByNameAsync(regionList.ToArray(), token);
+        var orders = await _ordersRepositoryPg.GetOrdersByRegion(regionsId.Select(x => x.Id).ToArray(), source,token);
+        List<OrderEntity> result = new List<OrderEntity>();
+        foreach (var order in orders)
+            result.Add(await FromOrderDal(order));
+        return result.ToArray();
     }
 
     public async Task<RegionStatisticEntity[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default)

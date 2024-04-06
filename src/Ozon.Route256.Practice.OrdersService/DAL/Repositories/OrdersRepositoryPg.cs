@@ -166,5 +166,22 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             var result = await ReadOrderDal(reader, token);
             return result;
         }
+
+        internal async Task<OrderDal[]> GetOrdersByRegion(int[] regionsId, OrderSourceEnum source, CancellationToken token)
+        {
+            const string sql = @$"
+            select {Fields}
+            from {Table}
+            where region_id = any(:arrayid) and order_source=:ordersource;";
+            await using var connection = _connectionFactory.GetConnection();
+            await using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.Add("arrayid", regionsId);
+            command.Parameters.Add("ordersource", source);
+            await connection.OpenAsync(token);
+            await using var reader = await command.ExecuteReaderAsync(token);
+
+            var result = await ReadOrderDal(reader, token);
+            return result;
+        }
     }
 }
