@@ -13,7 +13,7 @@ namespace Ozon.Route256.Practice.GatewayService.Models
         [Range(0, 2, ErrorMessage = "Недопустимый тип заказа. WebSite = 0, Mobile = 1, Api = 2")]
         public OrderSourceEnum Source { get; set; }
         [Range(10, 100, ErrorMessage = "Превышен размер страницы[10,100]")]
-        public uint PageSize { get; set; } = 25;
+        public int PageSize { get; set; } = 25;
         [Range(0, 2)]
         public SortParamEnum SParam { get; set; }= SortParamEnum.None;
         public string? SortField { get; set; }

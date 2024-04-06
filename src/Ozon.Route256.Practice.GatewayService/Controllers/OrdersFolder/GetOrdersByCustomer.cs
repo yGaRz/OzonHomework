@@ -24,9 +24,9 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         [SwaggerResponse(200, "Orders list", typeof(CustomerOrdersListModel))]
         [SwaggerResponse(400, "Customer not found")]
         public async Task<ActionResult<CustomerOrdersListModel>> GetOrderByCustomer([FromHeader] int id,
-                                                                    [FromHeader] uint pageIndex = 1,
+                                                                    [FromHeader] int pageIndex = 1,
                                                                     DateTime start = default,                                                                    
-                                                                    uint pageSize = 50,
+                                                                    int pageSize = 50,
                                                                     CancellationToken cancellationToken = default)
         {
             try
@@ -41,7 +41,6 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
                 var responce = await _ordersClient.GetOrdersByCustomerIDAsync(request, null, null, cancellationToken);
 
                 CustomerOrdersListModel result = new CustomerOrdersListModel() { 
-                    PageIndex = responce.PageNumber,
                     address = Convert(responce.AddressCustomer),
                     CustomerName = responce.NameCustomer,
                     Phone=responce.PhoneNumber,

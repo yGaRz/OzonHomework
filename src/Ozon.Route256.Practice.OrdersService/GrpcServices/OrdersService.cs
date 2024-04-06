@@ -80,27 +80,34 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             var sortParam = request.SortParam;
             var sortField = request.SortField;
             GetOrdersResponse responce = new GetOrdersResponse();
+            List<OrderEntity> result;
             if (sortField != "" && sortParam != SortParam.None && orders.Length != 0)
             {
                 Type type = orders[0].GetType();
                 PropertyInfo? property = type.GetProperty(sortField);
                 if (property != null)
                 {
-                    List<OrderEntity> result;
                     if (sortParam == SortParam.Asc)
                         result = ReflectionSortHelper.DynamicSort1(orders.ToList(), sortField, "asc");
                     else
                         result = ReflectionSortHelper.DynamicSort1(orders.ToList(), sortField, "desc");
-
-                    responce.Orders.Add(result.Select(OrderEntity.ConvertToOrderGrpc));
-                    return responce;
                 }
                 else
                     throw new RpcException(new Status(StatusCode.Cancelled, $"Sorted field ={sortField} not found"));
             }
+            else
+                result = orders.ToList();
 
-            responce.Orders.Add(orders.Select(OrderEntity.ConvertToOrderGrpc));
+            int page = request.PageIndex-1;
+            int count = request.PageSize;
+            if (result.Count > (page + 1) * count)
+                responce.Orders.Add(result.GetRange(page * count, count).Select(OrderEntity.ConvertToOrderGrpc));
+            else
+                if(result.Count - page * count>0)
+                    responce.Orders.Add(result.GetRange(page * count, result.Count - page * count).Select(OrderEntity.ConvertToOrderGrpc));
+
             return responce;
+
         }
         public override async Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, ServerCallContext context)
         {
@@ -116,7 +123,14 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
                     Region = customerEntity.DefaultAddress.Region,
                     AddressCustomer = AddressEntity.ConvertToAddressGrpc(customerEntity.DefaultAddress)                    
                 };
-                responce.Orders.Add(orders.Select(OrderEntity.ConvertToOrderGrpc));
+                int page = request.PageIndex - 1;
+                int count = request.PageSize;
+                var result = orders.ToList();
+                if (result.Count > (page + 1) * count)
+                    responce.Orders.Add(result.GetRange(page * count, count).Select(OrderEntity.ConvertToOrderGrpc));
+                else
+                    if (result.Count - page * count > 0)
+                    responce.Orders.Add(result.GetRange(page * count, result.Count - page * count).Select(OrderEntity.ConvertToOrderGrpc));
                 return responce;
             }
             catch (RpcException ex)

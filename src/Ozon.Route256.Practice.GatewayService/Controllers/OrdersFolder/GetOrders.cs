@@ -21,7 +21,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers
         [SwaggerResponse(200, "Orders list", typeof(OrdersListModel))]
         [SwaggerResponse(400, "Region not found")]
         [Produces("application/json")]
-        public async Task<ActionResult<OrdersListModel>> GetOrders([FromHeader]uint pageIndex,
+        public async Task<ActionResult<OrdersListModel>> GetOrders([FromHeader]int pageIndex,
                                                                 [FromBody]GetOrdersModel model,
                                                                 CancellationToken cancellationToken)
         {
