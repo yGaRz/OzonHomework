@@ -152,8 +152,8 @@ services:
 
   orders-service-1:
     build: 
-      context: ./src/Ozon.Route256.Practice.OrdersService
-      dockerfile: Dockerfile
+      context: ./src
+      dockerfile: Dockerfile_orders
     depends_on:
       - service-discovery
       - broker-1
@@ -175,8 +175,8 @@ services:
  
   orders-service-2:
     build: 
-      context: ./src/Ozon.Route256.Practice.OrdersService
-      dockerfile: Dockerfile
+      context: ./src
+      dockerfile: Dockerfile_orders
     depends_on:
       - service-discovery
       - broker-1

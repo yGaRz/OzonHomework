@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{85D115C0-CBF1-4196-A4DB-5E538186D237}"
 	ProjectSection(SolutionItems) = preProject
 		src\Dockerfile_gateway = src\Dockerfile_gateway
+		src\Dockerfile_orders = src\Dockerfile_orders
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E289F390-3AA6-4B9D-93D2-E23061C7ABAD}"

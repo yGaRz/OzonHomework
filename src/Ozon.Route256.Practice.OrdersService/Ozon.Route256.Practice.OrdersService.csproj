@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Protos/*.proto" Type="Both" />
+    <Protobuf Include="../CommonLibServices/Protos/*.proto" Type="Both" />
   </ItemGroup>
 
   <ItemGroup>
