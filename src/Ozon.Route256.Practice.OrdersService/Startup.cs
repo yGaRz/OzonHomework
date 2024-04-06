@@ -1,23 +1,20 @@
-﻿using Ozon.Route256.Practice.CustomerService.ClientBalancing;
-using Ozon.Route256.Practice.OrdersService.Infrastructure;
-using Ozon.Route256.Practice.OrdersService.DataAccess;
-using Microsoft.Extensions.DependencyInjection;
-using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
-using Google.Protobuf.WellKnownTypes;
-using Bogus;
-using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
-using StackExchange.Redis;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
+﻿using FluentMigrator.Runner;
 using FluentMigrator.Runner.Processors;
-using FluentMigrator.Runner;
+using Ozon.Route256.Practice.CustomerGprcFile;
+using Ozon.Route256.Practice.LogisticGrpcFile;
+using Ozon.Route256.Practice.CustomerService.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.DAL.Common;
 using Ozon.Route256.Practice.OrdersService.DAL.Repositories;
-using Npgsql.Replication.PgOutput.Messages;
+using Ozon.Route256.Practice.OrdersService.DataAccess;
+using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
+using Ozon.Route256.Practice.OrdersService.Infrastructure;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
+using Ozon.Route256.Practice.SdServiceGrpcFile;
+using StackExchange.Redis;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -44,7 +41,7 @@ namespace Ozon.Route256.Practice.OrdersService
 
                 option.Address = new Uri(url);
             });
-            serviceCollection.AddGrpcClient<LogisticsSimulator.Grpc.LogisticsSimulatorService.LogisticsSimulatorServiceClient>(option =>
+            serviceCollection.AddGrpcClient<LogisticsSimulatorService.LogisticsSimulatorServiceClient>(option =>
             {
                 var url = _configuration.GetValue<string>("ROUTE256_LS_ADDRESS");
                 if (string.IsNullOrEmpty(url))

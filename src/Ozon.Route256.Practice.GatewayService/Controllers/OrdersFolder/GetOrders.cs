@@ -1,6 +1,7 @@
 ﻿using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
 using Ozon.Route256.Practice.GatewayService.Models;
+using Ozon.Route256.Practice.OrdersGrpcFile;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 using System.Text;

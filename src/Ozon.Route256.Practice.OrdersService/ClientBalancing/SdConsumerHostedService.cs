@@ -1,5 +1,6 @@
 using Grpc.Core;
-using GrpcReplicaType = Ozon.Route256.Practice.Replica.Types.ReplicaType;
+using Ozon.Route256.Practice.SdServiceGrpcFile;
+using GrpcReplicaType = Ozon.Route256.Practice.SdServiceGrpcFile.Replica.Types.ReplicaType;
 
 namespace Ozon.Route256.Practice.CustomerService.ClientBalancing;
 

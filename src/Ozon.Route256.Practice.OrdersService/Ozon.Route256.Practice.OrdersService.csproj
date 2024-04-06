@@ -20,16 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Protos/*.proto" Type="Both" />
+    <Protobuf Include="..\..\CommonLibServices\Protos\*.proto" Type="Both"/>
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Infrastructure\Kafka\Consumer\ConsumerKafka.cs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Protos\customers.proto" />
-    <None Remove="Protos\logistic.proto" />
-  </ItemGroup>
-  
 </Project>

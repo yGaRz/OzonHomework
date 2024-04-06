@@ -1,4 +1,6 @@
-﻿namespace Ozon.Route256.Practice.GatewayService.Models
+﻿using Ozon.Route256.Practice.OrdersGrpcFile;
+
+namespace Ozon.Route256.Practice.GatewayService.Models
 {
     public record OrdersListModel
     {        

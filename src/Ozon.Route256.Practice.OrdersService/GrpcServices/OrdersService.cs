@@ -1,7 +1,9 @@
 ﻿using Bogus;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
+using Ozon.Route256.Practice.LogisticGrpcFile;
+using Ozon.Route256.Practice.OrdersGrpcFile;
+using Ozon.Route256.Practice.CustomerGprcFile;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
@@ -46,7 +48,7 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             context.CancellationToken.ThrowIfCancellationRequested();
             if (order != null)
             {
-                var requestLogistic = new LogisticsSimulator.Grpc.Order() { Id = request.Id };
+                var requestLogistic = new LogisticGrpcFile.Order() { Id = request.Id };
                 var responceLogistic = await _logisticsSimulatorServiceClient.OrderCancelAsync(requestLogistic, null, null, context.CancellationToken);
                 context.CancellationToken.ThrowIfCancellationRequested();
                 if (responceLogistic.Success)

@@ -1,17 +1,15 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using Grpc.Core.Utils;
 using Moq;
-using Ozon.Route256.Practice;
-using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
-using Ozon.Route256.Practice.OrdersService.DataAccess;
+using Ozon.Route256.Practice.CustomerGprcFile;
+using Ozon.Route256.Practice.LogisticGrpcFile;
+using Ozon.Route256.Practice.OrdersGrpcFile;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.GrpcServices;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Models;
-using System.Data;
 using TestServices.Helpers;
 
 namespace TestServices;
@@ -130,7 +128,7 @@ public class OrdersServiceTests
         var mockCall = CallHelpers.CreateAsyncUnaryCall(new CancelResult{ Success = false, Error = "some text" });
         var mockLogistic = new Mock<LogisticsSimulatorService.LogisticsSimulatorServiceClient>();
 
-        mockLogistic.Setup(m => m.OrderCancelAsync(new Ozon.Route256.Practice.LogisticsSimulator.Grpc.Order() { Id = idOrder }, null, null, context.CancellationToken)).Returns(mockCall);
+        mockLogistic.Setup(m => m.OrderCancelAsync(new Ozon.Route256.Practice.LogisticGrpcFile.Order() { Id = idOrder }, null, null, context.CancellationToken)).Returns(mockCall);
         var service = new OrdersService(null, mockOrders.Object, mockLogistic.Object, null);
         var request = new CancelOrderByIdRequest() { Id = idOrder };
 
@@ -161,7 +159,7 @@ public class OrdersServiceTests
         var mockCall = CallHelpers.CreateAsyncUnaryCall(new CancelResult { Success = true, Error = "" });
         var mockLogistic = new Mock<LogisticsSimulatorService.LogisticsSimulatorServiceClient>();
 
-        mockLogistic.Setup(m => m.OrderCancelAsync(new Ozon.Route256.Practice.LogisticsSimulator.Grpc.Order() { Id = idOrder }, null, null, context.CancellationToken)).Returns(mockCall);
+        mockLogistic.Setup(m => m.OrderCancelAsync(new Ozon.Route256.Practice.LogisticGrpcFile.Order() { Id = idOrder }, null, null, context.CancellationToken)).Returns(mockCall);
         var service = new OrdersService(null, mockOrders.Object, mockLogistic.Object, null);
         var request = new CancelOrderByIdRequest() { Id = idOrder };
 

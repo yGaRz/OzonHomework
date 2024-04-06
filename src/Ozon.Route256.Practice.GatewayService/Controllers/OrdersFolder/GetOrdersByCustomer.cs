@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Ozon.Route256.Practice.GatewayService.Etities;
 using Ozon.Route256.Practice.GatewayService.Models;
 using Swashbuckle.AspNetCore.Annotations;
+using Ozon.Route256.Practice.CustomerGprcFile;
+using Ozon.Route256.Practice.OrdersGrpcFile;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers
 {
