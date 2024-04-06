@@ -116,8 +116,7 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
                     Region = customerEntity.DefaultAddress.Region,
                     AddressCustomer = AddressEntity.ConvertToAddressGrpc(customerEntity.DefaultAddress)                    
                 };
-                foreach (var order in orders)
-                    responce.Orders.Add(OrderEntity.ConvertToOrderGrpc(order));
+                responce.Orders.Add(orders.Select(OrderEntity.ConvertToOrderGrpc));
                 return responce;
             }
             catch (RpcException ex)

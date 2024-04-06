@@ -95,24 +95,24 @@ public record OrderEntity
         var orderEntity = new Order()
         {
             CountGoods = order.CountGoods,
-            DateCreate = order.TimeCreate.ToTimestamp(),
+            DateCreate = order.TimeCreate.ToUniversalTime().ToTimestamp(),
             Id = order.Id,
             TotalWeight = order.TotalWeigth,
             OrderSource = (OrderSource)order.Source,
             OrderState = (OrderState)order.State,
             TotalSum = order.TotalPrice
         };
-        foreach (var g in order.Goods)
-        {
-            orderEntity.ProductList.Add(new Product()
-            {
-                Id = g.Id,
-                Name = g.Name,
-                Quantity = g.Quantity,
-                Price = g.Price,
-                Wight = g.Weight
-            });
-        }
+        //foreach (var g in order.Goods)
+        //{
+        //    orderEntity.ProductList.Add(new Product()
+        //    {
+        //        Id = g.Id,
+        //        Name = g.Name,
+        //        Quantity = g.Quantity,
+        //        Price = g.Price,
+        //        Wight = g.Weight
+        //    });
+        //}
         return orderEntity;
     }
 }

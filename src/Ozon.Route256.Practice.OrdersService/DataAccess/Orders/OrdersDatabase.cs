@@ -41,9 +41,13 @@ public class OrdersDatabase : IOrdersRepository
             throw new NotFoundException($"Заказ с номером {id} не найден");
     }
 
-    public Task<OrderEntity[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default)
+    public async Task<OrderEntity[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default)
     {
-        throw new NotImplementedException();
+        var orders = await _ordersRepositoryPg.GetOrdersByCustomerId(idCustomer, dateStart, token);
+        List<OrderEntity> result = new List<OrderEntity>();
+        foreach (var order in orders)
+            result.Add(await FromOrderDal(order));
+        return result.ToArray();
     }
 
     public Task<OrderEntity[]> GetOrdersByRegionAsync(List<string> regionList, OrderSourceEnum source, CancellationToken token = default)
@@ -56,12 +60,10 @@ public class OrdersDatabase : IOrdersRepository
         List<RegionStatisticEntity> regions = new List<RegionStatisticEntity>();
         var regionsId = await _regionDatabase.GetRegionsEntityByNameAsync(regionList.ToArray(), token);
         var regionsStatistic = await _ordersRepositoryPg.GetRegionStatistic(regionsId.Select(x=>x.Id).ToArray(), dateStart, token);
-
         foreach(var rs in regionsStatistic)
             regions.Add(await FromStatisticDalAsync(rs));
         return regions.ToArray();
     }
-
     public async Task<bool> SetOrderStateAsync(long id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token = default)
     {
         token.ThrowIfCancellationRequested();
@@ -75,7 +77,6 @@ public class OrdersDatabase : IOrdersRepository
             return false;
         }
     }
-
     private OrderDal ToInsertDal(OrderEntity order, int regionId)
     {
         return new OrderDal(order.Id,
@@ -108,7 +109,6 @@ public class OrdersDatabase : IOrdersRepository
             TotalPrice = order.totalPrice
         };
     }
-
     private async Task<RegionStatisticEntity> FromStatisticDalAsync(RegionStatisticDal regionStatisticDal) =>
         new RegionStatisticEntity(
             (await _regionDatabase.GetRegionEntityByIdAsync(regionStatisticDal.regionId)).Name,

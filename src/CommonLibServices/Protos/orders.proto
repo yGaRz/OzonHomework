@@ -115,8 +115,8 @@ message Order{
 	double total_weight=4;
 	OrderSource order_source=5;
 	google.protobuf.Timestamp date_create =6;
-	repeated Product ProductList =7;
-	OrderState order_state=8;
+//	repeated Product ProductList =7;
+	OrderState order_state=7;
 }
 
 message Product{

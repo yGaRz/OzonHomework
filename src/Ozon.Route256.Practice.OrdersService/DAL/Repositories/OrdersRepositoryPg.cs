@@ -44,6 +44,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             await connection.OpenAsync(token);
             await command.ExecuteNonQueryAsync(token);
         }
+
         public async Task SetStatusById(long Id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token)
         {
             const string sql = @$"
@@ -58,8 +59,6 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             await connection.OpenAsync(token);
             await command.ExecuteNonQueryAsync(token);
         }
-
-
 
         public async Task<OrderDal?> GetOrderByID(long id, CancellationToken token)
         {
@@ -149,6 +148,23 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
                     ));
             }
             return result.ToArray();
+        }
+
+        public async Task<OrderDal[]> GetOrdersByCustomerId(long idCustomer, DateTime timeCreate, CancellationToken token)
+        {
+            const string sql = @$"
+            select {Fields}
+            from {Table}
+            where customer_id = :idCustomer and time_create > Cast(:dateCreate as timestamptz);";
+            await using var connection = _connectionFactory.GetConnection();
+            await using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.Add("idCustomer", idCustomer);
+            command.Parameters.Add("dateCreate", timeCreate.ToString());
+            await connection.OpenAsync(token);
+            await using var reader = await command.ExecuteReaderAsync(token);
+
+            var result = await ReadOrderDal(reader, token);
+            return result;
         }
     }
 }
