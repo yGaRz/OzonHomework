@@ -29,13 +29,13 @@ public class OrdersDatabase : IOrdersRepository
         catch (PostgresException)
         {
             throw new ArgumentException($"Order with id={order.Id} is already exists");
-        }    
+        }
     }
 
     public async Task<OrderEntity> GetOrderByIdAsync(long id, CancellationToken token = default)
     {
         var order = await _ordersRepositoryPg.GetOrderByID(id, token);
-        if(order!=null)
+        if (order != null)
             return await FromOrderDal(order);
         else
             throw new NotFoundException($"Заказ с номером {id} не найден");
@@ -51,9 +51,14 @@ public class OrdersDatabase : IOrdersRepository
         throw new NotImplementedException();
     }
 
-    public Task<RegionStatisticEntity[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default)
+    public async Task<RegionStatisticEntity[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default)
     {
-        throw new NotImplementedException();
+        List<RegionStatisticEntity> regions = new List<RegionStatisticEntity>();
+        var regionsStatistic = await _ordersRepositoryPg.GetRegionStatistic(dateStart, token);
+
+        foreach(var rs in regionsStatistic)
+            regions.Add(await FromStatisticDalAsync(rs));
+        return regions.ToArray();
     }
 
     public async Task<bool> SetOrderStateAsync(long id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token = default)
@@ -64,7 +69,7 @@ public class OrdersDatabase : IOrdersRepository
             await _ordersRepositoryPg.SetStatusById(id, state, timeUpdate, token);
             return true;
         }
-        catch(PostgresException)
+        catch (PostgresException)
         {
             return false;
         }
@@ -102,4 +107,14 @@ public class OrdersDatabase : IOrdersRepository
             TotalPrice = order.totalPrice
         };
     }
+
+    private async Task<RegionStatisticEntity> FromStatisticDalAsync(RegionStatisticDal regionStatisticDal) =>
+        new RegionStatisticEntity(
+            (await _regionDatabase.GetRegionEntityByIdAsync(regionStatisticDal.regionId)).Name,
+            regionStatisticDal.TotalCountOrders,
+            regionStatisticDal.TotalSumOrders,
+            regionStatisticDal.TotalWigthOrders,
+            regionStatisticDal.TotalCustomers);
+
+
 }

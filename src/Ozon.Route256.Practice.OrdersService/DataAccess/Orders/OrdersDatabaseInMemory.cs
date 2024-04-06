@@ -64,12 +64,12 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders
 
             foreach (var region in regionList)
             {
-                uint countOrders = (uint)OrdersRep.Values.Where(x => x.Address.Region == region && x.TimeCreate > dateStart).Count();
+                int countOrders = OrdersRep.Values.Where(x => x.Address.Region == region && x.TimeCreate > dateStart).Count();
                 double sumOrders = (double)OrdersRep.Values.Where(x => x.Address.Region == region && x.TimeCreate > dateStart)
                                                     .Sum(x => x.Goods.Sum(z => z.Price));
                 double weigthOrder = OrdersRep.Values.Where(x => x.Address.Region == region && x.TimeCreate > dateStart)
                                                     .Sum(x => x.Goods.Sum(z => z.Weight));
-                uint totalCustomer = (uint)OrdersRep.Values.Where(x => x.Address.Region == region && x.TimeCreate > dateStart)
+                int totalCustomer = OrdersRep.Values.Where(x => x.Address.Region == region && x.TimeCreate > dateStart)
                                                     .GroupBy(x => x.CustomerId).Distinct().Count();
                 regions.Add(new RegionStatisticEntity(region, countOrders, sumOrders, weigthOrder, totalCustomer));
             }
