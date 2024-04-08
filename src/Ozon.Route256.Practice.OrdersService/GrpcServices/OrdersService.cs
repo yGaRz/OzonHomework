@@ -173,7 +173,7 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             for (int i = 1; i <= request.Count; i++)
             {
                 Faker faker = new Faker();
-                var regionName = await _regionRepository.GetRegionEntityByIdAsync(faker.Random.Int(0, 2),context.CancellationToken);
+                var regionName = await _regionRepository.GetRegionEntityByIdAsync(faker.Random.Int(1, 3),context.CancellationToken);
                 AddressEntity address = new AddressEntity(regionName.Name,
                                                         faker.Address.City(),
                                                         faker.Address.StreetName(),

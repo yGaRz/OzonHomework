@@ -59,10 +59,10 @@ public record OrderEntity
     {
         try
         {
-            var doc = JsonNode.Parse(message);
             Id = id;
             TimeCreate = timeCreate;
             TimeUpdate = timeCreate;
+            var doc = JsonNode.Parse(message);
             Source = (OrderSourceEnum)((int)doc["Source"] - 1);
             var customer = doc["Customer"];
             var goods = doc["Goods"].AsArray();

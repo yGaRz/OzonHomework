@@ -135,13 +135,15 @@ services:
     ports:
       - "5071:80"
       - "5171:5005"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
       "ROUTE256_OS1_ADDRESS": "orders-service-1"
       "ROUTE256_OS1_PORT": "5005"
       "ROUTE256_OS2_ADDRESS": "orders-service-2"
       "ROUTE256_OS2_PORT": "5005"
-      "ROUTE256_OS3_ADDRESS": "localhost"
+      "ROUTE256_OS3_ADDRESS": "host.docker.internal"
       "ROUTE256_OS3_PORT": "5005"
 
   orders-redis:
