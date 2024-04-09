@@ -43,85 +43,85 @@ namespace Ozon.Route256.Practice.OrdersService
 
                 option.Address = new Uri(url);
             });
-            //serviceCollection.AddGrpcClient<LogisticsSimulatorService.LogisticsSimulatorServiceClient>(option =>
-            //{
-            //    var url = _configuration.GetValue<string>("ROUTE256_LS_ADDRESS");
-            //    if (string.IsNullOrEmpty(url))
-            //    {
-            //        throw new ArgumentException("ROUTE256_LS_ADDRESS variable is null or empty");
-            //    }
+            serviceCollection.AddGrpcClient<LogisticsSimulatorService.LogisticsSimulatorServiceClient>(option =>
+            {
+                var url = _configuration.GetValue<string>("ROUTE256_LS_ADDRESS");
+                if (string.IsNullOrEmpty(url))
+                {
+                    throw new ArgumentException("ROUTE256_LS_ADDRESS variable is null or empty");
+                }
 
-            //    option.Address = new Uri(url);
-            //});
-            //serviceCollection.AddGrpcClient<Customers.CustomersClient>(option =>
-            //{
-            //    var url = _configuration.GetValue<string>("ROUTE256_CS_ADDRESS");
-            //    if (string.IsNullOrEmpty(url))
-            //    {
-            //        throw new ArgumentException("ROUTE256_CS_ADDRESS variable is null or empty");
-            //    }
+                option.Address = new Uri(url);
+            });
+            serviceCollection.AddGrpcClient<Customers.CustomersClient>(option =>
+            {
+                var url = _configuration.GetValue<string>("ROUTE256_CS_ADDRESS");
+                if (string.IsNullOrEmpty(url))
+                {
+                    throw new ArgumentException("ROUTE256_CS_ADDRESS variable is null or empty");
+                }
 
-            //    option.Address = new Uri(url);
-            //});
+                option.Address = new Uri(url);
+            });
 
-            serviceCollection.AddSwaggerGen();
+                serviceCollection.AddSwaggerGen();
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();
 
             //Репозитории-----------------------------------------------------------
-            //PostgresMapping.MapCompositeTypes();
-            //var connectionString = _configuration.GetConnectionString("OrdersDatabase");
-            //if (!string.IsNullOrEmpty(connectionString))
-            //    serviceCollection.AddSingleton<IPostgresConnectionFactory>(_ => new PostgresConnectionFactory(connectionString));
-            //else
-            //    throw new Exception($"Connection string not found or empty");
+            PostgresMapping.MapCompositeTypes();
+            var connectionString = _configuration.GetConnectionString("OrdersDatabase");
+            if (!string.IsNullOrEmpty(connectionString))
+                serviceCollection.AddSingleton<IPostgresConnectionFactory>(_ => new PostgresConnectionFactory(connectionString));
+            else
+                throw new Exception($"Connection string not found or empty");
             //Шардированная бд
             serviceCollection.Configure<DbOptions>(_configuration.GetSection(nameof(DbOptions)));
             serviceCollection.AddSingleton<IShardPostgresConnectionFactory, ShardConnectionFactory>();
             serviceCollection.AddSingleton<IShardingRule<int>, IntShardingRule>();
             serviceCollection.AddSingleton<IShardMigrator, ShardMigrator>();
             //PostgresMapping.MapEnums(connectionString);
-            //serviceCollection.AddScoped<RegionRepositoryPg>();
-            //serviceCollection.AddScoped<OrdersRepositoryPg>();
-            //serviceCollection.AddScoped<IRegionDatabase, RegionDatabase>();
-            //using (var serviceProvider = serviceCollection.BuildServiceProvider())
-            //{
-            //    var regionRepository = serviceProvider.GetService<IRegionDatabase>();
-            //    if(regionRepository != null)
-            //        regionRepository.Update();
-            //}
-            //serviceCollection.AddScoped<IOrdersRepository,OrdersDatabase>();
+            serviceCollection.AddScoped<RegionRepositoryPg>();
+            serviceCollection.AddScoped<OrdersRepositoryPg>();
+            serviceCollection.AddScoped<IRegionDatabase, RegionDatabase>();
+            using (var serviceProvider = serviceCollection.BuildServiceProvider())
+            {
+                var regionRepository = serviceProvider.GetService<IRegionDatabase>();
+                if (regionRepository != null)
+                    regionRepository.Update();
+            }
+            serviceCollection.AddScoped<IOrdersRepository, OrdersDatabase>();
 
 
 
 
             //Редис--------------------------------------------------------------------
-            //var redis_url = _configuration.GetValue<string>("ROUTE256_REDIS_ADDRESS");
-            //if (string.IsNullOrEmpty(redis_url))
-            //    throw new ArgumentException("ROUTE256_REDIS_ADDRESS variable is null or empty");
-            //serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redis_url));
-            //serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
-            //serviceCollection.AddScoped<IGrcpCustomerService, GrpcCustomerService>();
+            var redis_url = _configuration.GetValue<string>("ROUTE256_REDIS_ADDRESS");
+            if (string.IsNullOrEmpty(redis_url))
+                throw new ArgumentException("ROUTE256_REDIS_ADDRESS variable is null or empty");
+            serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redis_url));
+            serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
+            serviceCollection.AddScoped<IGrcpCustomerService, GrpcCustomerService>();
 
             //Кафка--------------------------------------------------------------------
-            //var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
-            //if (string.IsNullOrEmpty(redis_url))
-            //    throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
+            var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
+            if (string.IsNullOrEmpty(redis_url))
+                throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
 
-            //serviceCollection.AddSingleton<IKafkaProducer<long,string>, KafkaProducerProvider>(x=>
-            //        new KafkaProducerProvider(x.GetRequiredService<ILogger<KafkaProducerProvider>>(),kafka_url));
+            serviceCollection.AddSingleton<IKafkaProducer<long, string>, KafkaProducerProvider>(x =>
+                    new KafkaProducerProvider(x.GetRequiredService<ILogger<KafkaProducerProvider>>(), kafka_url));
 
-            //serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
-            //serviceCollection.AddScoped<IAddOrderHandler, AddOrderHandler>();
-            //serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();
+            serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
+            serviceCollection.AddScoped<IAddOrderHandler, AddOrderHandler>();
+            serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();
 
-            //serviceCollection.AddSingleton<KafkaPreOrderProvider>(x =>
-            //    new KafkaPreOrderProvider(x.GetRequiredService<ILogger<KafkaPreOrderProvider>>(), kafka_url));
-            //serviceCollection.AddHostedService<ConsumerKafkaPreOrder>();
+            serviceCollection.AddSingleton<KafkaPreOrderProvider>(x =>
+                new KafkaPreOrderProvider(x.GetRequiredService<ILogger<KafkaPreOrderProvider>>(), kafka_url));
+            serviceCollection.AddHostedService<ConsumerKafkaPreOrder>();
 
-            //serviceCollection.AddSingleton< KafkaOrdersEventsProvider>(x =>
-            //    new KafkaOrdersEventsProvider(x.GetRequiredService<ILogger<KafkaOrdersEventsProvider>>(), kafka_url));
-            //serviceCollection.AddHostedService<ConsumerKafkaOrdersEvents>();
+            serviceCollection.AddSingleton<KafkaOrdersEventsProvider>(x =>
+                new KafkaOrdersEventsProvider(x.GetRequiredService<ILogger<KafkaOrdersEventsProvider>>(), kafka_url));
+            serviceCollection.AddHostedService<ConsumerKafkaOrdersEvents>();
 
             //service-discovery----------------------------------------------------------
             serviceCollection.AddSingleton<IDbStore, DbStore>();

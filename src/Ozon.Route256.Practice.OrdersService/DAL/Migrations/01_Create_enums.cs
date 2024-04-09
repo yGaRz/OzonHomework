@@ -9,17 +9,15 @@ public class Create_enums : ShardSqlMigration
 {
     protected override string GetUpSql(
         IServiceProvider services) => @"
-            DROP TYPE if exists order_source_enum cascade;
             CREATE TYPE order_source_enum AS ENUM ('WebSite','Mobile','Api');
-            DROP TYPE if exists order_state_enum cascade;
             CREATE TYPE order_state_enum AS ENUM ('Created','SentToCustomer','Delivered','Lost','Cancelled');
 
 ";
 
     protected override string GetDownSql(
         IServiceProvider services) => @"
-            DROP TYPE if exists order_source_enum;
-            DROP TYPE if exists order_state_enum;
+            DROP TYPE if exists order_source_enum cascade;
+            DROP TYPE if exists order_state_enum cascade;
 ";
 
 }
