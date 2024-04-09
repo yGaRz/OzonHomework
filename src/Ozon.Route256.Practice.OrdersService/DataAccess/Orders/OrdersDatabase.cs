@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 
-public class OrdersDatabase : IOrdersRepository
+public class OrdersDatabase : IOrdersDatabase
 {
     private readonly OrdersRepositoryPg _ordersRepositoryPg;
     private readonly IRegionDatabase _regionDatabase;

@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders
 {
-    public class OrdersDatabaseInMemory : IOrdersRepository
+    public class OrdersDatabaseInMemory : IOrdersDatabase
     {
         private static readonly ConcurrentDictionary<long, OrderEntity> OrdersRep = new ConcurrentDictionary<long, OrderEntity>();
         private readonly IRegionDatabase _regionDatabase;

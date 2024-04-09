@@ -90,7 +90,7 @@ namespace Ozon.Route256.Practice.OrdersService
                 if (regionRepository != null)
                     regionRepository.Update();
             }
-            serviceCollection.AddScoped<IOrdersRepository, OrdersDatabase>();
+            serviceCollection.AddScoped<IOrdersDatabase, OrdersDatabase>();
 
 
 

@@ -17,10 +17,10 @@ create table orders(
     order_state order_state_enum,
     time_create timestamp,
     time_update timestamp,
-    region_id int,
-    count_goods int,
-    total_weigth numeric,
-    total_price numeric,
+    region_id int not null,
+    count_goods int  not null,
+    total_weigth numeric not null CHECK (total_weigth > 0),
+    total_price numeric not null CHECK (total_price > 0),
     address jsonb
 );
 

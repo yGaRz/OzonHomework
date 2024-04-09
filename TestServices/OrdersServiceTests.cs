@@ -61,7 +61,7 @@ public class OrdersServiceTests
     [Fact]
     public async Task Get_Order_Status_Success()
     {
-        var mockOrders = new Mock<IOrdersRepository>();
+        var mockOrders = new Mock<IOrdersDatabase>();
         var context = TestServerCallContext.Create();
         int idOrder = 1;
         mockOrders.Setup(m => m.GetOrderByIdAsync(idOrder, context.CancellationToken)).ReturnsAsync(
@@ -79,7 +79,7 @@ public class OrdersServiceTests
         [Fact]
     public async Task Get_Order_Status_NotFound()
     {
-        var mockOrders = new Mock<IOrdersRepository>();
+        var mockOrders = new Mock<IOrdersDatabase>();
         var context = TestServerCallContext.Create();
         long id = 1;
         mockOrders.Setup(m => m.GetOrderByIdAsync(id, context.CancellationToken)).ThrowsAsync(new NotFoundException($"Заказ с номером {id} не найден"));
@@ -93,7 +93,7 @@ public class OrdersServiceTests
     [Fact]
     public async Task Exception_Cancel_Order_Not_Found()
     {
-        var mockOrders = new Mock<IOrdersRepository>();
+        var mockOrders = new Mock<IOrdersDatabase>();
         var context = TestServerCallContext.Create();
         long id = 1;
         mockOrders.Setup(m => m.GetOrderByIdAsync(id, context.CancellationToken)).ThrowsAsync(new NotFoundException($"Заказ с номером {id} не найден"));
@@ -108,7 +108,7 @@ public class OrdersServiceTests
     public async Task Exception_Cancel_Order_Logistic_Exception()
     {
         // Arrange
-        var mockOrders = new Mock<IOrdersRepository>();
+        var mockOrders = new Mock<IOrdersDatabase>();
         var context = TestServerCallContext.Create();
         long idOrder = 1;
         mockOrders.Setup(m => m.GetOrderByIdAsync(idOrder, context.CancellationToken)).ReturnsAsync(() => {
@@ -139,7 +139,7 @@ public class OrdersServiceTests
     public async Task Exception_Cancel_Order_Logistic_Success()
     {
         // Arrange
-        var mockOrders = new Mock<IOrdersRepository>();
+        var mockOrders = new Mock<IOrdersDatabase>();
         var context = TestServerCallContext.Create();
         long idOrder = 1;
         mockOrders.Setup(m => m.GetOrderByIdAsync(idOrder, context.CancellationToken)).ReturnsAsync(() => {
@@ -203,7 +203,7 @@ public class OrdersServiceTests
     //    }
     //        );
     //    var request = new GetOrdersByCustomerIDRequest() { Id = id, PageIndex = 1, PageSize = 20, StartTime = DateTime.Now.ToUniversalTime().ToTimestamp() };
-    //    IOrdersRepository rep = new OrdersDatabase();
+    //    IOrdersDatabase rep = new OrdersDatabase();
 
     //    var service = new OrdersService(null, rep, null, mockCustomer.Object);
 
