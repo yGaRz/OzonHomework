@@ -15,6 +15,7 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
 using Ozon.Route256.Practice.SdServiceGrpcFile;
 using StackExchange.Redis;
+using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -73,6 +74,10 @@ namespace Ozon.Route256.Practice.OrdersService
                 serviceCollection.AddSingleton<IPostgresConnectionFactory>(_ => new PostgresConnectionFactory(connectionString));
             else
                 throw new Exception($"Connection string not found or empty");
+            //Шардированная бд
+            serviceCollection.Configure<DbOptions>(_configuration.GetSection(nameof(DbOptions)));
+            serviceCollection.AddSingleton<IShardPostgresConnectionFactory, ShardConnectionFactory>();
+
             //PostgresMapping.MapEnums(connectionString);
             serviceCollection.AddScoped<RegionRepositoryPg>();
             serviceCollection.AddScoped<OrdersRepositoryPg>();
@@ -83,6 +88,9 @@ namespace Ozon.Route256.Practice.OrdersService
                 regionRepository.Update();
             }
             serviceCollection.AddScoped<IOrdersRepository,OrdersDatabase>();
+
+
+
 
             //Редис--------------------------------------------------------------------
             var redis_url = _configuration.GetValue<string>("ROUTE256_REDIS_ADDRESS");

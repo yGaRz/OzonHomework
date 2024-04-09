@@ -3,8 +3,10 @@ version: "3.9"
 volumes:
   customer-service-db:
     name: customer-service-db-volume
-  orders-db:
-    name: orders-db-volume
+  orders-db-1:
+    name: orders-db-volume-1
+  orders-db-2:
+    name: orders-db-volume-2
 services:
 
   zookeeper:
@@ -31,7 +33,7 @@ services:
     ports:
       - "6081:80"
     environment:
-      - ROUTE256_DB_STATE=cluster:0-9:db1:1543;cluster:10-19:db2:1543;cluster1:0:db3:1543
+      - ROUTE256_DB_STATE=cluster:0-9:db1:1543;cluster-orders:0-3:localhost:5401;cluster-orders:4-7:localhost:5402
       - ROUTE256_UPDATE_TIMEOUT=10
 
   broker-1:
@@ -108,11 +110,11 @@ services:
     volumes:
       - customer-service-db:/var/lib/postgresql/data
  
-  orders-db:
+  orders-db-1:
     image: postgres:latest
     depends_on:
       - service-discovery
-    container_name: orders-db
+    container_name: orders-db-1
     environment:
       - POSTGRES_DB=orders-db
       - POSTGRES_USER=test
@@ -120,7 +122,21 @@ services:
     ports:
       - "5401:5432"
     volumes:
-      - orders-db:/var/lib/postgresql/data
+      - orders-db-1:/var/lib/postgresql/data
+ 
+  orders-db-2:
+    image: postgres:latest
+    depends_on:
+      - service-discovery
+    container_name: orders-db-2
+    environment:
+      - POSTGRES_DB=orders-db
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    ports:
+      - "5402:5432"
+    volumes:
+      - orders-db-2:/var/lib/postgresql/data
 
   gateway-service:
     build: 
@@ -161,7 +177,8 @@ services:
       - broker-1
       - broker-2
       - broker-3
-      - orders-db
+      - orders-db-1
+      - orders-db-2
       - orders-redis 
     container_name: orders-service-1
     ports:
@@ -184,7 +201,8 @@ services:
       - broker-1
       - broker-2
       - broker-3
-      - orders-db
+      - orders-db-1
+      - orders-db-2
       - orders-redis
     container_name: orders-service-2
     ports:
