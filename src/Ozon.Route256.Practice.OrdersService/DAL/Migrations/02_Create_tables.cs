@@ -1,10 +1,11 @@
 ﻿using FluentMigrator;
 using Ozon.Route256.Practice.OrdersService.DAL.Common;
+using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
 
 namespace Ozon.Route256.Practice.OrdersService.DAL.Migrations;
 
 [Migration(2, "Create tables migration")]
-public class CreateTables : SqlMigration
+public class CreateTables : ShardSqlMigration
 {
     protected override string GetUpSql(
         IServiceProvider services) => @"
@@ -34,7 +35,7 @@ create table regions(
     protected override string GetDownSql(
         IServiceProvider services) => @"
 
-drop table orders;
-drop table regions;
+drop table if exists orders;
+drop table if exists  regions;
 ";
 }

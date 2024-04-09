@@ -1,11 +1,12 @@
 using Grpc.Core;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
+using Ozon.Route256.Practice.Orders.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
 using Ozon.Route256.Practice.SdServiceGrpcFile;
 using GrpcReplicaType = Ozon.Route256.Practice.SdServiceGrpcFile.Replica.Types.ReplicaType;
 
-namespace Ozon.Route256.Practice.CustomerService.ClientBalancing;
+namespace Ozon.Route256.Practice.OrdersService.ClientBalancing;
 
 public class SdConsumerHostedService : BackgroundService
 {

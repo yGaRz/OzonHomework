@@ -3,13 +3,14 @@ using Microsoft.Extensions.Hosting;
 using FluentMigrator.Runner;
 using static System.Int32;
 using System.Net;
+using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
 
 namespace Ozon.Route256.Practice.OrdersService;
 public class Program
 {       
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        Host
+        await Host
            .CreateDefaultBuilder(args)
            .ConfigureWebHostDefaults(builder => builder.UseStartup<Startup>()
                .ConfigureKestrel(option =>
@@ -17,7 +18,7 @@ public class Program
                    option.ListenPortByOptions(ProgramExtension.ROUTE256_GRPC_PORT, HttpProtocols.Http2);
                }))
            .Build()
-           .RunOrMigrate(args);
+           .RunOrMigrateAsync(args);
     }
 }
 public static class ProgramExtension
@@ -33,21 +34,23 @@ public static class ProgramExtension
         if (isHttpPortParsed)
             option.Listen(IPAddress.Any, httpPort, options => options.Protocols = httpProtocol);
     }
-    public static void RunOrMigrate(
+    public static async Task RunOrMigrateAsync(
                         this IHost host,
                         string[] args)
     {
         if (args.Length > 0 && args[0].Equals("migrateUp", StringComparison.InvariantCultureIgnoreCase))
         {
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
             using var scope = host.Services.CreateScope();
-            var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-            runner.MigrateUp();
+            var runner = scope.ServiceProvider.GetRequiredService<IShardMigrator>();
+            await runner.MigrateUp(cts.Token);
         }
         else if (args.Length > 0 && args[0].Equals("migrateDown", StringComparison.InvariantCultureIgnoreCase))
         {
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
             using var scope = host.Services.CreateScope();
-            var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-            runner.MigrateDown(0);
+            var runner = scope.ServiceProvider.GetRequiredService<IShardMigrator>();
+            await runner.MigrateDown(0,cts.Token);
         }
         else
             host.Run();

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Npgsql;
-using Ozon.Route256.Practice.CustomerService.ClientBalancing;
+using Ozon.Route256.Practice.Orders.ClientBalancing;
+using Ozon.Route256.Practice.OrdersService.ClientBalancing;
 
 namespace Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
 
