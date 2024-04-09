@@ -3,8 +3,10 @@ version: "3.9"
 volumes:
   customer-service-db:
     name: customer-service-db-volume
-  orders-db:
-    name: orders-db-volume
+  # orders-db-1:
+  #   name: orders-db-volume-1
+  # orders-db-2:
+  #   name: orders-db-volume-2
 services:
 
   zookeeper:
@@ -31,7 +33,7 @@ services:
     ports:
       - "6081:80"
     environment:
-      - ROUTE256_DB_STATE=cluster:0-9:db1:1543;cluster:10-19:db2:1543;cluster1:0:db3:1543
+      - ROUTE256_DB_STATE=cluster:0-9:db1:1543;cluster-orders:0-3:localhost:5401;cluster-orders:4-7:localhost:5402
       - ROUTE256_UPDATE_TIMEOUT=10
 
   broker-1:
@@ -108,24 +110,38 @@ services:
     volumes:
       - customer-service-db:/var/lib/postgresql/data
  
-  orders-db:
+  orders-db-1:
     image: postgres:latest
     depends_on:
       - service-discovery
-    container_name: orders-db
+    container_name: orders-db-1
     environment:
       - POSTGRES_DB=orders-db
       - POSTGRES_USER=test
       - POSTGRES_PASSWORD=test
     ports:
       - "5401:5432"
-    volumes:
-      - orders-db:/var/lib/postgresql/data
+    # volumes:
+    #   - orders-db-1:/var/lib/postgresql/data
+ 
+  orders-db-2:
+    image: postgres:latest
+    depends_on:
+      - service-discovery
+    container_name: orders-db-2
+    environment:
+      - POSTGRES_DB=orders-db
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    ports:
+      - "5402:5432"
+    # volumes:
+    #   - orders-db-2:/var/lib/postgresql/data
 
   gateway-service:
     build: 
-      context: ./src/Ozon.Route256.Practice.GatewayService
-      dockerfile: Dockerfile
+      context: ./src
+      dockerfile: Dockerfile_gateway
     depends_on:
       - service-discovery
       - broker-1
@@ -135,13 +151,15 @@ services:
     ports:
       - "5071:80"
       - "5171:5005"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
       "ROUTE256_OS1_ADDRESS": "orders-service-1"
       "ROUTE256_OS1_PORT": "5005"
       "ROUTE256_OS2_ADDRESS": "orders-service-2"
       "ROUTE256_OS2_PORT": "5005"
-      "ROUTE256_OS3_ADDRESS": "localhost"
+      "ROUTE256_OS3_ADDRESS": "host.docker.internal"
       "ROUTE256_OS3_PORT": "5005"
 
   orders-redis:
@@ -150,51 +168,53 @@ services:
     ports:
       - "6380:6379"
 
-  orders-service-1:
-    build: 
-      context: ./src/Ozon.Route256.Practice.OrdersService
-      dockerfile: Dockerfile
-    depends_on:
-      - service-discovery
-      - broker-1
-      - broker-2
-      - broker-3
-      - orders-db
-      - orders-redis 
-    container_name: orders-service-1
-    ports:
-      - "5091:80"
-      - "5191:5005"
-    environment:
-      "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
-      "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
-      "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
-      "ROUTE256_GRPC_PORT": "5005"
-      "ROUTE256_REDIS_ADDRESS": "orders-redis:6379"
-      "ROUTE256_KAFKA_ADDRESS": "broker-1:9091"
+  # orders-service-1:
+  #   build: 
+  #     context: ./src
+  #     dockerfile: Dockerfile_orders
+  #   depends_on:
+  #     - service-discovery
+  #     - broker-1
+  #     - broker-2
+  #     - broker-3
+  #     - orders-db-1
+  #     - orders-db-2
+  #     - orders-redis 
+  #   container_name: orders-service-1
+  #   ports:
+  #     - "5091:80"
+  #     - "5191:5005"
+  #   environment:
+  #     "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
+  #     "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
+  #     "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
+  #     "ROUTE256_GRPC_PORT": "5005"
+  #     "ROUTE256_REDIS_ADDRESS": "orders-redis:6379"
+  #     "ROUTE256_KAFKA_ADDRESS": "broker-1:9091"
  
-  orders-service-2:
-    build: 
-      context: ./src/Ozon.Route256.Practice.OrdersService
-      dockerfile: Dockerfile
-    depends_on:
-      - service-discovery
-      - broker-1
-      - broker-2
-      - broker-3
-      - orders-db
-      - orders-redis
-    container_name: orders-service-2
-    ports:
-      - "5092:80"
-      - "5192:5005"
-    environment:
-      "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
-      "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
-      "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
-      "ROUTE256_GRPC_PORT": "5005"
-      "ROUTE256_REDIS_ADDRESS": "orders-redis:6379"
-      "ROUTE256_KAFKA_ADDRESS": "broker-1:9091"
+  # orders-service-2:
+  #   build: 
+  #     context: ./src
+  #     dockerfile: Dockerfile_orders
+  #   depends_on:
+  #     - service-discovery
+  #     - broker-1
+  #     - broker-2
+  #     - broker-3
+  #     - orders-db-1
+  #     - orders-db-2
+  #     - orders-redis
+  #   container_name: orders-service-2
+  #   ports:
+  #     - "5092:80"
+  #     - "5192:5005"
+  #   environment:
+  #     "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
+  #     "ROUTE256_LS_ADDRESS": "http://logistic-simulator:5131"
+  #     "ROUTE256_CS_ADDRESS": "http://customer-service:5005"
+  #     "ROUTE256_GRPC_PORT": "5005"
+  #     "ROUTE256_REDIS_ADDRESS": "orders-redis:6379"
+  #     "ROUTE256_KAFKA_ADDRESS": "broker-1:9091"
     
   customer-service:
     image: gitlab-registry.ozon.dev/cs/classroom-10/students/practice/customer-service:latest

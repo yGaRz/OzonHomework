@@ -1,18 +1,22 @@
-﻿using Ozon.Route256.Practice.CustomerService.ClientBalancing;
-using Ozon.Route256.Practice.OrdersService.Infrastructure;
+﻿using FluentMigrator.Runner;
+using FluentMigrator.Runner.Processors;
+using Ozon.Route256.Practice.CustomerGprcFile;
+using Ozon.Route256.Practice.LogisticGrpcFile;
+using Ozon.Route256.Practice.OrdersService.DAL.Common;
+using Ozon.Route256.Practice.OrdersService.DAL.Repositories;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
-using Microsoft.Extensions.DependencyInjection;
-using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
-using Google.Protobuf.WellKnownTypes;
-using Bogus;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
-using StackExchange.Redis;
+using Ozon.Route256.Practice.OrdersService.Infrastructure;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
+using Ozon.Route256.Practice.SdServiceGrpcFile;
+using StackExchange.Redis;
+using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
+using Ozon.Route256.Practice.OrdersService.ClientBalancing;
+using Ozon.Route256.Practice.Orders.ClientBalancing;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -23,8 +27,11 @@ namespace Ozon.Route256.Practice.OrdersService
         {
             _configuration = configuration;
         }
-        public async void ConfigureServices(IServiceCollection serviceCollection)
+
+        [Obsolete]
+        public void ConfigureServices(IServiceCollection serviceCollection)
         {
+            //Grpc--------------------------------------------------------------------
             serviceCollection.AddGrpc(option => option.Interceptors.Add<LoggerInterceptor>());
             serviceCollection.AddGrpcClient<SdService.SdServiceClient>(option =>
             {
@@ -36,7 +43,7 @@ namespace Ozon.Route256.Practice.OrdersService
 
                 option.Address = new Uri(url);
             });
-            serviceCollection.AddGrpcClient<LogisticsSimulator.Grpc.LogisticsSimulatorService.LogisticsSimulatorServiceClient>(option =>
+            serviceCollection.AddGrpcClient<LogisticsSimulatorService.LogisticsSimulatorServiceClient>(option =>
             {
                 var url = _configuration.GetValue<string>("ROUTE256_LS_ADDRESS");
                 if (string.IsNullOrEmpty(url))
@@ -57,29 +64,52 @@ namespace Ozon.Route256.Practice.OrdersService
                 option.Address = new Uri(url);
             });
 
-            serviceCollection.AddSwaggerGen();
+                serviceCollection.AddSwaggerGen();
             serviceCollection.AddGrpcReflection();
             serviceCollection.AddEndpointsApiExplorer();
 
+            //Репозитории-----------------------------------------------------------
+            PostgresMapping.MapCompositeTypes();
+            var connectionString = _configuration.GetConnectionString("OrdersDatabase");
+            if (!string.IsNullOrEmpty(connectionString))
+                serviceCollection.AddSingleton<IPostgresConnectionFactory>(_ => new PostgresConnectionFactory(connectionString));
+            else
+                throw new Exception($"Connection string not found or empty");
+            //Шардированная бд
+            serviceCollection.Configure<DbOptions>(_configuration.GetSection(nameof(DbOptions)));
+            serviceCollection.AddSingleton<IShardPostgresConnectionFactory, ShardConnectionFactory>();
+            serviceCollection.AddSingleton<IShardingRule<int>, IntShardingRule>();
+            serviceCollection.AddSingleton<IShardMigrator, ShardMigrator>();
+            //PostgresMapping.MapEnums(connectionString);
+            serviceCollection.AddScoped<RegionRepositoryPg>();
+            serviceCollection.AddScoped<OrdersRepositoryPg>();
+            serviceCollection.AddScoped<IRegionDatabase, RegionDatabase>();
+            using (var serviceProvider = serviceCollection.BuildServiceProvider())
+            {
+                var regionRepository = serviceProvider.GetService<IRegionDatabase>();
+                if (regionRepository != null)
+                    regionRepository.Update();
+            }
+            serviceCollection.AddScoped<IOrdersDatabase, OrdersDatabase>();
+
+
+
+
+            //Редис--------------------------------------------------------------------
             var redis_url = _configuration.GetValue<string>("ROUTE256_REDIS_ADDRESS");
             if (string.IsNullOrEmpty(redis_url))
                 throw new ArgumentException("ROUTE256_REDIS_ADDRESS variable is null or empty");
             serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redis_url));
-
-
-
-            serviceCollection.AddScoped<IRegionRepository,RegionRepository>();
-            serviceCollection.AddScoped<IOrdersRepository,OrdersRepository>();
-
             serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
-            serviceCollection.AddScoped<IGrcpCustomerService, Infrastructure.CacheCustomers.GrpcCustomerService>();
+            serviceCollection.AddScoped<IGrcpCustomerService, GrpcCustomerService>();
 
+            //Кафка--------------------------------------------------------------------
             var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
             if (string.IsNullOrEmpty(redis_url))
                 throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
 
-            serviceCollection.AddSingleton<IKafkaProducer<long,string>, KafkaProducerProvider>(x=>
-                    new KafkaProducerProvider(x.GetRequiredService<ILogger<KafkaProducerProvider>>(),kafka_url));
+            serviceCollection.AddSingleton<IKafkaProducer<long, string>, KafkaProducerProvider>(x =>
+                    new KafkaProducerProvider(x.GetRequiredService<ILogger<KafkaProducerProvider>>(), kafka_url));
 
             serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
             serviceCollection.AddScoped<IAddOrderHandler, AddOrderHandler>();
@@ -89,15 +119,14 @@ namespace Ozon.Route256.Practice.OrdersService
                 new KafkaPreOrderProvider(x.GetRequiredService<ILogger<KafkaPreOrderProvider>>(), kafka_url));
             serviceCollection.AddHostedService<ConsumerKafkaPreOrder>();
 
-            serviceCollection.AddSingleton< KafkaOrdersEventsProvider>(x =>
+            serviceCollection.AddSingleton<KafkaOrdersEventsProvider>(x =>
                 new KafkaOrdersEventsProvider(x.GetRequiredService<ILogger<KafkaOrdersEventsProvider>>(), kafka_url));
             serviceCollection.AddHostedService<ConsumerKafkaOrdersEvents>();
 
+            //service-discovery----------------------------------------------------------
             serviceCollection.AddSingleton<IDbStore, DbStore>();
-            serviceCollection.AddHostedService<SdConsumerHostedService>();
-
-            await GenerateRegionAsync(serviceCollection);
-        }
+            serviceCollection.AddHostedService<SdConsumerHostedService>();        
+       }
 
         public void Configure(IApplicationBuilder applicationBuilder)
         {
@@ -109,18 +138,7 @@ namespace Ozon.Route256.Practice.OrdersService
                 endpointRouteBuilder.MapGrpcService<GrpcServices.OrdersService>();
                 endpointRouteBuilder.MapGrpcReflectionService();
             });
-
         }
-
-        private static async Task GenerateRegionAsync(IServiceCollection services)
-        {
-            RegionRepository regionRepository = new RegionRepository();
-            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(0, "Moscow",55.72,37.65));
-            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(1, "StPetersburg",59.88,82.55));
-            await regionRepository.CreateRegionAsync(new DataAccess.Etities.RegionEntity(2, "Novosibirsk",55.01,82.55));
-        }
-
-
     }
 
 

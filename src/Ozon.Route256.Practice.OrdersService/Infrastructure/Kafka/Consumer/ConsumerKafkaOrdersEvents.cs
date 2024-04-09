@@ -32,6 +32,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer
                 "SentToCustomer" => OrderStateEnum.SentToCustomer,
                 "Delivered" => OrderStateEnum.Delivered,
                 "Lost" => OrderStateEnum.Lost,
+                "Cancelled" => OrderStateEnum.Cancelled,
                 _ => throw new ArgumentException($"State order id={message.Message.Key} is not correct")
             };
 

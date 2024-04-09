@@ -1,4 +1,4 @@
-namespace Ozon.Route256.Practice.CustomerService.ClientBalancing;
+namespace Ozon.Route256.Practice.OrdersService.ClientBalancing;
 
 public enum DbReplicaType
 {

@@ -8,12 +8,12 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewO
 {
     public class AddOrderHandler : IAddOrderHandler
     {
-        private readonly IOrdersRepository _orderRepository;
-        private readonly IRegionRepository _regionRepository;
+        private readonly IOrdersDatabase _orderRepository;
+        private readonly IRegionDatabase _regionRepository;
         private readonly IOrderProducer _producer;
         private readonly ILogger<AddOrderHandler> _logger;
 
-        public AddOrderHandler(IOrdersRepository orderRepository, IRegionRepository regionRepository, IOrderProducer orderProducer, ILogger<AddOrderHandler> logger)
+        public AddOrderHandler(IOrdersDatabase orderRepository, IRegionDatabase regionRepository, IOrderProducer orderProducer, ILogger<AddOrderHandler> logger)
         {
             _orderRepository = orderRepository;
             _regionRepository = regionRepository;
@@ -29,8 +29,9 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewO
                     token.ThrowIfCancellationRequested();
                 order.CustomerId = order.CustomerId % 10 + 1;
                 Faker faker = new Faker();
-                var region = await _regionRepository.GetRegionEntityById(faker.Random.Int(0, 2));
+                var region = await _regionRepository.GetRegionEntityByIdAsync( faker.Random.Int(1, 3));
                 order.Address.Region = region.Name;
+                order.Region = region.Name;
                 await _orderRepository.CreateOrderAsync(order, token);
                 if (GetDistance(order.Address.Latitude, order.Address.Longitude, region.Latitude, region.Longitude) < 5000)
                 {

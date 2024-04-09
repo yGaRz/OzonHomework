@@ -1,7 +1,9 @@
 ﻿using Grpc.Core;
 using Grpc.Net.Client.Balancer;
 using Grpc.Net.Client.Configuration;
+using Ozon.Route256.Practice.CustomerGprcFile;
 using Ozon.Route256.Practice.GatewayService.Infrastructure;
+using Ozon.Route256.Practice.OrdersGrpcFile;
 
 namespace Ozon.Route256.Practice.GatewayService
 {

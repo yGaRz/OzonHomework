@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ozon.Route256.Practice.CustomerGprcFile;
+using System;
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 //int32 id = 1;
 //string first_name = 2;

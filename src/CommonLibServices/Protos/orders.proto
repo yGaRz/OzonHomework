@@ -1,7 +1,7 @@
 ﻿syntax = "proto3";
 import "google/protobuf/timestamp.proto";
-import "Protos/customers.proto";
-option csharp_namespace = "Ozon.Route256.Practice";
+import "customers.proto";
+option csharp_namespace = "Ozon.Route256.Practice.OrdersGrpcFile";
 
 
 service Orders
@@ -18,6 +18,15 @@ service Orders
 	rpc GetRegionStatistic(GetRegionStatisticRequest) returns(GetRegionStatisticResponse);
 	//Ручка получения всех заказов клиента
 	rpc GetOrdersByCustomerID(GetOrdersByCustomerIDRequest) returns(GetOrdersByCustomerIDResponse);
+	//ручка генерации клиентов
+	rpc GetGenerateCustomer(GetGenerateCustomerRequest) returns (GetGenerateCustomerResponse);
+
+}
+
+message GetGenerateCustomerRequest{
+	int32 count=1;
+}
+message GetGenerateCustomerResponse{
 }
 
 //Ручка отмены заказа
@@ -46,14 +55,13 @@ message GetRegionResponse{
 message GetOrdersRequest{
   repeated string region=1;
   OrderSource source=2;
-  uint32 page_size=3;
-  uint32 page_index=4;
+  int32 page_size=3;
+  int32 page_index=4;
   SortParam sort_param=5;
   string sort_field=6;
 }
 message GetOrdersResponse{
   repeated Order orders=1;
-  uint32 page_number=2;
 }
 
 //Ручка агрегации заказов по региону
@@ -69,16 +77,15 @@ message GetRegionStatisticResponse{
 message GetOrdersByCustomerIDRequest{
   int32 id=1;
   google.protobuf.Timestamp start_time = 2;
-  uint32 page_size=3;
-  uint32 page_index=4;
+  int32 page_size=3;
+  int32 page_index=4;
 }
 message GetOrdersByCustomerIDResponse{
-	uint32 page_number=1;
-	string name_customer=2;
-	Address address_customer=3;
-	string phone_number=4;
-	string region=5;
-	repeated Order orders=6;
+	string name_customer=1;
+	Address address_customer=2;
+	string phone_number=3;
+	string region=4;
+	repeated Order orders=5;
 }
 
 enum OrderState{
@@ -106,8 +113,8 @@ message Order{
 	double total_weight=4;
 	OrderSource order_source=5;
 	google.protobuf.Timestamp date_create =6;
-	repeated Product ProductList =7;
-	OrderState order_state=8;
+//	repeated Product ProductList =7;
+	OrderState order_state=7;
 }
 
 message Product{

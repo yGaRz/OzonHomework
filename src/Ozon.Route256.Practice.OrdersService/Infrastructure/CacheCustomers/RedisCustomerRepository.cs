@@ -2,7 +2,6 @@
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using StackExchange.Redis;
-using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 
