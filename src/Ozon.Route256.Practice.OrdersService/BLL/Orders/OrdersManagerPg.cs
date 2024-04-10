@@ -8,11 +8,11 @@ using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 
-public class OrdersDatabase : IOrdersRepository
+public class OrdersManagerPg : IOrdersManager
 {
-    private readonly OrdersRepositoryPg _ordersRepositoryPg;
+    private readonly IOrdersRepository _ordersRepositoryPg;
     private readonly IRegionDatabase _regionDatabase;
-    public OrdersDatabase(OrdersRepositoryPg ordersRepositoryPg, IRegionDatabase regionDatabase)
+    public OrdersManagerPg(IOrdersRepository ordersRepositoryPg, IRegionDatabase regionDatabase)
     {
         _ordersRepositoryPg = ordersRepositoryPg;
         _regionDatabase = regionDatabase;

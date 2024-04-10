@@ -9,11 +9,11 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewO
 {
     public class SetOrderStateHandler : ISetOrderStateHandler
     {
-        private readonly IOrdersRepository _orderRepository;
+        private readonly IOrdersManager _orderRepository;
         private readonly IOrderProducer _producer;
         private readonly ILogger<AddOrderHandler> _logger;
 
-        public SetOrderStateHandler(IOrdersRepository orderRepository, IOrderProducer orderProducer, ILogger<AddOrderHandler> logger)
+        public SetOrderStateHandler(IOrdersManager orderRepository, IOrderProducer orderProducer, ILogger<AddOrderHandler> logger)
         {
             _orderRepository = orderRepository;
             _producer = orderProducer;

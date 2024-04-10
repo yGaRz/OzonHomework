@@ -11,11 +11,11 @@ using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders
 {
-    public class OrdersDatabaseInMemory : IOrdersRepository
+    public class OrdersManagerInMemory : IOrdersManager
     {
         private static readonly ConcurrentDictionary<long, OrderEntity> OrdersRep = new ConcurrentDictionary<long, OrderEntity>();
         private readonly IRegionDatabase _regionDatabase;
-        public OrdersDatabaseInMemory(OrdersRepositoryPg ordersRepositoryPg, IRegionDatabase regionDatabase)
+        public OrdersManagerInMemory(OrdersRepositoryPg ordersRepositoryPg, IRegionDatabase regionDatabase)
         {
             _regionDatabase = regionDatabase;
         }
