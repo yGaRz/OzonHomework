@@ -17,6 +17,7 @@ using StackExchange.Redis;
 using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
 using Ozon.Route256.Practice.OrdersService.ClientBalancing;
 using Ozon.Route256.Practice.Orders.ClientBalancing;
+using Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -36,12 +37,13 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddEndpointsApiExplorer();
             AddServiceDiscovery(serviceCollection);
             //Репозитории-----------------------------------------------------------
-            PostgresMapping.MapCompositeTypes();
-            var connectionString = _configuration.GetConnectionString("OrdersManagerPg");
-            if (!string.IsNullOrEmpty(connectionString))
-                serviceCollection.AddSingleton<IPostgresConnectionFactory>(_ => new PostgresConnectionFactory(connectionString));
-            else
-                throw new Exception($"Connection string not found or empty");
+
+            //PostgresMapping.MapCompositeTypes();
+            //var connectionString = _configuration.GetConnectionString("OrdersManagerPg");
+            //if (!string.IsNullOrEmpty(connectionString))
+            //    serviceCollection.AddSingleton<IPostgresConnectionFactory>(_ => new PostgresConnectionFactory(connectionString));
+            //else
+            //    throw new Exception($"Connection string not found or empty");
 
             serviceCollection.Configure<DbOptions>(_configuration.GetSection(nameof(DbOptions)));
             serviceCollection.AddSingleton<IShardPostgresConnectionFactory, ShardConnectionFactory>();
@@ -50,10 +52,10 @@ namespace Ozon.Route256.Practice.OrdersService
 
             //PostgresMapping.MapEnums(connectionString);
 
-            serviceCollection.AddScoped<IRegionRepository, RegionRepositoryPg>();
+            serviceCollection.AddScoped<IRegionRepository, RegionShardRepositoryPg>();
             serviceCollection.AddScoped<IRegionDatabase, RegionDatabaseInMemory>();
             serviceCollection.Configure<IRegionDatabase>(x => x.Update());
-            serviceCollection.AddScoped<IOrdersRepository, OrdersRepositoryPg>();
+            serviceCollection.AddScoped<IOrdersRepository, OrdersShardRepositoryPg>();
             serviceCollection.AddScoped<IOrdersManager, OrdersManagerPg>(); 
 
             AddRedis(serviceCollection);

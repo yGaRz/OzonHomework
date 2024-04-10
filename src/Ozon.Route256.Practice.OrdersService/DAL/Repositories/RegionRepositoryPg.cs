@@ -61,10 +61,10 @@ public class RegionRepositoryPg : IRegionRepository
         {
             result.Add(
                 new RegionDal(
-                    Id: reader.GetFieldValue<int>(0),
-                    Name: reader.GetFieldValue<string>(1),
-                    Latitude: reader.GetFieldValue<double>(2),
-                    Longitude: reader.GetFieldValue<double>(3)
+                    id: reader.GetFieldValue<int>(0),
+                    name: reader.GetFieldValue<string>(1),
+                    latitude: reader.GetFieldValue<double>(2),
+                    longitude: reader.GetFieldValue<double>(3)
                 ));
         }
 
