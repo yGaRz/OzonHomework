@@ -3,7 +3,7 @@ using Ozon.Route256.Practice.OrdersService.DAL.Common;
 using Ozon.Route256.Practice.OrdersService.DAL.Models;
 
 namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories;
-public class RegionRepositoryPg
+public class RegionRepositoryPg : IRegionRepository
 {
     private const string Fields = "id, region, latitude, longitude";
     private const string FieldsForInsert = "region, latitude, longitude";
@@ -14,7 +14,7 @@ public class RegionRepositoryPg
     {
         _connectionFactory = connectionFactory;
     }
-    public async Task<int> Create( RegionDal regions, CancellationToken token)
+    public async Task<int> Create(RegionDal regions, CancellationToken token)
     {
         const string sql = @$"
             insert into {Table} ({FieldsForInsert})
@@ -34,7 +34,7 @@ public class RegionRepositoryPg
         return result;
     }
 
-    public async Task<RegionDal[]> GetAll( CancellationToken token)
+    public async Task<RegionDal[]> GetAll(CancellationToken token)
     {
         const string sql = @$"
             select {Fields}

@@ -7,7 +7,7 @@ using System.Data;
 
 namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
 {
-    public class OrdersRepositoryPg
+    public class OrdersRepositoryPg : IOrdersRepository
     {
         private const string Fields = "id, customer_id, order_source, order_state, time_create, time_update, region_id, count_goods, total_weigth, total_price, address";
         private const string FieldsForInsert = "id, customer_id, order_source, order_state, time_create, time_update, region_id, count_goods, total_weigth, total_price, address";
@@ -140,7 +140,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             {
                 result.Add(
                     new RegionStatisticDal(
-                        regionId : reader.GetFieldValue<int>(0),
+                        regionId: reader.GetFieldValue<int>(0),
                         TotalCountOrders: reader.GetFieldValue<int>(1),
                         TotalSumOrders: reader.GetFieldValue<long>(2),
                         TotalWigthOrders: reader.GetFieldValue<long>(3),
@@ -167,7 +167,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             return result;
         }
 
-        internal async Task<OrderDal[]> GetOrdersByRegion(int[] regionsId, OrderSourceEnum source, CancellationToken token)
+        public async Task<OrderDal[]> GetOrdersByRegion(int[] regionsId, OrderSourceEnum source, CancellationToken token)
         {
             const string sql = @$"
             select {Fields}
