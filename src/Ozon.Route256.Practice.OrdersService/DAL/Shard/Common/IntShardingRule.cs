@@ -8,7 +8,7 @@ public interface IShardingRule<TShardKey>
     int GetBucketId(TShardKey shardKey);
 }
 
-public class IntShardingRule: IShardingRule<int>
+public class IntShardingRule: IShardingRule<long>
 {
     private readonly IDbStore _dbStore;
 
@@ -19,7 +19,7 @@ public class IntShardingRule: IShardingRule<int>
     }
 
     public int GetBucketId(
-        int shardKey)
+        long shardKey)
     {
         var shardKeyHashCode = GetShardKeyHashCode(shardKey);
 
@@ -27,7 +27,7 @@ public class IntShardingRule: IShardingRule<int>
     }
 
     private int GetShardKeyHashCode(
-        int shardKey)
+        long shardKey)
     {
         var bytes = BitConverter.GetBytes(shardKey);
         var murmur = MurmurHash.Create32();

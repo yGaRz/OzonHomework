@@ -47,7 +47,7 @@ namespace Ozon.Route256.Practice.OrdersService
 
             serviceCollection.Configure<DbOptions>(_configuration.GetSection(nameof(DbOptions)));
             serviceCollection.AddSingleton<IShardPostgresConnectionFactory, ShardConnectionFactory>();
-            serviceCollection.AddSingleton<IShardingRule<int>, IntShardingRule>();
+            serviceCollection.AddSingleton<IShardingRule<long>, IntShardingRule>();
             serviceCollection.AddSingleton<IShardMigrator, ShardMigrator>();
 
             //PostgresMapping.MapEnums(connectionString);
