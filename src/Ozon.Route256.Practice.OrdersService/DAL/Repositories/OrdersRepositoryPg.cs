@@ -25,14 +25,14 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
         {
             const string sql = @$"
             insert into {Table} ({FieldsForInsert})
-            values (:id,:customer_id , :order_source, :order_state, (CAST(:time_create as timestamp)), (CAST(:time_update as timestamp)), :region_id, :count_goods, :total_weigth, :total_price, (CAST(:address as json)));
+            values (:id,:customer_id , CAST(:order_source as order_source_enum), CAST(:order_state as order_state_enum), (CAST(:time_create as timestamp)), (CAST(:time_update as timestamp)), :region_id, :count_goods, :total_weigth, :total_price, (CAST(:address as json)));
         ";
             await using var connection = _connectionFactory.GetConnection();
             await using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.Add("id", order.id);
             command.Parameters.Add("customer_id", order.customer_id);
-            command.Parameters.Add("order_source", order.source);
-            command.Parameters.Add("order_state", order.state);
+            command.Parameters.Add("order_source", order.source.ToString());
+            command.Parameters.Add("order_state", order.state.ToString());
             command.Parameters.Add("time_create", order.timeCreate);
             command.Parameters.Add("time_update", order.timeUpdate);
             command.Parameters.Add("region_id", order.regioId);
@@ -59,7 +59,6 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             await connection.OpenAsync(token);
             await command.ExecuteNonQueryAsync(token);
         }
-
         public async Task<OrderDal?> GetOrderByID(long id, CancellationToken token)
         {
             const string sql = @$"
@@ -83,7 +82,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             {
                 result.Add(
                     new OrderDal(
-                        id: reader.GetFieldValue<long>(0),
+                        id: reader.GetFieldValue<int>(0),
                         customer_id: reader.GetFieldValue<int>(1),
                         source: reader.GetFieldValue<OrderSourceEnum>(2),
                         state: reader.GetFieldValue<OrderStateEnum>(3),
