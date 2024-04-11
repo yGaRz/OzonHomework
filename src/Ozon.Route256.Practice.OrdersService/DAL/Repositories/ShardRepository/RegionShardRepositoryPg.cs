@@ -12,7 +12,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
         private const string Table = $"{ShardsHelper.BucketPlaceholder}.regions";
         public RegionShardRepositoryPg(
                 IShardPostgresConnectionFactory connectionFactory,
-                IShardingRule<int> shardingRule) : base(connectionFactory, shardingRule)
+                IShardingRule<long> shardingRule) : base(connectionFactory, shardingRule)
         {
         }
         public async Task<int> Create(RegionDal regions, CancellationToken token)
