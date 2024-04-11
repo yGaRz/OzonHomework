@@ -8,11 +8,11 @@ public interface IShardingRule<TShardKey>
     int GetBucketId(TShardKey shardKey);
 }
 
-public class IntShardingRule: IShardingRule<long>
+public class LongShardingRule: IShardingRule<long>
 {
     private readonly IDbStore _dbStore;
 
-    public IntShardingRule(
+    public LongShardingRule(
         IDbStore dbStore)
     {
         _dbStore = dbStore;

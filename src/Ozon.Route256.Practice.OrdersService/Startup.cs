@@ -38,7 +38,7 @@ namespace Ozon.Route256.Practice.OrdersService
             AddServiceDiscovery(serviceCollection);
             //Репозитории-----------------------------------------------------------
 
-            //PostgresMapping.MapCompositeTypes();
+            PostgresMapping.MapCompositeTypes();
             //var connectionString = _configuration.GetConnectionString("OrdersManagerPg");
             //if (!string.IsNullOrEmpty(connectionString))
             //    serviceCollection.AddSingleton<IPostgresConnectionFactory>(_ => new PostgresConnectionFactory(connectionString));
@@ -47,10 +47,8 @@ namespace Ozon.Route256.Practice.OrdersService
 
             serviceCollection.Configure<DbOptions>(_configuration.GetSection(nameof(DbOptions)));
             serviceCollection.AddSingleton<IShardPostgresConnectionFactory, ShardConnectionFactory>();
-            serviceCollection.AddSingleton<IShardingRule<long>, IntShardingRule>();
+            serviceCollection.AddSingleton<IShardingRule<long>, LongShardingRule>();
             serviceCollection.AddSingleton<IShardMigrator, ShardMigrator>();
-
-            //PostgresMapping.MapEnums(connectionString);
 
             serviceCollection.AddScoped<IRegionRepository, RegionShardRepositoryPg>();
             serviceCollection.AddScoped<IRegionDatabase, RegionDatabaseInMemory>();
