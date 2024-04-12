@@ -62,7 +62,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
         public async Task SetStatusById(long Id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token)
         {
             const string sql = @$"
-            update {Table} 
+            update {Table} docker
                 set order_state=:order_state::{ShardsHelper.BucketPlaceholder}.order_state_enum, time_update = (CAST(:time_update as timestamp))
                 where id=:id;";
             var param = new DynamicParameters();
