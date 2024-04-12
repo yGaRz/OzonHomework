@@ -4,11 +4,7 @@ using Ozon.Route256.Practice.OrdersService.Models;
 using System.Collections.Concurrent;
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders
 {
-<<<<<<<< HEAD:src/Ozon.Route256.Practice.OrdersService/BLL/Orders/IOrdersManager.cs
-    public interface IOrdersManager
-========
-    public interface IOrdersDatabase
->>>>>>>> main:src/Ozon.Route256.Practice.OrdersService/BLL/Orders/IOrdersDatabase.cs
+    public interface IOrdersRepository
     {
         //Добавление заказа в репозиторий
         Task CreateOrderAsync(OrderEntity order, CancellationToken token = default);
