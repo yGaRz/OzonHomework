@@ -18,6 +18,8 @@ using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
 using Ozon.Route256.Practice.OrdersService.ClientBalancing;
 using Ozon.Route256.Practice.Orders.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository;
+using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common.Rules;
+using Ozon.Route256.Practice.OrdersService.Models;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -48,7 +50,10 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.Configure<DbOptions>(_configuration.GetSection(nameof(DbOptions)));
             serviceCollection.AddSingleton<IShardPostgresConnectionFactory, ShardConnectionFactory>();
             serviceCollection.AddSingleton<IShardingRule<long>, LongShardingRule>();
+            serviceCollection.AddSingleton<IShardingRule<SourceRegion>, SourceRegionShardingRule>();
             serviceCollection.AddSingleton<IShardMigrator, ShardMigrator>();
+
+            //PostgresMapping.MapEnums(connectionString);
 
             serviceCollection.AddScoped<IRegionRepository, RegionShardRepositoryPg>();
             serviceCollection.AddScoped<IRegionDatabase, RegionDatabaseInMemory>();
