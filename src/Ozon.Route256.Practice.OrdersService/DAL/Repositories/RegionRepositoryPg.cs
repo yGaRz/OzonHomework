@@ -14,12 +14,11 @@ public class RegionRepositoryPg : IRegionRepository
     {
         _connectionFactory = connectionFactory;
     }
-    public async Task<int> Create(RegionDal regions, CancellationToken token)
+    public async Task Create(RegionDal regions, CancellationToken token)
     {
         const string sql = @$"
             insert into {Table} ({FieldsForInsert})
             values (:region_name, :latitude, :longitude)
-            returning id;
         ";
 
         await using var connection = _connectionFactory.GetConnection();
@@ -30,8 +29,6 @@ public class RegionRepositoryPg : IRegionRepository
 
         await connection.OpenAsync(token);
         var reader = await command.ExecuteReaderAsync(token);
-        var result = await ReadId(reader, token);
-        return result;
     }
 
     public async Task<RegionDal[]> GetAll(CancellationToken token)

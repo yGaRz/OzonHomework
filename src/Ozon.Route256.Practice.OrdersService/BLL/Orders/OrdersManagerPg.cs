@@ -106,7 +106,7 @@ public class OrdersManagerPg : IOrdersManager
             CountGoods = order.countGoods,
             Address = JsonSerializer.Deserialize<AddressEntity>(order.addressJson),
             Goods = new List<ProductEntity>(),
-            Region = (await _regionDatabase.GetRegionEntityByIdAsync(order.regioId)).Name,
+            Region = (await _regionDatabase.GetRegionEntityByIdAsync(order.regionId)).Name,
             State = order.state,
             TotalWeigth = order.totalWeigth,
             TimeCreate = order.timeCreate,

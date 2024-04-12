@@ -1,14 +1,14 @@
 ﻿using Murmur;
 using Ozon.Route256.Practice.Orders.ClientBalancing;
 
-namespace Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
+namespace Ozon.Route256.Practice.OrdersService.DAL.Shard.Common.Rules;
 
 public interface IShardingRule<TShardKey>
 {
     int GetBucketId(TShardKey shardKey);
 }
 
-public class LongShardingRule: IShardingRule<long>
+public class LongShardingRule : IShardingRule<long>
 {
     private readonly IDbStore _dbStore;
 

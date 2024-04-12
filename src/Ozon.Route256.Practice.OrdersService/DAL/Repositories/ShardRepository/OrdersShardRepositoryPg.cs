@@ -4,6 +4,7 @@ using Npgsql;
 using Ozon.Route256.Practice.OrdersService.DAL.Common;
 using Ozon.Route256.Practice.OrdersService.DAL.Models;
 using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
+using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common.Rules;
 using Ozon.Route256.Practice.OrdersService.Models;
 using System.Data;
 using System.Data.Common;
@@ -17,7 +18,8 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
         private const string Table = $"{ShardsHelper.BucketPlaceholder}.orders";
         public OrdersShardRepositoryPg(
         IShardPostgresConnectionFactory connectionFactory,
-        IShardingRule<long> shardingRule) : base(connectionFactory, shardingRule)
+        IShardingRule<long> longShardingRule,
+        IShardingRule<SourceRegion> sourceShardingRule) : base(connectionFactory, longShardingRule,sourceShardingRule)
         {
         }
 
@@ -34,7 +36,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
             param.Add("order_state", order.state.ToString());
             param.Add("time_create", order.timeCreate);
             param.Add("time_update", order.timeUpdate);
-            param.Add("region_id", order.regioId);
+            param.Add("region_id", order.regionId);
             param.Add("count_goods", order.countGoods);
             param.Add("total_weigth", order.totalWeigth);
             param.Add("total_price", order.totalPrice);
@@ -44,6 +46,17 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
             {
                 var cmd = new CommandDefinition(sql, param, cancellationToken: token);
                 await connection.ExecuteAsync(cmd);
+            }
+
+            const string indexSql = $@"
+            insert into  {ShardsHelper.BucketPlaceholder}.idx_order_source (source, region_id, order_id)
+            VALUES (:source_str::{ShardsHelper.BucketPlaceholder}.order_source_enum, :regionId ,:id)
+            ";
+
+            await using (var connection = GetConnectionBySearchKey(new SourceRegion(order.regionId, order.source)))
+            {
+                string source_str = order.source.ToString();
+                await connection.ExecuteAsync(indexSql, new { source_str, order.regionId, order.id });
             }
         }
         public async Task SetStatusById(long Id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token)
@@ -88,7 +101,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
                         state: reader.GetFieldValue<OrderStateEnum>(3),
                         timeCreate: reader.GetFieldValue<DateTime>(4),
                         timeUpdate: reader.GetFieldValue<DateTime>(5),
-                        regioId: reader.GetFieldValue<int>(6),
+                        regionId: reader.GetFieldValue<int>(6),
                         countGoods: reader.GetFieldValue<int>(7),
                         totalWeigth: reader.GetFieldValue<double>(8),
                         totalPrice: reader.GetFieldValue<double>(9),
@@ -98,26 +111,129 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
             return result.ToArray();
         }
 
-        public Task<OrderDal[]> GetOrdersByCustomerId(long idCustomer, DateTime timeCreate, CancellationToken token)
+        public async Task<OrderDal[]> GetOrdersByCustomerId(long idCustomer, DateTime timeCreate, CancellationToken token)
         {
-            throw new NotImplementedException();
+            var result = new List<OrderDal>();
+            foreach (var bucketId in AllBuckets)
+            {
+                const string sql = @$"
+                            select {Fields}
+                            from {Table}
+                            where customer_id = :idCustomer and time_create > Cast(:timeCreate as timestamptz);";
+
+                await using var connection = GetConnectionByBucket(bucketId, token);
+                var cmd = new CommandDefinition(sql, new { idCustomer, timeCreate }, cancellationToken: token);
+                await using var reader = await connection.ExecuteReaderAsync(cmd);
+                var orders = await ReadOrderDal(reader, token);
+                result.AddRange(orders);
+            }
+            return result.ToArray();
         }
 
-        public Task<OrderDal[]> GetOrdersByRegion(int[] regionsId, OrderSourceEnum source, CancellationToken token)
+        public async Task<OrderDal[]> GetOrdersByRegion(int[] regionsId, OrderSourceEnum source, CancellationToken token)
         {
-            throw new NotImplementedException();
+            #region Версия получения данных в лоб + для сравнения с работой по индексу
+            //var result = new List<OrderDal>();
+            //foreach (var bucketId in AllBuckets)
+            //{
+            //    const string sql = @$"
+            //        select {Fields}
+            //        from {Table}
+            //        where region_id = any(:regionsId) and order_source=:source_str::{ShardsHelper.BucketPlaceholder}.order_source_enum;";
+
+            //    await using var connection = GetConnectionByBucket(bucketId, token);
+            //    string source_str = source.ToString();
+            //    var cmd = new CommandDefinition(sql, new { regionsId, source_str }, cancellationToken: token);
+            //    await using var reader = await connection.ExecuteReaderAsync(cmd);
+            //    var orders = await ReadOrderDal(reader, token);
+            //    result.AddRange(orders);
+            //}
+            //return result.ToArray();
+            #endregion
+            const string indexSql = @$"
+            select order_id 
+            from {ShardsHelper.BucketPlaceholder}.idx_order_source
+            where source = :source_str::{ShardsHelper.BucketPlaceholder}.order_source_enum and region_id = any(:regionsId);";
+
+            List<int> ordersIds = new List<int>();
+            foreach (int region in regionsId)
+            {
+                await using (var connectionIndex = GetConnectionBySearchKey(new SourceRegion(region, source)))
+                {
+                    string source_str = source.ToString();
+                    var ordersIdsbyRegion = await connectionIndex.QueryAsync<int>(indexSql, new { source_str, regionsId });
+                    ordersIds.AddRange(ordersIdsbyRegion);
+                }
+            }
+            const string sql = @$"
+                    select {Fields}
+                    from {Table}
+                    where id = any(:idsInBucket) and region_id = any(:regionsId)";
+            var bucketToIdsMap = ordersIds
+                .Select(orderId => (BucketId: GetBucketByShardKey(orderId), OrderId: orderId))
+                .GroupBy(x => x.BucketId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(x => x.OrderId).ToArray());
+
+            var result = new List<OrderDal>();
+            foreach (var (bucketId, idsInBucket) in bucketToIdsMap)
+            {
+                await using var connection = GetConnectionByBucket(bucketId, token);
+                //var ordersInBucket = await connection.QueryAsync<OrderDal>(sql, new { ids = idsInBucket });
+                var cmd = new CommandDefinition(sql, new { idsInBucket, regionsId }, cancellationToken: token);
+                await using var reader = await connection.ExecuteReaderAsync(cmd);
+                var ordersInBucket = await ReadOrderDal(reader, token);
+                result.AddRange(ordersInBucket);
+            }
+            return result.ToArray();
         }
 
-        public Task<RegionStatisticDal[]> GetRegionStatistic(int[] regionsId, DateTime timeCreate, CancellationToken token)
+        public async Task<RegionStatisticDal[]> GetRegionStatistic(int[] regionsId, DateTime timeCreate, CancellationToken token)
         {
-            throw new NotImplementedException();
-        }
+            var total = new List<RegionStatisticDal>();
+            foreach (var bucketId in AllBuckets)
+            {
+                const string sql = @$"
+                    SELECT region_id,count(*), sum(total_price), sum(total_weigth), count(distinct customer_id)
+                    FROM {Table}
+                    where time_create > Cast(:timeCreate as timestamptz) and region_id = any(:regionsId)
+                    group by region_id;";
 
-        public Task<OrderStateEnum> GetStatusById(long Id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token)
+                await using var connection = GetConnectionByBucket(bucketId, token);
+                var cmd = new CommandDefinition(sql, new { timeCreate, regionsId}, cancellationToken: token);
+                await using var reader = await connection.ExecuteReaderAsync(cmd);
+                var statistic = await ReadRegionStatisticDal(reader, token);
+                total.AddRange(statistic);
+            }
+            var result = new List<RegionStatisticDal>();
+            foreach (var id in regionsId)
+            {
+                RegionStatisticDal r = new(id,
+                    total.Where(x=>x.regionId==id).Sum(x => x.TotalCountOrders),
+                    total.Where(x => x.regionId == id).Sum(x=>x.TotalSumOrders),
+                    total.Where(x => x.regionId == id).Sum(x => x.TotalWigthOrders),
+                    total.Where(x => x.regionId == id).Sum(x => x.TotalCustomers));
+                result.Add(r);
+            }
+            return result.ToArray();
+        }
+        
+        private static async Task<RegionStatisticDal[]> ReadRegionStatisticDal(DbDataReader reader, CancellationToken token)
         {
-            throw new NotImplementedException();
+            var result = new List<RegionStatisticDal>();
+            while (await reader.ReadAsync(token))
+            {
+                result.Add(
+                    new RegionStatisticDal(
+                        regionId: reader.GetFieldValue<int>(0),
+                        TotalCountOrders: reader.GetFieldValue<int>(1),
+                        TotalSumOrders: reader.GetFieldValue<long>(2),
+                        TotalWigthOrders: reader.GetFieldValue<long>(3),
+                        TotalCustomers: reader.GetFieldValue<int>(4)
+                    ));
+            }
+            return result.ToArray();
         }
-
-
     }
 }

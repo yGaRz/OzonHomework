@@ -2,6 +2,8 @@
 using Dapper;
 using Ozon.Route256.Practice.OrdersService.DAL.Models;
 using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
+using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common.Rules;
+using Ozon.Route256.Practice.OrdersService.Models;
 
 namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
 {
@@ -12,27 +14,27 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
         private const string Table = $"{ShardsHelper.BucketPlaceholder}.regions";
         public RegionShardRepositoryPg(
                 IShardPostgresConnectionFactory connectionFactory,
-                IShardingRule<long> shardingRule) : base(connectionFactory, shardingRule)
+                IShardingRule<long> longShardingRule,
+                IShardingRule<SourceRegion> sourceShardingRule) : base(connectionFactory, longShardingRule,sourceShardingRule)
         {
         }
-        public async Task<int> Create(RegionDal regions, CancellationToken token)
+        public async Task Create(RegionDal regions, CancellationToken token)
         {
             const string sql = @$"
             insert into {Table} ({FieldsForInsert})
-            values (:region_name, :latitude, :longitude)
-            returning id;      
-            ";
+            values (:region_name, :latitude, :longitude)";
 
-            await using var connection = GetConnectionByBucket(0,token);
+            foreach (var bucketId in AllBuckets)
+            {
+                await using var connection = GetConnectionByBucket(bucketId, token);
+                var param = new DynamicParameters();
+                param.Add("region_name", regions.Name);
+                param.Add("latitude", regions.Latitude);
+                param.Add("longitude", regions.Longitude);
 
-            var param = new DynamicParameters();
-            param.Add("region_name", regions.Name);
-            param.Add("latitude", regions.Latitude);
-            param.Add("longitude", regions.Longitude);
-
-            var cmd = new CommandDefinition(sql, cancellationToken: token);
-            var result = await connection.QueryAsync<int>(cmd);
-            return result.ToArray().FirstOrDefault();
+                var cmd = new CommandDefinition(sql, cancellationToken: token);
+                var result = await connection.QueryAsync<int>(cmd);
+            }
         }
 
         public async Task<RegionDal[]> GetAll(CancellationToken token)
