@@ -168,7 +168,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
             const string sql = @$"
                     select {Fields}
                     from {Table}
-                    where id = any(:idsInBucket) and region_id = any(:regionsId)";
+                    where id = any(:idsInBucket)";
             var bucketToIdsMap = ordersIds
                 .Select(orderId => (BucketId: GetBucketByShardKey(orderId), OrderId: orderId))
                 .GroupBy(x => x.BucketId)
