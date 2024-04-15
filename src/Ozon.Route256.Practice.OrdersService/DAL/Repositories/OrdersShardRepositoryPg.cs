@@ -9,7 +9,7 @@ using Ozon.Route256.Practice.OrdersService.Models;
 using System.Data;
 using System.Data.Common;
 
-namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
+namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
 {
     public class OrdersShardRepositoryPg : BaseShardRepository, IOrdersRepository
     {
@@ -19,7 +19,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
         public OrdersShardRepositoryPg(
         IShardPostgresConnectionFactory connectionFactory,
         IShardingRule<long> longShardingRule,
-        IShardingRule<SourceRegion> sourceShardingRule) : base(connectionFactory, longShardingRule,sourceShardingRule)
+        IShardingRule<SourceRegion> sourceShardingRule) : base(connectionFactory, longShardingRule, sourceShardingRule)
         {
         }
 
@@ -68,7 +68,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
             var param = new DynamicParameters();
             param.Add("id", Id);
             param.Add("order_state", state.ToString());
-            param.Add("time_update", timeUpdate.ToString());
+            param.Add("time_update", timeUpdate);
             await using (var connection = GetConnectionByShardKey(Id))
             {
                 var cmd = new CommandDefinition(sql, param, cancellationToken: token);
@@ -108,24 +108,6 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
         }
         public async Task<OrderDal[]> GetOrdersByRegion(int[] regionsId, OrderSourceEnum source, CancellationToken token)
         {
-            #region Версия получения данных в лоб + для сравнения с работой по индексу
-            //var result = new List<OrderDal>();
-            //foreach (var bucketId in AllBuckets)
-            //{
-            //    const string sql = @$"
-            //        select {Fields}
-            //        from {Table}
-            //        where region_id = any(:regionsId) and order_source=:source_str::{ShardsHelper.BucketPlaceholder}.order_source_enum;";
-
-            //    await using var connection = GetConnectionByBucket(bucketId, token);
-            //    string source_str = source.ToString();
-            //    var cmd = new CommandDefinition(sql, new { regionsId, source_str }, cancellationToken: token);
-            //    await using var reader = await connection.ExecuteReaderAsync(cmd);
-            //    var orders = await ReadOrdersDal(reader, token);
-            //    result.AddRange(orders);
-            //}
-            //return result.ToArray();
-            #endregion
             const string indexSql = @$"
             select order_id 
             from {ShardsHelper.BucketPlaceholder}.idx_order_source
@@ -176,7 +158,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
                     group by region_id;";
 
                 await using var connection = GetConnectionByBucket(bucketId, token);
-                var cmd = new CommandDefinition(sql, new { timeCreate, regionsId}, cancellationToken: token);
+                var cmd = new CommandDefinition(sql, new { timeCreate, regionsId }, cancellationToken: token);
                 await using var reader = await connection.ExecuteReaderAsync(cmd);
                 var statistic = await ReadRegionStatisticDal(reader, token);
                 total.AddRange(statistic);
