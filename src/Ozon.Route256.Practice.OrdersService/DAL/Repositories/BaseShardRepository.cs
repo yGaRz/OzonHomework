@@ -3,7 +3,7 @@ using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
 using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common.Rules;
 using Ozon.Route256.Practice.OrdersService.Models;
 
-namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository;
+namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories;
 
 public class BaseShardRepository
 {
@@ -16,7 +16,7 @@ public class BaseShardRepository
         IShardingRule<long> longShardingRule,
         IShardingRule<SourceRegion> sourceShardingRule)
     {
-        _connectionFactory  = connectionFactory;
+        _connectionFactory = connectionFactory;
         _longShardingRule = longShardingRule;
         _sourceShardingRule = sourceShardingRule;
     }

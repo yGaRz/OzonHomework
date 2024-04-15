@@ -12,6 +12,7 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Models;
 using System.Reflection;
 using Type = System.Type;
+using Ozon.Route256.Practice.OrdersService.BLL.Orders;
 
 namespace Ozon.Route256.Practice.OrdersService.GrpcServices;
 

@@ -5,7 +5,7 @@ using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
 using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common.Rules;
 using Ozon.Route256.Practice.OrdersService.Models;
 
-namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
+namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
 {
     public class RegionShardRepositoryPg : BaseShardRepository, IRegionRepository
     {
@@ -15,7 +15,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
         public RegionShardRepositoryPg(
                 IShardPostgresConnectionFactory connectionFactory,
                 IShardingRule<long> longShardingRule,
-                IShardingRule<SourceRegion> sourceShardingRule) : base(connectionFactory, longShardingRule,sourceShardingRule)
+                IShardingRule<SourceRegion> sourceShardingRule) : base(connectionFactory, longShardingRule, sourceShardingRule)
         {
         }
         public async Task Create(RegionDal regions, CancellationToken token)
@@ -43,7 +43,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
             select id as id , region as name, latitude, longitude
             from {Table};
             ";
-            await using var connection = GetConnectionByBucket(0,token);
+            await using var connection = GetConnectionByBucket(0, token);
             var result = await connection.QueryAsync<RegionDal>(sql);
             return result.ToArray();
         }

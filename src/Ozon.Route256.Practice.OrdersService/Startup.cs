@@ -17,7 +17,6 @@ using StackExchange.Redis;
 using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
 using Ozon.Route256.Practice.OrdersService.ClientBalancing;
 using Ozon.Route256.Practice.Orders.ClientBalancing;
-using Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository;
 using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common.Rules;
 using Ozon.Route256.Practice.OrdersService.Models;
 
