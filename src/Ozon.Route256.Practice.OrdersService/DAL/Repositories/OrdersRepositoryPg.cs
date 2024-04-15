@@ -64,7 +64,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             const string sql = @$"
             select {Fields}
             from {Table}
-            where id = :id;";
+            where id = :id LIMIT 1;";
             await using var connection = _connectionFactory.GetConnection();
             await using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.Add("id", id);
@@ -97,25 +97,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             }
             return result.ToArray();
         }
-        //public async Task<OrderStateEnum> GetStatusById(long Id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token)
-        //{
-        //    const string sql = @$"
-        //    select order_state
-        //        from {Table}
-        //        where id=:id;";
-        //    await using var connection = _connectionFactory.GetConnection();
-        //    await using var command = new NpgsqlCommand(sql, connection);
-        //    command.Parameters.Add("id", Id);
-        //    await connection.OpenAsync(token);
-        //    await using var reader = await command.ExecuteReaderAsync(token);
-        //    var result = await ReadOrderState(reader, token);
-        //    return result;
-        //}
-        //private static async Task<OrderStateEnum> ReadOrderState(NpgsqlDataReader reader, CancellationToken token)
-        //{
-        //    await reader.ReadAsync(token);
-        //    return reader.GetFieldValue<OrderStateEnum>(0);
-        //}
+
         public async Task<RegionStatisticDal[]> GetRegionStatistic(int[] regionsId, DateTime timeCreate, CancellationToken token)
         {
             const string sql = @$"
