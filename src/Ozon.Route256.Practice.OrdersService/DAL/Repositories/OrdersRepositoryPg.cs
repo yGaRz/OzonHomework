@@ -35,7 +35,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             command.Parameters.Add("order_state", order.state);
             command.Parameters.Add("time_create", order.timeCreate);
             command.Parameters.Add("time_update", order.timeUpdate);
-            command.Parameters.Add("region_id", order.regioId);
+            command.Parameters.Add("region_id", order.regionId);
             command.Parameters.Add("count_goods", order.countGoods);
             command.Parameters.Add("total_weigth", order.totalWeigth);
             command.Parameters.Add("total_price", order.totalPrice);
@@ -89,7 +89,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
                         state: reader.GetFieldValue<OrderStateEnum>(3),
                         timeCreate: reader.GetFieldValue<DateTime>(4),
                         timeUpdate: reader.GetFieldValue<DateTime>(5),
-                        regioId: reader.GetFieldValue<int>(6),
+                        regionId: reader.GetFieldValue<int>(6),
                         countGoods: reader.GetFieldValue<int>(7),
                         totalWeigth: reader.GetFieldValue<double>(8),
                         totalPrice: reader.GetFieldValue<double>(9),

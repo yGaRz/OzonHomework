@@ -7,11 +7,11 @@ using System.Linq;
 
 namespace Ozon.Route256.Practice.OrdersService.DataAccess
 {
-    public class RegionDatabase : IRegionDatabase
+    public class RegionDatabaseInMemory : IRegionDatabase
     {
         private static readonly ConcurrentDictionary<int,RegionEntity> RegionsDictionary = new ();
-        private readonly RegionRepositoryPg _regionRepositoryPg;
-        public RegionDatabase(RegionRepositoryPg regionRepositoryPg)
+        private readonly IRegionRepository _regionRepositoryPg;
+        public RegionDatabaseInMemory(IRegionRepository regionRepositoryPg)
         {
             _regionRepositoryPg = regionRepositoryPg;
         }

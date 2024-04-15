@@ -10,7 +10,7 @@ public record OrderDal(
     OrderStateEnum state,
     DateTime timeCreate,
     DateTime timeUpdate,
-    int regioId,
+    int regionId,
     int countGoods,
     double totalWeigth,
     double totalPrice,
