@@ -86,31 +86,8 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
             var cmd = new CommandDefinition(sql, new { id }, cancellationToken: token);
             await using var reader = await connection.ExecuteReaderAsync(cmd);
             var result = await ReadOrderDal(reader, token);
-            return result.FirstOrDefault();
+            return result;
         }
-        private static async Task<OrderDal[]> ReadOrderDal(DbDataReader reader, CancellationToken token)
-        {
-            var result = new List<OrderDal>();
-            while (await reader.ReadAsync(token))
-            {
-                result.Add(
-                    new OrderDal(
-                        id: reader.GetFieldValue<int>(0),
-                        customer_id: reader.GetFieldValue<int>(1),
-                        source: reader.GetFieldValue<OrderSourceEnum>(2),
-                        state: reader.GetFieldValue<OrderStateEnum>(3),
-                        timeCreate: reader.GetFieldValue<DateTime>(4),
-                        timeUpdate: reader.GetFieldValue<DateTime>(5),
-                        regionId: reader.GetFieldValue<int>(6),
-                        countGoods: reader.GetFieldValue<int>(7),
-                        totalWeigth: reader.GetFieldValue<double>(8),
-                        totalPrice: reader.GetFieldValue<double>(9),
-                        addressJson: reader.GetFieldValue<string>(10)
-                    ));
-            }
-            return result.ToArray();
-        }
-
         public async Task<OrderDal[]> GetOrdersByCustomerId(long idCustomer, DateTime timeCreate, CancellationToken token)
         {
             var result = new List<OrderDal>();
@@ -124,12 +101,11 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
                 await using var connection = GetConnectionByBucket(bucketId, token);
                 var cmd = new CommandDefinition(sql, new { idCustomer, timeCreate }, cancellationToken: token);
                 await using var reader = await connection.ExecuteReaderAsync(cmd);
-                var orders = await ReadOrderDal(reader, token);
+                var orders = await ReadOrdersDal(reader, token);
                 result.AddRange(orders);
             }
             return result.ToArray();
         }
-
         public async Task<OrderDal[]> GetOrdersByRegion(int[] regionsId, OrderSourceEnum source, CancellationToken token)
         {
             #region Версия получения данных в лоб + для сравнения с работой по индексу
@@ -145,7 +121,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
             //    string source_str = source.ToString();
             //    var cmd = new CommandDefinition(sql, new { regionsId, source_str }, cancellationToken: token);
             //    await using var reader = await connection.ExecuteReaderAsync(cmd);
-            //    var orders = await ReadOrderDal(reader, token);
+            //    var orders = await ReadOrdersDal(reader, token);
             //    result.AddRange(orders);
             //}
             //return result.ToArray();
@@ -183,12 +159,11 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
                 //var ordersInBucket = await connection.QueryAsync<OrderDal>(sql, new { ids = idsInBucket });
                 var cmd = new CommandDefinition(sql, new { idsInBucket, regionsId }, cancellationToken: token);
                 await using var reader = await connection.ExecuteReaderAsync(cmd);
-                var ordersInBucket = await ReadOrderDal(reader, token);
+                var ordersInBucket = await ReadOrdersDal(reader, token);
                 result.AddRange(ordersInBucket);
             }
             return result.ToArray();
         }
-
         public async Task<RegionStatisticDal[]> GetRegionStatistic(int[] regionsId, DateTime timeCreate, CancellationToken token)
         {
             var total = new List<RegionStatisticDal>();
@@ -214,7 +189,45 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
                 r.Sum(x => x.TotalCustomers))).ToArray();
             return regionsStatistic;
         }
-        
+        private static async Task<OrderDal> ReadOrderDal(DbDataReader reader, CancellationToken token)
+        {
+            await reader.ReadAsync(token);
+            return new OrderDal(
+                        id: reader.GetFieldValue<int>(0),
+                        customer_id: reader.GetFieldValue<int>(1),
+                        source: reader.GetFieldValue<OrderSourceEnum>(2),
+                        state: reader.GetFieldValue<OrderStateEnum>(3),
+                        timeCreate: reader.GetFieldValue<DateTime>(4),
+                        timeUpdate: reader.GetFieldValue<DateTime>(5),
+                        regionId: reader.GetFieldValue<int>(6),
+                        countGoods: reader.GetFieldValue<int>(7),
+                        totalWeigth: reader.GetFieldValue<double>(8),
+                        totalPrice: reader.GetFieldValue<double>(9),
+                        addressJson: reader.GetFieldValue<string>(10)
+                    );
+        }
+        private static async Task<OrderDal[]> ReadOrdersDal(DbDataReader reader, CancellationToken token)
+        {
+            var result = new List<OrderDal>();
+            while (await reader.ReadAsync(token))
+            {
+                result.Add(
+                    new OrderDal(
+                        id: reader.GetFieldValue<int>(0),
+                        customer_id: reader.GetFieldValue<int>(1),
+                        source: reader.GetFieldValue<OrderSourceEnum>(2),
+                        state: reader.GetFieldValue<OrderStateEnum>(3),
+                        timeCreate: reader.GetFieldValue<DateTime>(4),
+                        timeUpdate: reader.GetFieldValue<DateTime>(5),
+                        regionId: reader.GetFieldValue<int>(6),
+                        countGoods: reader.GetFieldValue<int>(7),
+                        totalWeigth: reader.GetFieldValue<double>(8),
+                        totalPrice: reader.GetFieldValue<double>(9),
+                        addressJson: reader.GetFieldValue<string>(10)
+                    ));
+            }
+            return result.ToArray();
+        }
         private static async Task<RegionStatisticDal[]> ReadRegionStatisticDal(DbDataReader reader, CancellationToken token)
         {
             var result = new List<RegionStatisticDal>();
