@@ -7,7 +7,7 @@ using System.Data;
 
 namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
 {
-    public class OrdersRepositoryPg
+    public class OrdersRepositoryPg : IOrdersRepository
     {
         private const string Fields = "id, customer_id, order_source, order_state, time_create, time_update, region_id, count_goods, total_weigth, total_price, address";
         private const string FieldsForInsert = "id, customer_id, order_source, order_state, time_create, time_update, region_id, count_goods, total_weigth, total_price, address";
@@ -25,17 +25,17 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
         {
             const string sql = @$"
             insert into {Table} ({FieldsForInsert})
-            values (:id,:customer_id , :order_source, :order_state, (CAST(:time_create as timestamp)), (CAST(:time_update as timestamp)), :region_id, :count_goods, :total_weigth, :total_price, (CAST(:address as json)));
+            values (:id,:customer_id , CAST(:order_source as order_source_enum), CAST(:order_state as order_state_enum), (CAST(:time_create as timestamp)), (CAST(:time_update as timestamp)), :region_id, :count_goods, :total_weigth, :total_price, (CAST(:address as json)));
         ";
             await using var connection = _connectionFactory.GetConnection();
             await using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.Add("id", order.id);
             command.Parameters.Add("customer_id", order.customer_id);
-            command.Parameters.Add("order_source", order.source);
-            command.Parameters.Add("order_state", order.state);
+            command.Parameters.Add("order_source", order.source.ToString());
+            command.Parameters.Add("order_state", order.state.ToString());
             command.Parameters.Add("time_create", order.timeCreate);
             command.Parameters.Add("time_update", order.timeUpdate);
-            command.Parameters.Add("region_id", order.regioId);
+            command.Parameters.Add("region_id", order.regionId);
             command.Parameters.Add("count_goods", order.countGoods);
             command.Parameters.Add("total_weigth", order.totalWeigth);
             command.Parameters.Add("total_price", order.totalPrice);
@@ -59,13 +59,12 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             await connection.OpenAsync(token);
             await command.ExecuteNonQueryAsync(token);
         }
-
         public async Task<OrderDal?> GetOrderByID(long id, CancellationToken token)
         {
             const string sql = @$"
             select {Fields}
             from {Table}
-            where id = :id;";
+            where id = :id LIMIT 1;";
             await using var connection = _connectionFactory.GetConnection();
             await using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.Add("id", id);
@@ -83,13 +82,13 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             {
                 result.Add(
                     new OrderDal(
-                        id: reader.GetFieldValue<long>(0),
+                        id: reader.GetFieldValue<int>(0),
                         customer_id: reader.GetFieldValue<int>(1),
                         source: reader.GetFieldValue<OrderSourceEnum>(2),
                         state: reader.GetFieldValue<OrderStateEnum>(3),
                         timeCreate: reader.GetFieldValue<DateTime>(4),
                         timeUpdate: reader.GetFieldValue<DateTime>(5),
-                        regioId: reader.GetFieldValue<int>(6),
+                        regionId: reader.GetFieldValue<int>(6),
                         countGoods: reader.GetFieldValue<int>(7),
                         totalWeigth: reader.GetFieldValue<double>(8),
                         totalPrice: reader.GetFieldValue<double>(9),
@@ -98,31 +97,13 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             }
             return result.ToArray();
         }
-        public async Task<OrderStateEnum> GetStatusById(long Id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token)
-        {
-            const string sql = @$"
-            select order_state
-                from {Table}
-                where id=:id;";
-            await using var connection = _connectionFactory.GetConnection();
-            await using var command = new NpgsqlCommand(sql, connection);
-            command.Parameters.Add("id", Id);
-            await connection.OpenAsync(token);
-            await using var reader = await command.ExecuteReaderAsync(token);
-            var result = await ReadOrderState(reader, token);
-            return result;
-        }
-        private static async Task<OrderStateEnum> ReadOrderState(NpgsqlDataReader reader, CancellationToken token)
-        {
-            await reader.ReadAsync(token);
-            return reader.GetFieldValue<OrderStateEnum>(0);
-        }
+
         public async Task<RegionStatisticDal[]> GetRegionStatistic(int[] regionsId, DateTime timeCreate, CancellationToken token)
         {
             const string sql = @$"
                     SELECT region_id,count(*),sum(total_price), sum(total_weigth), count(distinct customer_id)
                     FROM {Table}
-                    where time_create > Cast(:dateCreate as timestamptz) and region_id = any(:arrayid)
+                    where time_create > Cast(:timeCreate as timestamptz) and region_id = any(:arrayid)
                     group by region_id";
             await using var connection = _connectionFactory.GetConnection();
             await using var command = new NpgsqlCommand(sql, connection);
@@ -140,7 +121,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             {
                 result.Add(
                     new RegionStatisticDal(
-                        regionId : reader.GetFieldValue<int>(0),
+                        regionId: reader.GetFieldValue<int>(0),
                         TotalCountOrders: reader.GetFieldValue<int>(1),
                         TotalSumOrders: reader.GetFieldValue<long>(2),
                         TotalWigthOrders: reader.GetFieldValue<long>(3),
@@ -155,11 +136,11 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             const string sql = @$"
             select {Fields}
             from {Table}
-            where customer_id = :idCustomer and time_create > Cast(:dateCreate as timestamptz);";
+            where customer_id = :idCustomer and time_create > Cast(:timeCreate as timestamptz);";
             await using var connection = _connectionFactory.GetConnection();
             await using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.Add("idCustomer", idCustomer);
-            command.Parameters.Add("dateCreate", timeCreate.ToString());
+            command.Parameters.Add("timeCreate", timeCreate.ToString());
             await connection.OpenAsync(token);
             await using var reader = await command.ExecuteReaderAsync(token);
 
@@ -167,7 +148,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories
             return result;
         }
 
-        internal async Task<OrderDal[]> GetOrdersByRegion(int[] regionsId, OrderSourceEnum source, CancellationToken token)
+        public async Task<OrderDal[]> GetOrdersByRegion(int[] regionsId, OrderSourceEnum source, CancellationToken token)
         {
             const string sql = @$"
             select {Fields}

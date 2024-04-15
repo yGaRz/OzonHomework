@@ -3,7 +3,7 @@ using Ozon.Route256.Practice.OrdersService.DAL.Common;
 using Ozon.Route256.Practice.OrdersService.DAL.Models;
 
 namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories;
-public class RegionRepositoryPg
+public class RegionRepositoryPg : IRegionRepository
 {
     private const string Fields = "id, region, latitude, longitude";
     private const string FieldsForInsert = "region, latitude, longitude";
@@ -14,12 +14,11 @@ public class RegionRepositoryPg
     {
         _connectionFactory = connectionFactory;
     }
-    public async Task<int> Create( RegionDal regions, CancellationToken token)
+    public async Task Create(RegionDal regions, CancellationToken token)
     {
         const string sql = @$"
             insert into {Table} ({FieldsForInsert})
             values (:region_name, :latitude, :longitude)
-            returning id;
         ";
 
         await using var connection = _connectionFactory.GetConnection();
@@ -30,11 +29,9 @@ public class RegionRepositoryPg
 
         await connection.OpenAsync(token);
         var reader = await command.ExecuteReaderAsync(token);
-        var result = await ReadId(reader, token);
-        return result;
     }
 
-    public async Task<RegionDal[]> GetAll( CancellationToken token)
+    public async Task<RegionDal[]> GetAll(CancellationToken token)
     {
         const string sql = @$"
             select {Fields}
@@ -61,10 +58,10 @@ public class RegionRepositoryPg
         {
             result.Add(
                 new RegionDal(
-                    Id: reader.GetFieldValue<int>(0),
-                    Name: reader.GetFieldValue<string>(1),
-                    Latitude: reader.GetFieldValue<double>(2),
-                    Longitude: reader.GetFieldValue<double>(3)
+                    id: reader.GetFieldValue<int>(0),
+                    name: reader.GetFieldValue<string>(1),
+                    latitude: reader.GetFieldValue<double>(2),
+                    longitude: reader.GetFieldValue<double>(3)
                 ));
         }
 

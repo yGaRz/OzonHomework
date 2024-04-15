@@ -8,12 +8,12 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewO
 {
     public class AddOrderHandler : IAddOrderHandler
     {
-        private readonly IOrdersDatabase _orderRepository;
+        private readonly IOrdersManager _orderRepository;
         private readonly IRegionDatabase _regionRepository;
         private readonly IOrderProducer _producer;
         private readonly ILogger<AddOrderHandler> _logger;
 
-        public AddOrderHandler(IOrdersDatabase orderRepository, IRegionDatabase regionRepository, IOrderProducer orderProducer, ILogger<AddOrderHandler> logger)
+        public AddOrderHandler(IOrdersManager orderRepository, IRegionDatabase regionRepository, IOrderProducer orderProducer, ILogger<AddOrderHandler> logger)
         {
             _orderRepository = orderRepository;
             _regionRepository = regionRepository;
