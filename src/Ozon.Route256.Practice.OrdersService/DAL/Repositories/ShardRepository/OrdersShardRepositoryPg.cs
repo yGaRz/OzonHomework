@@ -80,7 +80,7 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
             const string sql = @$"
             select {Fields}
             from {Table}
-            where id = :id;";
+            where id = :id limit 1;";
 
             await using var connection = GetConnectionByShardKey(id);
             var cmd = new CommandDefinition(sql, new { id }, cancellationToken: token);
@@ -206,17 +206,13 @@ namespace Ozon.Route256.Practice.OrdersService.DAL.Repositories.ShardRepository
                 var statistic = await ReadRegionStatisticDal(reader, token);
                 total.AddRange(statistic);
             }
-            var result = new List<RegionStatisticDal>();
-            foreach (var id in regionsId)
-            {
-                RegionStatisticDal r = new(id,
-                    total.Where(x=>x.regionId==id).Sum(x => x.TotalCountOrders),
-                    total.Where(x => x.regionId == id).Sum(x=>x.TotalSumOrders),
-                    total.Where(x => x.regionId == id).Sum(x => x.TotalWigthOrders),
-                    total.Where(x => x.regionId == id).Sum(x => x.TotalCustomers));
-                result.Add(r);
-            }
-            return result.ToArray();
+            var regionsStatistic = total.GroupBy(x => x.regionId).Select(r => new RegionStatisticDal(
+                r.Key,
+                r.Sum(q => q.TotalCountOrders),
+                r.Sum(q => q.TotalSumOrders),
+                r.Sum(q => q.TotalWigthOrders),
+                r.Sum(x => x.TotalCustomers))).ToArray();
+            return regionsStatistic;
         }
         
         private static async Task<RegionStatisticDal[]> ReadRegionStatisticDal(DbDataReader reader, CancellationToken token)
