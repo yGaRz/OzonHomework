@@ -28,4 +28,10 @@
   <ItemGroup>
     <Compile Remove="Infrastructure\Kafka\Consumer\ConsumerKafka.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Application\Ozon.Route256.Practice.OrdersService.Application.csproj" />
+    <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Domain\Ozon.Route256.Practice.OrdersService.Domain.csproj" />
+    <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Infrastructure\Ozon.Route256.Practice.OrdersService.Infrastructure.csproj" />
+  </ItemGroup>
 </Project>
