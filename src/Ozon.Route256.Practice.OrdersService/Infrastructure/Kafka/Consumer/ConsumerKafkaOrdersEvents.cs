@@ -1,6 +1,6 @@
 ﻿using Confluent.Kafka;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
-using Ozon.Route256.Practice.OrdersService.Models;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer

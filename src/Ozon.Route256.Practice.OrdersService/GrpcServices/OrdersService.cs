@@ -1,18 +1,16 @@
 ﻿using Bogus;
-using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Ozon.Route256.Practice.LogisticGrpcFile;
 using Ozon.Route256.Practice.OrdersGrpcFile;
-using Ozon.Route256.Practice.CustomerGprcFile;
+using Ozon.Route256.Practice.OrdersService.BLL.Orders;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
-using Ozon.Route256.Practice.OrdersService.Models;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 using System.Reflection;
 using Type = System.Type;
-using Ozon.Route256.Practice.OrdersService.BLL.Orders;
 
 namespace Ozon.Route256.Practice.OrdersService.GrpcServices;
 
