@@ -1,9 +1,9 @@
 ﻿using Npgsql;
-using Ozon.Route256.Practice.OrdersService.DAL.Models;
-using Ozon.Route256.Practice.OrdersService.DAL.Repositories;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
-using Ozon.Route256.Practice.OrdersService.Models;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Models;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Repositories;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders;

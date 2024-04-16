@@ -1,13 +1,6 @@
 ﻿using Bogus;
-using Bogus.DataSets;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
-using Ozon.Route256.Practice.OrdersService.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 
 namespace TestServices.Helpers
 {

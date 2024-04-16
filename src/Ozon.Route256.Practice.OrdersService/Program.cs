@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.Hosting;
-using FluentMigrator.Runner;
-using static System.Int32;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Shard.Common;
 using System.Net;
-using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
+using static System.Int32;
 
 namespace Ozon.Route256.Practice.OrdersService;
 public class Program

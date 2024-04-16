@@ -1,4 +1,4 @@
-﻿using Ozon.Route256.Practice.OrdersService.Models;
+﻿using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers
 {

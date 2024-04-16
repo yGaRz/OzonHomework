@@ -1,24 +1,16 @@
-﻿using FluentMigrator.Runner;
-using FluentMigrator.Runner.Processors;
-using Ozon.Route256.Practice.CustomerGprcFile;
+﻿using Ozon.Route256.Practice.CustomerGprcFile;
 using Ozon.Route256.Practice.LogisticGrpcFile;
-using Ozon.Route256.Practice.OrdersService.DAL.Common;
-using Ozon.Route256.Practice.OrdersService.DAL.Repositories;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Repositories;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
-using Ozon.Route256.Practice.SdServiceGrpcFile;
 using StackExchange.Redis;
-using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common;
-using Ozon.Route256.Practice.OrdersService.ClientBalancing;
-using Ozon.Route256.Practice.Orders.ClientBalancing;
-using Ozon.Route256.Practice.OrdersService.DAL.Shard.Common.Rules;
-using Ozon.Route256.Practice.OrdersService.Models;
+using System.Reflection;
 
 namespace Ozon.Route256.Practice.OrdersService
 {
@@ -33,26 +25,12 @@ namespace Ozon.Route256.Practice.OrdersService
         [Obsolete]
         public void ConfigureServices(IServiceCollection serviceCollection)
         {
+            serviceCollection.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
             AddGrpc(serviceCollection);
             serviceCollection.AddSwaggerGen();
             serviceCollection.AddEndpointsApiExplorer();
-            AddServiceDiscovery(serviceCollection);
             //Репозитории-----------------------------------------------------------
-
-            PostgresMapping.MapCompositeTypes();
-            //var connectionString = _configuration.GetConnectionString("OrdersManagerPg");
-            //if (!string.IsNullOrEmpty(connectionString))
-            //    serviceCollection.AddSingleton<IPostgresConnectionFactory>(_ => new PostgresConnectionFactory(connectionString));
-            //else
-            //    throw new Exception($"Connection string not found or empty");
-
-            serviceCollection.Configure<DbOptions>(_configuration.GetSection(nameof(DbOptions)));
-            serviceCollection.AddSingleton<IShardPostgresConnectionFactory, ShardConnectionFactory>();
-            serviceCollection.AddSingleton<IShardingRule<long>, LongShardingRule>();
-            serviceCollection.AddSingleton<IShardingRule<SourceRegion>, SourceRegionShardingRule>();
-            serviceCollection.AddSingleton<IShardMigrator, ShardMigrator>();
-
-            //PostgresMapping.MapEnums(connectionString);
+            serviceCollection.AddInfrastructure(_configuration);
 
             serviceCollection.AddScoped<IRegionRepository, RegionShardRepositoryPg>();
             serviceCollection.AddScoped<IRegionDatabase, RegionDatabaseInMemory>();
@@ -109,16 +87,6 @@ namespace Ozon.Route256.Practice.OrdersService
         void AddGrpc(IServiceCollection serviceCollection)
         {
             serviceCollection.AddGrpc(option => option.Interceptors.Add<LoggerInterceptor>());
-            serviceCollection.AddGrpcClient<SdService.SdServiceClient>(option =>
-            {
-                var url = _configuration.GetValue<string>("ROUTE256_SD_ADDRESS");
-                if (string.IsNullOrEmpty(url))
-                {
-                    throw new ArgumentException("ROUTE256_SD_ADDRESS variable is null or empty");
-                }
-
-                option.Address = new Uri(url);
-            });
             serviceCollection.AddGrpcClient<LogisticsSimulatorService.LogisticsSimulatorServiceClient>(option =>
             {
                 var url = _configuration.GetValue<string>("ROUTE256_LS_ADDRESS");
@@ -140,11 +108,6 @@ namespace Ozon.Route256.Practice.OrdersService
                 option.Address = new Uri(url);
             });
             serviceCollection.AddGrpcReflection();
-        }
-        void AddServiceDiscovery(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddHostedService<SdConsumerHostedService>();
-            serviceCollection.AddSingleton<IDbStore, DbStore>();
         }
     }
 
