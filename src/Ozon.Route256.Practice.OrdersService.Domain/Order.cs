@@ -1,5 +1,5 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Domain.Core;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
+using Ozon.Route256.Practice.OrdersService.Domain.Enums;
 
 namespace Ozon.Route256.Practice.OrdersService.Domain;
 public sealed class Order : Entity<long>

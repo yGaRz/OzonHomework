@@ -1,4 +1,4 @@
-﻿namespace Ozon.Route256.Practice.OrdersService.Domain;
+﻿namespace Ozon.Route256.Practice.OrdersService.Domain.Enums;
 public enum OrderSourceEnumDomain
 {
     WebSite = 0,

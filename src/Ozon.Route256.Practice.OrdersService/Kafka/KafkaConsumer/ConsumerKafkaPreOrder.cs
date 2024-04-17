@@ -1,7 +1,6 @@
 ﻿using Confluent.Kafka;
-using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
+using Ozon.Route256.Practice.OrdersService.Application.Dto;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
-using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer
 {
@@ -23,10 +22,10 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer
         private record OrderEvent(long OrderId, string OrderState, DateTimeOffset ChangedAt);
         protected override async Task HandleAsync(ConsumeResult<long, string> message, CancellationToken cancellationToken)
         {
-            var order = new OrderDao(message.Message.Key, message.Message.Value, message.Message.Timestamp.UtcDateTime);
+            var order = new PreOrderDto(message.Message.Key, message.Message.Value, message.Message.Timestamp.UtcDateTime);
             var result = await _addOrderdHandler.Handle(order, cancellationToken);
             if (result)
-                _logger.LogInformation($"Заказ Id = {order.Id}, Region = {order.Region}, Customer={order.CustomerId}, Source={order.Source} получен.");
+                _logger.LogInformation($"Заказ Id = {order.Id}, Region = {order.Address.Region}, Customer={order.CustomerId}, Source={order.Source} получен.");
         }
     }
 }

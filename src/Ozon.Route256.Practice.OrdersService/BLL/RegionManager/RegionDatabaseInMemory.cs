@@ -8,14 +8,14 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
 {
     public class RegionDatabaseInMemory : IRegionDatabase
     {
-        private static readonly ConcurrentDictionary<int,RegionEntity> RegionsDictionary = new ();
+        private static readonly ConcurrentDictionary<int,RegionDto> RegionsDictionary = new ();
         private readonly IRegionRepository _regionRepositoryPg;
         public RegionDatabaseInMemory(IRegionRepository regionRepositoryPg)
         {
             _regionRepositoryPg = regionRepositoryPg;
         }
 
-        public async Task<Task> CreateRegionAsync(RegionEntity region, CancellationToken token = default)
+        public async Task<Task> CreateRegionAsync(RegionDto region, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             if(RegionsDictionary.TryGetValue(region.Id,out _))
@@ -41,7 +41,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
             }
         }
 
-        public async Task<RegionEntity[]> GetRegionsEntityByIdAsync(int[] regionId, CancellationToken cancellationToken = default)
+        public async Task<RegionDto[]> GetRegionsEntityByIdAsync(int[] regionId, CancellationToken cancellationToken = default)
         {
             if (regionId.Length == 0)
                 return await Task.FromResult(RegionsDictionary.Values.ToArray());
@@ -57,7 +57,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
                 throw new NotFoundException($"Region with name={regionId} is not found");
         }
 
-        public async Task<RegionEntity[]> GetRegionsEntityByNameAsync(string[] regionName, CancellationToken cancellationToken = default)
+        public async Task<RegionDto[]> GetRegionsEntityByNameAsync(string[] regionName, CancellationToken cancellationToken = default)
         {
             if (regionName.Length == 0)
                 return await Task.FromResult(RegionsDictionary.Values.ToArray());
@@ -73,7 +73,7 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
                 throw new NotFoundException($"Region with name={regionName} is not found");
         }
 
-        public async Task<RegionEntity> GetRegionEntityByIdAsync(int regionId, CancellationToken cancellationToken = default)
+        public async Task<RegionDto> GetRegionEntityByIdAsync(int regionId, CancellationToken cancellationToken = default)
         {
             var result = RegionsDictionary.Values.Where(x => regionId == x.Id).FirstOrDefault();
             if (result==null)
@@ -90,10 +90,10 @@ namespace Ozon.Route256.Practice.OrdersService.DataAccess
         {
             var regions = await _regionRepositoryPg.GetAll(token);
             foreach (var region in regions)
-                RegionsDictionary.TryAdd(region.Id, new RegionEntity(region.Id, region.Name, region.Latitude, region.Longitude));
+                RegionsDictionary.TryAdd(region.Id, new RegionDto(region.Id, region.Name, region.Latitude, region.Longitude));
         }
 
-        public async Task<RegionEntity> GetRegionEntityByNameAsync(string regionName, CancellationToken cancellationToken)
+        public async Task<RegionDto> GetRegionEntityByNameAsync(string regionName, CancellationToken cancellationToken)
         {
             var result = RegionsDictionary.Values.Where(x => regionName == x.Name).FirstOrDefault();
             if (result == null)

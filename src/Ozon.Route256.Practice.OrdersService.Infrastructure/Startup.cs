@@ -1,6 +1,6 @@
-﻿using FirebirdSql.Data.Services;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Ozon.Route256.Practice.CustomerGprcFile;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Common;
@@ -43,6 +43,16 @@ public static class Startup
         serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redis_url));
         serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
         serviceCollection.AddScoped<IGrcpCustomerService, GrpcCustomerService>();
+        serviceCollection.AddGrpcClient<Customers.CustomersClient>(option =>
+        {
+            var url = _configuration.GetValue<string>("ROUTE256_CS_ADDRESS");
+            if (string.IsNullOrEmpty(url))
+            {
+                throw new ArgumentException("ROUTE256_CS_ADDRESS variable is null or empty");
+            }
+
+            option.Address = new Uri(url);
+        });
 
         return serviceCollection;
     }

@@ -1,4 +1,6 @@
 ﻿using Bogus;
+using MediatR;
+using Ozon.Route256.Practice.OrdersService.Application.Dto;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
@@ -9,34 +11,32 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer
 {
     public class AddOrderHandler : IAddOrderHandler
     {
-        private readonly IOrdersManager _orderRepository;
-        private readonly IRegionDatabase _regionRepository;
+        private readonly IOrdersManager _orderManager;
+        private readonly IRegionDatabase _regionDatabase;
         private readonly IOrderProducer _producer;
         private readonly ILogger<AddOrderHandler> _logger;
 
-        public AddOrderHandler(IOrdersManager orderRepository, IRegionDatabase regionRepository, IOrderProducer orderProducer, ILogger<AddOrderHandler> logger)
+        public AddOrderHandler(IOrdersManager orderManager, IRegionDatabase regionDatabase, IOrderProducer orderProducer, ILogger<AddOrderHandler> logger)
         {
-            _orderRepository = orderRepository;
-            _regionRepository = regionRepository;
+            _orderManager = orderManager;
+            _regionDatabase = regionDatabase;
             _producer = orderProducer;
             _logger = logger;
         }
-        public async Task<bool> Handle(OrderDao order, CancellationToken token)
+        public async Task<bool> Handle(PreOrderDto order, CancellationToken token)
         {
             try
             {
-                //TODO: Когда появится понятная история с Region и Customer убрать хеширование и рандом.
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
                 order.CustomerId = order.CustomerId % 10 + 1;
                 Faker faker = new Faker();
-                var region = await _regionRepository.GetRegionEntityByIdAsync(faker.Random.Int(1, 3));
+                var region = await _regionDatabase.GetRegionEntityByIdAsync(faker.Random.Int(1, 3));
                 order.Address.Region = region.Name;
-                order.Region = region.Name;
-                await _orderRepository.CreateOrderAsync(order, token);
+                await _orderManager.CreateOrderAsync(order, token);
                 if (GetDistance(order.Address.Latitude, order.Address.Longitude, region.Latitude, region.Longitude) < 5000)
                 {
-                    await _producer.ProduceAsync(new[] { order }, token);
+                    //TODO: await _producer.ProduceAsync(new[] { order }, token);
                     _logger.LogInformation($"Заказ {order.Id} отправлен");
                 }
                 else
@@ -67,6 +67,5 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer
         {
             return deg * (Math.PI / 180d);
         }
-
     }
 }

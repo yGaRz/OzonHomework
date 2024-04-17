@@ -1,4 +1,5 @@
-﻿using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
+﻿using Ozon.Route256.Practice.OrdersService.Application.Dto;
+using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 
@@ -6,7 +7,7 @@ public interface IOrdersManager
 
 {
     //Добавление заказа в репозиторий
-    Task CreateOrderAsync(OrderDao order, CancellationToken token = default);
+    Task CreateOrderAsync(PreOrderDto order, CancellationToken token = default);
 
     //Выбор заказа по идентификатору
     Task<OrderDao> GetOrderByIdAsync(long id, CancellationToken token = default);
@@ -20,6 +21,6 @@ public interface IOrdersManager
                                                         CancellationToken token = default);
     //Получение всех заказов клиента
     Task<OrderDao[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default);
-    Task<RegionStatisticEntity[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default);
+    Task<RegionStatisticDto[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default);
 }
 

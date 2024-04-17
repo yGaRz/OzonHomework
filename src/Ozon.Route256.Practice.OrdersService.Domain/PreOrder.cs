@@ -1,11 +1,5 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Domain.Core;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
+using Ozon.Route256.Practice.OrdersService.Domain.Enums;
 
 namespace Ozon.Route256.Practice.OrdersService.Domain;
 public sealed class PreOrder:Entity<long>
