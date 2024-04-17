@@ -15,9 +15,9 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
             _customerCache = customerCache;
         }
 
-        public async Task<CustomerEntity> GetCustomer(int customerId, CancellationToken cancellationToken)
+        public async Task<CustomerDto> GetCustomer(int customerId, CancellationToken cancellationToken)
         {
-            CustomerEntity? customerEntity = await _customerCache.Find(customerId, cancellationToken);
+            CustomerDto? customerEntity = await _customerCache.Find(customerId, cancellationToken);
             if (customerEntity == null)
             {
                 GetCustomerByIdResponse respCustomer = new GetCustomerByIdResponse();
@@ -29,16 +29,16 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
                 {
                     throw new RpcException(new Status(StatusCode.InvalidArgument, $"Клиент с id={customerId} не найден"));
                 }
-                customerEntity = CustomerEntity.ConvertFromCustomerGrpc(respCustomer.Customer);
+                customerEntity = CustomerDto.ConvertFromCustomerGrpc(respCustomer.Customer);
                 await _customerCache.Insert(customerEntity, cancellationToken);
             }
             return customerEntity;
         }
 
-        public async Task CreateCustomer(CustomerEntity customer, CancellationToken cancellationToken = default)
+        public async Task CreateCustomer(CustomerDto customer, CancellationToken cancellationToken = default)
         {
             CreateCustomerRequest request = new CreateCustomerRequest();
-            request.Customer = CustomerEntity.ConvertToCustomerGrpc(customer);
+            request.Customer = CustomerDto.ConvertToCustomerGrpc(customer);
             var resp = await _customersClient.CreateCustomerAsync(request);
         }
     }

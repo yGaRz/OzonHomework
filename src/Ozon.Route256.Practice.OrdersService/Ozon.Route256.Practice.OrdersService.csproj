@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="../CommonLibServices/Protos/customers.proto" Type="Both" />
     <Protobuf Include="../CommonLibServices/Protos/logistic.proto" Type="Both" />
     <Protobuf Include="../CommonLibServices/Protos/orders.proto" Type="Both" />
   </ItemGroup>

@@ -4,6 +4,6 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewO
 {
     public interface IAddOrderHandler
     {
-        Task<bool> Handle(OrderEntity request, CancellationToken token);
+        Task<bool> Handle(OrderDao request, CancellationToken token);
     }
 }

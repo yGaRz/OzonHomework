@@ -1,5 +1,4 @@
 ﻿using NpgsqlTypes;
-
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 public enum OrderSourceEnum
 {

@@ -1,6 +1,6 @@
 ﻿using Ozon.Route256.Practice.CustomerGprcFile;
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
-public record AddressEntity
+public record AddressDto
 {
     public string Region { get; set; }
     public string City { get; init; }
@@ -9,7 +9,7 @@ public record AddressEntity
     public string Apartment { get; init; }
     public double Latitude { get; init; }
     public double Longitude { get; init; }
-    public AddressEntity(string region, string city, string street, string building, string apartment, double latitude, double longitude)
+    public AddressDto(string region, string city, string street, string building, string apartment, double latitude, double longitude)
     {
         Region = region;
         City = city;
@@ -20,11 +20,11 @@ public record AddressEntity
         Longitude = longitude;
     }
 
-    public static AddressEntity ConvertFromAddressGrpc(Address address)
+    public static AddressDto ConvertFromAddressGrpc(Address address)
     {
-        return new AddressEntity(address.Region,address.City,address.Street,address.Building,address.Apartment,address.Latitude,address.Longitude);
+        return new AddressDto(address.Region,address.City,address.Street,address.Building,address.Apartment,address.Latitude,address.Longitude);
     }
-    public static Address ConvertToAddressGrpc(AddressEntity address)
+    public static Address ConvertToAddressGrpc(AddressDto address)
     {
         return new Address()
         {

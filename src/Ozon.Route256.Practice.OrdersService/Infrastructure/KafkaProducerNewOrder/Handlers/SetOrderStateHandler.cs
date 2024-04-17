@@ -1,4 +1,6 @@
-﻿using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
+﻿using Microsoft.Extensions.Logging;
+using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 

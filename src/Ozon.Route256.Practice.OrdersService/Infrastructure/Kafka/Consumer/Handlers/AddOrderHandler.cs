@@ -2,9 +2,10 @@
 using Ozon.Route256.Practice.OrdersService.DataAccess;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers
+namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer
 {
     public class AddOrderHandler : IAddOrderHandler
     {
@@ -20,7 +21,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewO
             _producer = orderProducer;
             _logger = logger;
         }
-        public async Task<bool> Handle(OrderEntity order, CancellationToken token)
+        public async Task<bool> Handle(OrderDao order, CancellationToken token)
         {
             try
             {
@@ -29,7 +30,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewO
                     token.ThrowIfCancellationRequested();
                 order.CustomerId = order.CustomerId % 10 + 1;
                 Faker faker = new Faker();
-                var region = await _regionRepository.GetRegionEntityByIdAsync( faker.Random.Int(1, 3));
+                var region = await _regionRepository.GetRegionEntityByIdAsync(faker.Random.Int(1, 3));
                 order.Address.Region = region.Name;
                 order.Region = region.Name;
                 await _orderRepository.CreateOrderAsync(order, token);

@@ -1,9 +1,8 @@
 ﻿using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
-using System.Text.Json.Serialization;
-using System.Text.Json;
-using StackExchange.Redis;
-using Ozon.Route256.Practice.OrdersService.DataAccess;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
+using StackExchange.Redis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
 {
@@ -21,7 +20,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
             _database = connectionMultiplexer.GetDatabase(0);
             _server = connectionMultiplexer.GetServers()[0];
         }
-        public async Task<CustomerEntity?> Find(int id, CancellationToken cancellationToken)
+        public async Task<CustomerDto?> Find(int id, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
                 return null;
@@ -29,11 +28,11 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
             var key = BuildCustomerKey(id);
             var resultRedis = await _database.StringGetAsync(key);
 
-            var result = resultRedis.HasValue ? JsonSerializer.Deserialize<CustomerEntity>(resultRedis.ToString(), _jsonSerializerOptions) : null;
+            var result = resultRedis.HasValue ? JsonSerializer.Deserialize<CustomerDto>(resultRedis.ToString(), _jsonSerializerOptions) : null;
             return result;
         }
 
-        public async Task Insert(CustomerEntity customer, CancellationToken cancellationToken)
+        public async Task Insert(CustomerDto customer, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
                 return;
@@ -51,7 +50,7 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
         {
             if (cancellationToken.IsCancellationRequested)
                 return false;
-
+            
             var key = BuildCustomerKey(id);
             var contains = await _database.KeyExistsAsync(key);
             return contains;

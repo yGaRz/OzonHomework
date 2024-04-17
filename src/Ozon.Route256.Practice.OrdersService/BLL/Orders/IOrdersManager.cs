@@ -6,20 +6,20 @@ public interface IOrdersManager
 
 {
     //Добавление заказа в репозиторий
-    Task CreateOrderAsync(OrderEntity order, CancellationToken token = default);
+    Task CreateOrderAsync(OrderDao order, CancellationToken token = default);
 
     //Выбор заказа по идентификатору
-    Task<OrderEntity> GetOrderByIdAsync(long id, CancellationToken token = default);
+    Task<OrderDao> GetOrderByIdAsync(long id, CancellationToken token = default);
 
     //Смена состояния заказа
     Task<bool> SetOrderStateAsync(long id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token = default);
 
     //выборка списка заказов, тут сделаем выборку по типу(web/api/site) + регион, сортировать будем выше.
-    Task<OrderEntity[]> GetOrdersByRegionAsync(List<string> regionList,
+    Task<OrderDao[]> GetOrdersByRegionAsync(List<string> regionList,
                                                         OrderSourceEnum source,
                                                         CancellationToken token = default);
     //Получение всех заказов клиента
-    Task<OrderEntity[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default);
+    Task<OrderDao[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default);
     Task<RegionStatisticEntity[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default);
 }
 

@@ -1,4 +1,4 @@
-﻿namespace Ozon.Route256.Practice.CustomerService.Domain.Core;
+﻿namespace Ozon.Route256.Practice.OrdersService.Domain.Core;
 
 /// <summary>
 /// https://enterprisecraftsmanship.com/posts/value-object-better-implementation/

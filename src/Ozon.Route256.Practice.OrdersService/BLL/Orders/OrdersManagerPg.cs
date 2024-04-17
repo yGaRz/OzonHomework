@@ -17,7 +17,7 @@ public class OrdersManagerPg : IOrdersManager
         _ordersRepositoryPg = ordersRepositoryPg;
         _regionDatabase = regionDatabase;
     }
-    public async Task CreateOrderAsync(OrderEntity order, CancellationToken token = default)
+    public async Task CreateOrderAsync(OrderDao order, CancellationToken token = default)
     {
         token.ThrowIfCancellationRequested();
         try
@@ -32,7 +32,7 @@ public class OrdersManagerPg : IOrdersManager
         }
     }
 
-    public async Task<OrderEntity> GetOrderByIdAsync(long id, CancellationToken token = default)
+    public async Task<OrderDao> GetOrderByIdAsync(long id, CancellationToken token = default)
     {
         var order = await _ordersRepositoryPg.GetOrderByID(id, token);
         if (order != null)
@@ -41,20 +41,20 @@ public class OrdersManagerPg : IOrdersManager
             throw new NotFoundException($"Заказ с номером {id} не найден");
     }
 
-    public async Task<OrderEntity[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default)
+    public async Task<OrderDao[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default)
     {
         var orders = await _ordersRepositoryPg.GetOrdersByCustomerId(idCustomer, dateStart, token);
-        List<OrderEntity> result = new List<OrderEntity>();
+        List<OrderDao> result = new List<OrderDao>();
         foreach (var order in orders)
             result.Add(await FromOrderDal(order));
         return result.ToArray();
     }
 
-    public async Task<OrderEntity[]> GetOrdersByRegionAsync(List<string> regionList, OrderSourceEnum source, CancellationToken token = default)
+    public async Task<OrderDao[]> GetOrdersByRegionAsync(List<string> regionList, OrderSourceEnum source, CancellationToken token = default)
     {
         var regionsId = await _regionDatabase.GetRegionsEntityByNameAsync(regionList.ToArray(), token);
         var orders = await _ordersRepositoryPg.GetOrdersByRegion(regionsId.Select(x => x.Id).ToArray(), source,token);
-        List<OrderEntity> result = new List<OrderEntity>();
+        List<OrderDao> result = new List<OrderDao>();
         foreach (var order in orders)
             result.Add(await FromOrderDal(order));
         return result.ToArray();
@@ -82,7 +82,7 @@ public class OrdersManagerPg : IOrdersManager
             return false;
         }
     }
-    private OrderDal ToInsertDal(OrderEntity order, int regionId)
+    private OrderDal ToInsertDal(OrderDao order, int regionId)
     {
         return new OrderDal(order.Id,
             order.CustomerId,
@@ -96,16 +96,16 @@ public class OrdersManagerPg : IOrdersManager
             order.TotalPrice,
             JsonSerializer.Serialize(order.Address));
     }
-    private async Task<OrderEntity> FromOrderDal(OrderDal order)
+    private async Task<OrderDao> FromOrderDal(OrderDal order)
     {
-        return new OrderEntity()
+        return new OrderDao()
         {
             Id = order.id,
             CustomerId = order.customer_id,
             Source = order.source,
             CountGoods = order.countGoods,
-            Address = JsonSerializer.Deserialize<AddressEntity>(order.addressJson),
-            Goods = new List<ProductEntity>(),
+            Address = JsonSerializer.Deserialize<AddressDto>(order.addressJson),
+            Goods = new List<ProductDto>(),
             Region = (await _regionDatabase.GetRegionEntityByIdAsync(order.regionId)).Name,
             State = order.state,
             TotalWeigth = order.totalWeigth,

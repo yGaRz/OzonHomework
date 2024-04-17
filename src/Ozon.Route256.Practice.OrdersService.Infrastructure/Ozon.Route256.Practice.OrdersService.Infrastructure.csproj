@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <Protobuf Include="../CommonLibServices/Protos/sd.proto" Type="Both" />
+    <Protobuf Include="../CommonLibServices/Protos/customers.proto" Type="Both" />
   </ItemGroup>  
   <ItemGroup>
     <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Application\Ozon.Route256.Practice.OrdersService.Application.csproj" />
