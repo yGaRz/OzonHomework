@@ -1,15 +1,13 @@
-﻿using Ozon.Route256.Practice.CustomerGprcFile;
-using Ozon.Route256.Practice.LogisticGrpcFile;
+﻿using Ozon.Route256.Practice.LogisticGrpcFile;
 using Ozon.Route256.Practice.OrdersService.DataAccess;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
+using Ozon.Route256.Practice.OrdersService.GrpcServices;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Repositories;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
-using StackExchange.Redis;
 using System.Reflection;
 
 namespace Ozon.Route256.Practice.OrdersService
@@ -32,11 +30,11 @@ namespace Ozon.Route256.Practice.OrdersService
             //Репозитории-----------------------------------------------------------
             serviceCollection.AddInfrastructure(_configuration);
 
-            serviceCollection.AddScoped<IRegionRepository, RegionShardRepositoryPg>();
-            serviceCollection.AddScoped<IRegionDatabase, RegionDatabaseInMemory>();
-            serviceCollection.Configure<IRegionDatabase>(x => x.Update());
+            serviceCollection.AddScoped<Infrastructure.DAL.Repositories.IRegionRepository, RegionShardRepositoryPg>();
+            serviceCollection.AddScoped<DataAccess.IRegionDatabase, RegionDatabaseInMemory>();
+            serviceCollection.Configure((DataAccess.IRegionDatabase x) => x.Update());
             serviceCollection.AddScoped<IOrdersRepository, OrdersShardRepositoryPg>();
-            serviceCollection.AddScoped<IOrdersManager, OrdersManagerPg>(); 
+            serviceCollection.AddScoped<IOrdersManager, OrdersManager>(); 
 
             AddKafka(serviceCollection);
         }
@@ -60,9 +58,7 @@ namespace Ozon.Route256.Practice.OrdersService
                 throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
             serviceCollection.AddSingleton<IKafkaProducer<long, string>, KafkaProducerProvider>(x =>
                 new KafkaProducerProvider(x.GetRequiredService<ILogger<KafkaProducerProvider>>(), kafka_url));
-
             serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
-
             serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();
             serviceCollection.AddScoped<IAddOrderHandler, AddOrderHandler>();
             serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();
@@ -85,16 +81,6 @@ namespace Ozon.Route256.Practice.OrdersService
                 if (string.IsNullOrEmpty(url))
                 {
                     throw new ArgumentException("ROUTE256_LS_ADDRESS variable is null or empty");
-                }
-
-                option.Address = new Uri(url);
-            });
-            serviceCollection.AddGrpcClient<Customers.CustomersClient>(option =>
-            {
-                var url = _configuration.GetValue<string>("ROUTE256_CS_ADDRESS");
-                if (string.IsNullOrEmpty(url))
-                {
-                    throw new ArgumentException("ROUTE256_CS_ADDRESS variable is null or empty");
                 }
 
                 option.Address = new Uri(url);

@@ -1,4 +1,7 @@
-﻿using Npgsql;
+﻿using MediatR;
+using Npgsql;
+using Ozon.Route256.Practice.OrdersService.Application.Commands;
+using Ozon.Route256.Practice.OrdersService.Application.Dto;
 using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Models;
@@ -8,33 +11,27 @@ using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 
-public class OrdersManagerPg : IOrdersManager
+public class OrdersManager : IOrdersManager
 {
-    private readonly IOrdersRepository _ordersRepositoryPg;
+    private readonly IOrdersRepository _ordersRepository;
     private readonly IRegionDatabase _regionDatabase;
-    public OrdersManagerPg(IOrdersRepository ordersRepositoryPg, IRegionDatabase regionDatabase)
+    private readonly IMediator _mediator;
+    public OrdersManager(IOrdersRepository ordersRepository, IRegionDatabase regionDatabase, IMediator mediator)
     {
-        _ordersRepositoryPg = ordersRepositoryPg;
+        _ordersRepository = ordersRepository;
         _regionDatabase = regionDatabase;
+        _mediator = mediator;
     }
-    public async Task CreateOrderAsync(OrderDao order, CancellationToken token = default)
+    public async Task CreateOrderAsync(PreOrderDto order, CancellationToken token = default)
     {
         token.ThrowIfCancellationRequested();
-        try
-        {
-            var region = await _regionDatabase.GetRegionEntityByNameAsync(order.Region, token);
-            var orderDal = ToInsertDal(order, region.Id);
-            await _ordersRepositoryPg.Create(orderDal, token);
-        }
-        catch (PostgresException)
-        {
-            throw new ArgumentException($"Order with id={order.Id} is already exists");
-        }
+        var region = await _regionDatabase.GetRegionEntityByNameAsync(order.Address.Region, token);
+        await _mediator.Send(new CreateOrderByPreOrderCommand(order), token);
     }
 
     public async Task<OrderDao> GetOrderByIdAsync(long id, CancellationToken token = default)
     {
-        var order = await _ordersRepositoryPg.GetOrderByID(id, token);
+        var order = await _ordersRepository.GetOrderByID(id, token);
         if (order != null)
             return await FromOrderDal(order);
         else
@@ -43,7 +40,7 @@ public class OrdersManagerPg : IOrdersManager
 
     public async Task<OrderDao[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default)
     {
-        var orders = await _ordersRepositoryPg.GetOrdersByCustomerId(idCustomer, dateStart, token);
+        var orders = await _ordersRepository.GetOrdersByCustomerId(idCustomer, dateStart, token);
         List<OrderDao> result = new List<OrderDao>();
         foreach (var order in orders)
             result.Add(await FromOrderDal(order));
@@ -53,18 +50,18 @@ public class OrdersManagerPg : IOrdersManager
     public async Task<OrderDao[]> GetOrdersByRegionAsync(List<string> regionList, OrderSourceEnum source, CancellationToken token = default)
     {
         var regionsId = await _regionDatabase.GetRegionsEntityByNameAsync(regionList.ToArray(), token);
-        var orders = await _ordersRepositoryPg.GetOrdersByRegion(regionsId.Select(x => x.Id).ToArray(), source,token);
+        var orders = await _ordersRepository.GetOrdersByRegion(regionsId.Select(x => x.Id).ToArray(), source,token);
         List<OrderDao> result = new List<OrderDao>();
         foreach (var order in orders)
             result.Add(await FromOrderDal(order));
         return result.ToArray();
     }
 
-    public async Task<RegionStatisticEntity[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default)
+    public async Task<RegionStatisticDto[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default)
     {
-        List<RegionStatisticEntity> regions = new List<RegionStatisticEntity>();
+        List<RegionStatisticDto> regions = new List<RegionStatisticDto>();
         var regionsId = await _regionDatabase.GetRegionsEntityByNameAsync(regionList.ToArray(), token);
-        var regionsStatistic = await _ordersRepositoryPg.GetRegionStatistic(regionsId.Select(x=>x.Id).ToArray(), dateStart, token);
+        var regionsStatistic = await _ordersRepository.GetRegionStatistic(regionsId.Select(x=>x.Id).ToArray(), dateStart, token);
         foreach(var rs in regionsStatistic)
             regions.Add(await FromStatisticDalAsync(rs));
         return regions.ToArray();
@@ -74,27 +71,13 @@ public class OrdersManagerPg : IOrdersManager
         token.ThrowIfCancellationRequested();
         try
         {
-            await _ordersRepositoryPg.SetStatusById(id, state, timeUpdate, token);
+            await _ordersRepository.SetStatusById(id, state, timeUpdate, token);
             return true;
         }
         catch (PostgresException)
         {
             return false;
         }
-    }
-    private OrderDal ToInsertDal(OrderDao order, int regionId)
-    {
-        return new OrderDal(order.Id,
-            order.CustomerId,
-            order.Source,
-            order.State,
-            order.TimeCreate,
-            order.TimeUpdate,
-            regionId,
-            order.CountGoods,
-            order.TotalWeigth,
-            order.TotalPrice,
-            JsonSerializer.Serialize(order.Address));
     }
     private async Task<OrderDao> FromOrderDal(OrderDal order)
     {
@@ -104,7 +87,7 @@ public class OrdersManagerPg : IOrdersManager
             CustomerId = order.customer_id,
             Source = order.source,
             CountGoods = order.countGoods,
-            Address = JsonSerializer.Deserialize<AddressDto>(order.addressJson),
+            Address = JsonSerializer.Deserialize<Etities.AddressDto>(order.addressJson),
             Goods = new List<ProductDto>(),
             Region = (await _regionDatabase.GetRegionEntityByIdAsync(order.regionId)).Name,
             State = order.state,
@@ -114,8 +97,8 @@ public class OrdersManagerPg : IOrdersManager
             TotalPrice = order.totalPrice
         };
     }
-    private async Task<RegionStatisticEntity> FromStatisticDalAsync(RegionStatisticDal regionStatisticDal) =>
-        new RegionStatisticEntity(
+    private async Task<RegionStatisticDto> FromStatisticDalAsync(RegionStatisticDal regionStatisticDal) =>
+        new RegionStatisticDto(
             (await _regionDatabase.GetRegionEntityByIdAsync(regionStatisticDal.regionId)).Name,
             regionStatisticDal.TotalCountOrders,
             regionStatisticDal.TotalSumOrders,

@@ -148,7 +148,7 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
         if (!await _regionRepository.IsRegionsExistsAsync(request.Region.ToArray(), context.CancellationToken))
             throw new RpcException(new Status(StatusCode.NotFound, "Region not found"));
 
-        RegionStatisticEntity[]? result = null;
+        RegionStatisticDto[]? result = null;
         var regions = await _regionRepository.GetRegionsEntityByNameAsync(request.Region.ToArray());
         result = await _ordersRepository.GetRegionsStatisticAsync(regions.Select(x => x.Name).ToList(), request.StartTime.ToDateTime(), context.CancellationToken);
         

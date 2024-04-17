@@ -46,7 +46,6 @@ public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundServic
             if (message is not null)
             {
                 await HandleAsync(message, cancellationToken);
-                //_logger.LogInformation($"Message: {message}");  
                 _dataProvider.Consumer.Commit();
             }
             else

@@ -1,5 +1,4 @@
-
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
+namespace Ozon.Route256.Practice.OrdersService.Domain.Enums;
 public enum OrderStateEnumDomain
 {
     Created = 0,
