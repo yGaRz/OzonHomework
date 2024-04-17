@@ -1,4 +1,4 @@
-﻿namespace Ozon.Route256.Practice.CustomerService.Domain.Core;
+﻿namespace Ozon.Route256.Practice.OrdersService.Domain.Core;
 
 public abstract class Entity<TId> : IComparable, IComparable<Entity<TId>> where TId : IComparable<TId>
 {
@@ -73,14 +73,5 @@ public abstract class Entity<TId> : IComparable, IComparable<Entity<TId>> where 
     }
 }
 
-public abstract class Entity : Entity<long>
-{
-    protected Entity()
-    {
-    }
 
-    protected Entity(long id)
-        : base(id)
-    {
-    }
-}
+

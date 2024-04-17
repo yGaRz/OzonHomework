@@ -79,7 +79,7 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
         var sortParam = request.SortParam;
         var sortField = request.SortField;
         GetOrdersResponse responce = new GetOrdersResponse();
-        List<OrderEntity> result;
+        List<OrderDao> result;
         if (sortField != "" && sortParam != SortParam.None && orders.Length != 0)
         {
             Type type = orders[0].GetType();
@@ -100,10 +100,10 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
         int page = request.PageIndex-1;
         int count = request.PageSize;
         if (result.Count > (page + 1) * count)
-            responce.Orders.Add(result.GetRange(page * count, count).Select(OrderEntity.ConvertToOrderGrpc));
+            responce.Orders.Add(result.GetRange(page * count, count).Select(OrderDao.ConvertToOrderGrpc));
         else
             if(result.Count - page * count>0)
-                responce.Orders.Add(result.GetRange(page * count, result.Count - page * count).Select(OrderEntity.ConvertToOrderGrpc));
+                responce.Orders.Add(result.GetRange(page * count, result.Count - page * count).Select(OrderDao.ConvertToOrderGrpc));
 
         return responce;
 
@@ -112,7 +112,7 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
     {
         try
         {
-            CustomerEntity customerEntity = await _customersClient.GetCustomer(request.Id, context.CancellationToken);
+            CustomerDto customerEntity = await _customersClient.GetCustomer(request.Id, context.CancellationToken);
 
             var orders = await _ordersRepository.GetOrdersByCutomerAsync(request.Id, request.StartTime.ToDateTime());
             GetOrdersByCustomerIDResponse responce = new GetOrdersByCustomerIDResponse
@@ -120,16 +120,16 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
                 NameCustomer = $"{customerEntity.FirstName} {customerEntity.LastName}",
                 PhoneNumber = customerEntity.Phone,
                 Region = customerEntity.DefaultAddress.Region,
-                AddressCustomer = AddressEntity.ConvertToAddressGrpc(customerEntity.DefaultAddress)                    
+                AddressCustomer = AddressDto.ConvertToAddressGrpc(customerEntity.DefaultAddress)                    
             };
             int page = request.PageIndex - 1;
             int count = request.PageSize;
             var result = orders.ToList();
             if (result.Count > (page + 1) * count)
-                responce.Orders.Add(result.GetRange(page * count, count).Select(OrderEntity.ConvertToOrderGrpc));
+                responce.Orders.Add(result.GetRange(page * count, count).Select(OrderDao.ConvertToOrderGrpc));
             else
                 if (result.Count - page * count > 0)
-                responce.Orders.Add(result.GetRange(page * count, result.Count - page * count).Select(OrderEntity.ConvertToOrderGrpc));
+                responce.Orders.Add(result.GetRange(page * count, result.Count - page * count).Select(OrderDao.ConvertToOrderGrpc));
             return responce;
         }
         catch (RpcException ex)
@@ -173,14 +173,14 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
         {
             Faker faker = new Faker();
             var regionName = await _regionRepository.GetRegionEntityByIdAsync(faker.Random.Int(1, 3),context.CancellationToken);
-            AddressEntity address = new AddressEntity(regionName.Name,
+            AddressDto address = new AddressDto(regionName.Name,
                                                     faker.Address.City(),
                                                     faker.Address.StreetName(),
                                                     faker.Address.BuildingNumber(),
                                                     faker.Address.StreetSuffix(),
                                                     faker.Address.Latitude(),
                                                     faker.Address.Longitude());
-            CustomerEntity cusromer = new CustomerEntity()
+            CustomerDto cusromer = new CustomerDto()
             {
                 Id = i,
                 DefaultAddress = address,

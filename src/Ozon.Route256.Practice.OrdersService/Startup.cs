@@ -38,7 +38,6 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddScoped<IOrdersRepository, OrdersShardRepositoryPg>();
             serviceCollection.AddScoped<IOrdersManager, OrdersManagerPg>(); 
 
-            AddRedis(serviceCollection);
             AddKafka(serviceCollection);
         }
 
@@ -59,11 +58,12 @@ namespace Ozon.Route256.Practice.OrdersService
             var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
             if (string.IsNullOrEmpty(kafka_url))
                 throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
-
             serviceCollection.AddSingleton<IKafkaProducer<long, string>, KafkaProducerProvider>(x =>
-                    new KafkaProducerProvider(x.GetRequiredService<ILogger<KafkaProducerProvider>>(), kafka_url));
+                new KafkaProducerProvider(x.GetRequiredService<ILogger<KafkaProducerProvider>>(), kafka_url));
 
             serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
+
+            serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();
             serviceCollection.AddScoped<IAddOrderHandler, AddOrderHandler>();
             serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();
 
@@ -75,15 +75,7 @@ namespace Ozon.Route256.Practice.OrdersService
                 new KafkaOrdersEventsProvider(x.GetRequiredService<ILogger<KafkaOrdersEventsProvider>>(), kafka_url));
             serviceCollection.AddHostedService<ConsumerKafkaOrdersEvents>();
         }
-        void AddRedis(IServiceCollection serviceCollection)
-        {
-            var redis_url = _configuration.GetValue<string>("ROUTE256_REDIS_ADDRESS");
-            if (string.IsNullOrEmpty(redis_url))
-                throw new ArgumentException("ROUTE256_REDIS_ADDRESS variable is null or empty");
-            serviceCollection.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redis_url));
-            serviceCollection.AddScoped<ICacheCustomers, RedisCustomerRepository>();
-            serviceCollection.AddScoped<IGrcpCustomerService, GrpcCustomerService>();
-        }
+
         void AddGrpc(IServiceCollection serviceCollection)
         {
             serviceCollection.AddGrpc(option => option.Interceptors.Add<LoggerInterceptor>());

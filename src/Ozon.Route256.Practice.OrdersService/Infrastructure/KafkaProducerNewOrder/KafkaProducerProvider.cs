@@ -1,4 +1,5 @@
 ﻿using Confluent.Kafka;
+using Microsoft.Extensions.Logging;
 using static Confluent.Kafka.ConfigPropertyNames;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;

@@ -26,7 +26,7 @@ internal class OrderProducer : IOrderProducer
 
     private record new_order(long OrderId);
 
-    public async Task ProduceAsync(IReadOnlyCollection<OrderEntity> updatedOrders, CancellationToken token)
+    public async Task ProduceAsync(IReadOnlyCollection<OrderDao> updatedOrders, CancellationToken token)
     {
         await Task.Yield();
 

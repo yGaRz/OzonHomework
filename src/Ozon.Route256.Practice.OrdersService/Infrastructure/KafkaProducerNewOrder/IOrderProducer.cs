@@ -4,5 +4,5 @@ namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewO
 
 public interface IOrderProducer
 {
-    Task ProduceAsync(IReadOnlyCollection<OrderEntity> updatedOrders, CancellationToken token);
+    Task ProduceAsync(IReadOnlyCollection<OrderDao> updatedOrders, CancellationToken token);
 }
