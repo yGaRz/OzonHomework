@@ -22,10 +22,25 @@ internal class DataLayerMapper : IDataReadMapper, IDataWriteMapper
             (OrderStateEnum)order.State, 
             order.TimeCreate,
             order.TimeUpdate,
-            1,
+            order.CountGoods,
             order.CountGoods,
             order.TotalWeigth,
             order.TotalPrice,
             order.AddressOrder.ToString());
+    }
+
+    public OrderDto OrderDalToDto(OrderDal order)
+    {
+        return new OrderDto(order.id,
+            order.customer_id,
+            (OrderSourceEnumDomain)order.source,
+            (OrderStateEnumDomain)order.state,
+            order.timeCreate,
+            order.timeUpdate,
+            order.regionId,
+            order.countGoods,
+            order.totalWeigth,
+            order.totalPrice,
+            order.addressJson);
     }
 }

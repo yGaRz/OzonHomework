@@ -3,8 +3,8 @@ using Ozon.Route256.Practice.CustomerGprcFile;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
-
-internal class GrpcCustomerService : IGrcpCustomerService
+//Чтобы можно было сгенерировать пользователей, по факту костыль для тестов.
+public class GrpcCustomerService : IGrcpCustomerService
 {
     public readonly Customers.CustomersClient _customersClient;
     public readonly ICacheCustomers _customerCache;

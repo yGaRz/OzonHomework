@@ -1,5 +1,6 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.Application.Dto;
+using Ozon.Route256.Practice.OrdersService.Application.Queries.GetOrdersQuery;
 using Ozon.Route256.Practice.OrdersService.Application.Queries.GetRegionsQuery;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Mappers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.Orders;
@@ -23,13 +24,18 @@ internal sealed class OrdersServiceReadRepository : IOrdersServiceReadRepository
     {
         var region = await _regionDatabase.GetRegionEntityByIdAsync(request.Id, token);
         return _mapper.RegionDalToDto(region);
-         }
+    }
     public async Task<List<RegionDto>> GetRegions(GetRegionsQuery query, CancellationToken token)
     {
         var regions = await _regionDatabase.GetRegionsEntityByIdAsync(Array.Empty<int>(), token);
         return _mapper.RegionsDalToDto(regions);        
     }
 
+    public async Task<OrderDto> GetOrderById(GetOrderByIdQuery request, CancellationToken cancellationToken)
+    {
+        var order = await _ordersManager.GetOrderByIdAsync(request.Id, cancellationToken);
+        return _mapper.OrderDalToDto(order);
+    }
 
 
 }

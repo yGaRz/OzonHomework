@@ -7,4 +7,5 @@ internal interface IDataReadMapper
 {
     List<RegionDto> RegionsDalToDto(RegionDal[] regions);
     RegionDto RegionDalToDto(RegionDal region);
+    OrderDto OrderDalToDto(OrderDal order);
 }

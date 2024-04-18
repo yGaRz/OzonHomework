@@ -21,6 +21,7 @@ internal sealed class AddOrderHandler : IAddOrderHandler
     {
         try
         {
+            //Сам класс нужен тут, чтобы мы могли изменить в теле запроса регион и customerId, для последующей логики
             var order = new PreOrderDto(id, message, timeCreate);
             if (token.IsCancellationRequested)
                 token.ThrowIfCancellationRequested();

@@ -1,5 +1,7 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Domain.Core;
 using Ozon.Route256.Practice.OrdersService.Domain.Enums;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Ozon.Route256.Practice.OrdersService.Domain;
 public sealed class PreOrder:Entity<long>
@@ -17,7 +19,6 @@ public sealed class PreOrder:Entity<long>
     {
          return new PreOrder(id, source, customerId, address, products, created);
     }
-
     public Order CreateOrder()
     {
         return Order.CreateInstace(

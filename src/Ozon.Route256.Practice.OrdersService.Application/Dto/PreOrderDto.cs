@@ -3,6 +3,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace Ozon.Route256.Practice.OrdersService.Application.Dto;
+//Тоже костыль, чтобы на уровне кафки подкрутить заказ, и пропихнуть его потом вниз
+//Конструктор и парсер из Json должен быть в домене
 public class PreOrderDto
 {
     private PreOrderDto(long id, int customerId, OrderSourceEnumDomain source, AddressDto address, List<ProductDto> goods, OrderStateEnumDomain state, DateTime timeCreate)
@@ -26,9 +28,9 @@ public class PreOrderDto
             Source = (OrderSourceEnumDomain)((int)doc["Source"] - 1);
 
             var customer = doc["Customer"];
-            if(customer == null)
+            if (customer == null)
                 throw new ArgumentException($"В заказе ID={id} не указан клиент");
-            if(customer["Id"]!=null && int.TryParse(customer["Id"].ToString(), out int customerId))
+            if (customer["Id"] != null && int.TryParse(customer["Id"].ToString(), out int customerId))
                 CustomerId = customerId;
             else
                 throw new ArgumentException($"В заказе ID={id} не указан идентификатор клиента");

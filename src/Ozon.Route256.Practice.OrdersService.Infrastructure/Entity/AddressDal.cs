@@ -1,5 +1,6 @@
 ﻿using Ozon.Route256.Practice.CustomerGprcFile;
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
+//Чтобы можно было сгенерировать пользователей, по факту костыль для тестов.
 public record AddressDal
 {
     public string Region { get; set; }
