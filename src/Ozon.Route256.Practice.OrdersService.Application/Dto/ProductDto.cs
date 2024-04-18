@@ -1,7 +1,7 @@
 ﻿namespace Ozon.Route256.Practice.OrdersService.Application.Dto;
 
 public record ProductDto(
-    long Id,
+    int Id,
     string Name,
     int Quantity,
     double Price,

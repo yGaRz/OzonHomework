@@ -1,10 +1,7 @@
-﻿using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
-
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
+﻿using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
+namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+internal interface IGrcpCustomerService
 {
-    public interface IGrcpCustomerService
-    {
-        public Task<CustomerDto> GetCustomer(int customerId, CancellationToken cancellationToken);
-        public Task CreateCustomer(CustomerDto customer, CancellationToken cancellationToken=default);
-    }
+    public Task<CustomerDal> GetCustomer(int customerId, CancellationToken cancellationToken);
+    public Task CreateCustomer(CustomerDal customer, CancellationToken cancellationToken=default);
 }

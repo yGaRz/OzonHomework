@@ -1,11 +1,9 @@
-﻿using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
+﻿using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
+namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+internal interface ICacheCustomers
 {
-    public interface ICacheCustomers
-    {
-        Task<CustomerDto?> Find(int id, CancellationToken cancellationToken);
-        Task Insert(CustomerDto customer, CancellationToken cancellationToken);
-        Task<bool> IsExists(int id, CancellationToken cancellationToken);
-    }
+    Task<CustomerDal?> Find(int id, CancellationToken cancellationToken);
+    Task Insert(CustomerDal customer, CancellationToken cancellationToken);
+    Task<bool> IsExists(int id, CancellationToken cancellationToken);
 }

@@ -1,4 +1,5 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Domain.Core;
+using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.Domain;
 
@@ -19,16 +20,16 @@ public sealed class Address : ValueObject
         return new Address(region, city, street, building, apartment, coordinates);
     }
 
+    public override string ToString()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+
     public string Region { get; }
-
     public string City { get; }
-
     public string Street { get; }
-
     public string Building { get; }
-
     public string Apartment { get; }
-
     public Coordinates Coordinates { get; }
 
     protected override IEnumerable<object> GetEqualityComponents()

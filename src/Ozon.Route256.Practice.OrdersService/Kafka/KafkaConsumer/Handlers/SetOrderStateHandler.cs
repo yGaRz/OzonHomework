@@ -1,33 +1,31 @@
-﻿using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+﻿using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Models.Enums;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers
+namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
+
+internal class SetOrderStateHandler : ISetOrderStateHandler
 {
-    public class SetOrderStateHandler : ISetOrderStateHandler
-    {
-        private readonly IOrdersManager _orderRepository;
-        private readonly IOrderProducer _producer;
-        private readonly ILogger<AddOrderHandler> _logger;
+    //private readonly IOrdersManager _orderRepository;
+    private readonly IOrderProducer _producer;
+    private readonly ILogger<AddOrderHandler> _logger;
 
-        public SetOrderStateHandler(IOrdersManager orderRepository, IOrderProducer orderProducer, ILogger<AddOrderHandler> logger)
+    public SetOrderStateHandler( IOrderProducer orderProducer, ILogger<AddOrderHandler> logger)
+    {
+        //_orderRepository = orderRepository;
+        _producer = orderProducer;
+        _logger = logger;
+    }
+    public async Task Handle(long id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token)
+    {
+        try
         {
-            _orderRepository = orderRepository;
-            _producer = orderProducer;
-            _logger = logger;
+            //await _orderRepository.SetOrderStateAsync(id, state, timeUpdate, token);
+            _logger.LogInformation($"{id}");
         }
-        public async Task Handle(long id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token)
+        catch (Exception ex)
         {
-            try
-            {
-                await _orderRepository.SetOrderStateAsync(id, state, timeUpdate, token);
-                _logger.LogInformation($"{id}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex.Message);
-            }
+            _logger.LogWarning(ex.Message);
         }
     }
 }

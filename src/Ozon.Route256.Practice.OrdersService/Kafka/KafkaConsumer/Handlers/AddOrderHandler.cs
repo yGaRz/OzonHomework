@@ -1,71 +1,71 @@
 ﻿using Bogus;
-using MediatR;
+using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.Application.Dto;
-using Ozon.Route256.Practice.OrdersService.DataAccess;
-using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
-using Ozon.Route256.Practice.OrdersService.DataAccess.Orders;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer
+namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+
+internal sealed class AddOrderHandler : IAddOrderHandler
 {
-    public class AddOrderHandler : IAddOrderHandler
+    private readonly IOrderProducer _producer;
+    private readonly ILogger<AddOrderHandler> _logger;
+    private readonly IOrderServiceAdapter _orderServiceAdapter;
+
+    public AddOrderHandler( IOrderProducer orderProducer, ILogger<AddOrderHandler> logger, IOrderServiceAdapter orderServiceAdapter)
     {
-        private readonly IOrdersManager _orderManager;
-        private readonly IRegionDatabase _regionDatabase;
-        private readonly IOrderProducer _producer;
-        private readonly ILogger<AddOrderHandler> _logger;
+        _orderServiceAdapter = orderServiceAdapter;
+        _producer = orderProducer;
+        _logger = logger;
+    }
+    public async Task<bool> Handle(long id, string message, DateTime timeCreate, CancellationToken token)
+    {
+        try
+        {
+            var order = new PreOrderDto(id, message, timeCreate);
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
 
-        public AddOrderHandler(IOrdersManager orderManager, IRegionDatabase regionDatabase, IOrderProducer orderProducer, ILogger<AddOrderHandler> logger)
-        {
-            _orderManager = orderManager;
-            _regionDatabase = regionDatabase;
-            _producer = orderProducer;
-            _logger = logger;
-        }
-        public async Task<bool> Handle(PreOrderDto order, CancellationToken token)
-        {
-            try
-            {
-                if (token.IsCancellationRequested)
-                    token.ThrowIfCancellationRequested();
-                order.CustomerId = order.CustomerId % 10 + 1;
-                Faker faker = new Faker();
-                var region = await _regionDatabase.GetRegionEntityByIdAsync(faker.Random.Int(1, 3));
-                order.Address.Region = region.Name;
-                await _orderManager.CreateOrderAsync(order, token);
-                if (GetDistance(order.Address.Latitude, order.Address.Longitude, region.Latitude, region.Longitude) < 5000)
-                {
-                    //TODO: await _producer.ProduceAsync(new[] { order }, token);
-                    _logger.LogInformation($"Заказ {order.Id} отправлен");
-                }
-                else
-                    _logger.LogInformation($"Заказ {order.Id} не будет отправлен из-за превышения расстояния до склада");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning($"При обработке заказа {order.Id} возникла ошибка {ex.Message}");
-                return false;
-            }
-            return true;
-        }
+            //Это необходимо чтобы хоть как то работала логика заказов с покупателями и регионами
+            order.CustomerId = order.CustomerId % 10 + 1;
+            Faker faker = new Faker();
+            var region = await  _orderServiceAdapter.GetRegion(faker.Random.Int(0, 2),token);
+            order.Address.Region = region.Name;
 
-        private static double GetDistance(double lat1, double lon1, double lat2, double lon2)
-        {
-            var R = 6371d;
-            var dLat = Deg2Rad(lat2 - lat1);
-            var dLon = Deg2Rad(lon2 - lon1);
-            var a =
-                Math.Sin(dLat / 2d) * Math.Sin(dLat / 2d) +
-                Math.Cos(Deg2Rad(lat1)) * Math.Cos(Deg2Rad(lat2)) *
-                Math.Sin(dLon / 2d) * Math.Sin(dLon / 2d);
-            var c = 2d * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1d - a));
-            var d = R * c;
-            return d;
+
+            await _orderServiceAdapter.CreateOrder(order, token);
+            if (GetDistance(order.Address.Latitude, order.Address.Longitude, region.Latitude, region.Longitude) < 5000)
+            {
+                //TODO: переделать на Long в Kafka
+                //await _producer.ProduceAsync(new[] { order }, token);
+                _logger.LogInformation($"Заказ {order.Id} отправлен");
+            }
+            else
+                _logger.LogInformation($"Заказ {order.Id} не будет отправлен из-за превышения расстояния до склада");
         }
-        private static double Deg2Rad(double deg)
+        catch (Exception ex)
         {
-            return deg * (Math.PI / 180d);
+            _logger.LogWarning($"При обработке заказа {id} возникла ошибка {ex.Message}");
+            return false;
         }
+        return true;
+    }
+
+    private static double GetDistance(double lat1, double lon1, double lat2, double lon2)
+    {
+        var R = 6371d;
+        var dLat = Deg2Rad(lat2 - lat1);
+        var dLon = Deg2Rad(lon2 - lon1);
+        var a =
+            Math.Sin(dLat / 2d) * Math.Sin(dLat / 2d) +
+            Math.Cos(Deg2Rad(lat1)) * Math.Cos(Deg2Rad(lat2)) *
+            Math.Sin(dLon / 2d) * Math.Sin(dLon / 2d);
+        var c = 2d * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1d - a));
+        var d = R * c;
+        return d;
+    }
+    private static double Deg2Rad(double deg)
+    {
+        return deg * (Math.PI / 180d);
     }
 }
