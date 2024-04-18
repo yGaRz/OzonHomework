@@ -35,7 +35,9 @@ public class ShardNpgsqlConnection: DbConnection
     public override string ConnectionString
     {
         get => _npgsqlConnection.ConnectionString;
+#pragma warning disable CS8765 // Допустимость значений NULL для типа параметра не соответствует переопределенному элементу (возможно, из-за атрибутов допустимости значений NULL).
         set => _npgsqlConnection.ConnectionString = value;
+#pragma warning restore CS8765 // Допустимость значений NULL для типа параметра не соответствует переопределенному элементу (возможно, из-за атрибутов допустимости значений NULL).
     }
 
     public override string Database => _npgsqlConnection.Database;

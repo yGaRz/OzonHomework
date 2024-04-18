@@ -1,6 +1,6 @@
 ﻿using Ozon.Route256.Practice.CustomerGprcFile;
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
-internal record AddressDal
+public record AddressDal
 {
     public string Region { get; set; }
     public string City { get; init; }

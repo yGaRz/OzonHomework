@@ -1,7 +1,7 @@
 ﻿using Confluent.Kafka;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer
+namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer
 {
     public interface IKafkaConsumer<TKey, TValue>
     {

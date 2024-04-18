@@ -1,9 +1,10 @@
 ﻿using Confluent.Kafka;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
+using Ozon.Route256.Practice.OrdersService.Domain.Enums;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models.Enums;
+using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;
 using System.Text.Json;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
 
 public class ConsumerKafkaOrdersEvents : ConsumerBackgroundService<long, string>
 {
@@ -26,13 +27,13 @@ public class ConsumerKafkaOrdersEvents : ConsumerBackgroundService<long, string>
         var orderEvent = JsonSerializer.Deserialize<OrderEvent>(message.Message.Value);
         if (orderEvent == null)
             throw new Exception($"Заказ с номером ={message.Message.Key} не получилось десериализовать");
-        OrderStateEnum orderStateString = orderEvent.OrderState switch
+        OrderStateEnumDomain orderStateString = orderEvent.OrderState switch
         {
-            "Created" => OrderStateEnum.Created,
-            "SentToCustomer" => OrderStateEnum.SentToCustomer,
-            "Delivered" => OrderStateEnum.Delivered,
-            "Lost" => OrderStateEnum.Lost,
-            "Cancelled" => OrderStateEnum.Cancelled,
+            "Created" => OrderStateEnumDomain.Created,
+            "SentToCustomer" => OrderStateEnumDomain.SentToCustomer,
+            "Delivered" => OrderStateEnumDomain.Delivered,
+            "Lost" => OrderStateEnumDomain.Lost,
+            "Cancelled" => OrderStateEnumDomain.Cancelled,
             _ => throw new ArgumentException($"State order id={message.Message.Key} is not correct")
         };
 

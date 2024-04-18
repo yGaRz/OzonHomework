@@ -53,6 +53,7 @@ internal class OrdersManager : IOrdersManager
 
     public async Task<RegionStatisticDal[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default)
     {
+        await Task.Delay(1000);
         throw new NotImplementedException();
         //List<RegionStatisticDal> regions = new List<RegionStatisticDal>();
         //var regionsId = await _regionDatabase.GetRegionsEntityByNameAsync(regionList.ToArray(), token);

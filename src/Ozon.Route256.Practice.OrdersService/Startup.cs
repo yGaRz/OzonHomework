@@ -2,10 +2,10 @@
 using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.GrpcServices;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
+using Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
+using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder;
+using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;
+using Ozon.Route256.Practice.OrdersService.Kafka.ProduserNewOrder;
 using System.Reflection;
 
 namespace Ozon.Route256.Practice.OrdersService

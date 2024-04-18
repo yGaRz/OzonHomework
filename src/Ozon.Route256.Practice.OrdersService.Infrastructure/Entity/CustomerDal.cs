@@ -1,7 +1,8 @@
 ﻿using Ozon.Route256.Practice.CustomerGprcFile;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
-internal record CustomerDal
+//Чтобы можно было сгенерировать пользователей, по факту костыль для тестов.
+public record CustomerDal
 {
     public int Id { get; init; }
     public string FirstName { get; init; } = "";

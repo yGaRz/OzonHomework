@@ -19,7 +19,9 @@ public class ShardNpgsqlCommand: DbCommand
     public override string CommandText
     {
         get => _npgsqlCommand.CommandText;
+#pragma warning disable CS8765 // Допустимость значений NULL для типа параметра не соответствует переопределенному элементу (возможно, из-за атрибутов допустимости значений NULL).
         set
+#pragma warning restore CS8765 // Допустимость значений NULL для типа параметра не соответствует переопределенному элементу (возможно, из-за атрибутов допустимости значений NULL).
         {
             var command = value.Replace(ShardsHelper.BucketPlaceholder, ShardsHelper.GetSchemaName(BucketId));
             _npgsqlCommand.CommandText = command;

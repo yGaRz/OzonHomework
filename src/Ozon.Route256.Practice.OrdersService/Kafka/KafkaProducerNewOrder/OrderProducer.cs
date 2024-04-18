@@ -1,10 +1,9 @@
 ﻿using Confluent.Kafka;
-using Ozon.Route256.Practice.OrdersService.Application.Dto;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
+using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
+namespace Ozon.Route256.Practice.OrdersService.Kafka.ProduserNewOrder;
 
 internal class OrderProducer : IOrderProducer
 {
@@ -26,7 +25,7 @@ internal class OrderProducer : IOrderProducer
 
     private record new_order(long OrderId);
 
-    public async Task ProduceAsync(IReadOnlyCollection<OrderDao> updatedOrders, CancellationToken token)
+    public async Task ProduceAsync(IReadOnlyCollection<long> updatedOrders, CancellationToken token)
     {
         await Task.Yield();
 
@@ -36,8 +35,8 @@ internal class OrderProducer : IOrderProducer
         {
             if (token.IsCancellationRequested)
                 token.ThrowIfCancellationRequested();
-            var key = order.Id;
-            var value = JsonSerializer.Serialize(new new_order(order.Id), _jsonSerializerOptions);
+            var key = order;
+            var value = JsonSerializer.Serialize(new new_order(order), _jsonSerializerOptions);
 
             var message = new Message<long, string>
             {
