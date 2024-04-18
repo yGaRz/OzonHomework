@@ -1,9 +1,4 @@
-﻿using Bogus;
-using Ozon.Route256.Practice.OrdersService.Application.Dto;
-using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
-
-namespace TestServices.Helpers;
+﻿namespace TestServices.Helpers;
 
 //public class OrderGenerator
 //{

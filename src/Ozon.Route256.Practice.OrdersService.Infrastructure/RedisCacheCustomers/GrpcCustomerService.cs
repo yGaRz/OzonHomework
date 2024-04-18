@@ -1,45 +1,44 @@
 ﻿using Grpc.Core;
 using Ozon.Route256.Practice.CustomerGprcFile;
-using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers
+namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+
+internal class GrpcCustomerService : IGrcpCustomerService
 {
-    public class GrpcCustomerService : IGrcpCustomerService
+    public readonly Customers.CustomersClient _customersClient;
+    public readonly ICacheCustomers _customerCache;
+    public GrpcCustomerService(Customers.CustomersClient customersClient,
+                                    ICacheCustomers customerCache)
+    { 
+        _customersClient = customersClient;
+        _customerCache = customerCache;
+    }
+
+    public async Task<CustomerDal> GetCustomer(int customerId, CancellationToken cancellationToken)
     {
-        public readonly Customers.CustomersClient _customersClient;
-        public readonly ICacheCustomers _customerCache;
-        public GrpcCustomerService(Customers.CustomersClient customersClient,
-                                        ICacheCustomers customerCache)
-        { 
-            _customersClient = customersClient;
-            _customerCache = customerCache;
-        }
-
-        public async Task<CustomerDto> GetCustomer(int customerId, CancellationToken cancellationToken)
+        CustomerDal? customerEntity = await _customerCache.Find(customerId, cancellationToken);
+        if (customerEntity == null)
         {
-            CustomerDto? customerEntity = await _customerCache.Find(customerId, cancellationToken);
-            if (customerEntity == null)
+            GetCustomerByIdResponse respCustomer = new GetCustomerByIdResponse();
+            try
             {
-                GetCustomerByIdResponse respCustomer = new GetCustomerByIdResponse();
-                try
-                {
-                    respCustomer = await _customersClient.GetCustomerByIdAsync(new GetCustomerByIdRequest() { Id = customerId });
-                }
-                catch (RpcException)
-                {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, $"Клиент с id={customerId} не найден"));
-                }
-                customerEntity = CustomerDto.ConvertFromCustomerGrpc(respCustomer.Customer);
-                await _customerCache.Insert(customerEntity, cancellationToken);
+                respCustomer = await _customersClient.GetCustomerByIdAsync(new GetCustomerByIdRequest() { Id = customerId });
             }
-            return customerEntity;
+            catch (RpcException)
+            {
+                throw new RpcException(new Status(StatusCode.InvalidArgument, $"Клиент с id={customerId} не найден"));
+            }
+            customerEntity = CustomerDal.ConvertFromCustomerGrpc(respCustomer.Customer);
+            await _customerCache.Insert(customerEntity, cancellationToken);
         }
+        return customerEntity;
+    }
 
-        public async Task CreateCustomer(CustomerDto customer, CancellationToken cancellationToken = default)
-        {
-            CreateCustomerRequest request = new CreateCustomerRequest();
-            request.Customer = CustomerDto.ConvertToCustomerGrpc(customer);
-            var resp = await _customersClient.CreateCustomerAsync(request);
-        }
+    public async Task CreateCustomer(CustomerDal customer, CancellationToken cancellationToken = default)
+    {
+        CreateCustomerRequest request = new CreateCustomerRequest();
+        request.Customer = CustomerDal.ConvertToCustomerGrpc(customer);
+        var resp = await _customersClient.CreateCustomerAsync(request);
     }
 }

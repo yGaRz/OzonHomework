@@ -29,10 +29,10 @@
     <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Domain\Ozon.Route256.Practice.OrdersService.Domain.csproj" />
   </ItemGroup>  
   <ItemGroup>
-    <Compile Update="DAL\Shard\Common\ShardNpgsqlCommand.cs">
+    <Compile Update="DAL Common\Shard\Common\ShardNpgsqlCommand.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="DAL\Shard\Common\ShardNpgsqlConnection.cs">
+    <Compile Update="DAL Common\Shard\Common\ShardNpgsqlConnection.cs">
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>

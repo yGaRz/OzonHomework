@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-using Confluent.Kafka;
-using Ozon.Route256.Practice.OrdersService.DataAccess.Etities;
+﻿using Confluent.Kafka;
+using Ozon.Route256.Practice.OrdersService.Application.Dto;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
 

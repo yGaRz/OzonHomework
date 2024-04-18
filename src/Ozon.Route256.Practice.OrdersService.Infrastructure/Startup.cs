@@ -1,11 +1,19 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ozon.Route256.Practice.CustomerGprcFile;
+using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Common;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Shard.Common;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Shard.Common.Rules;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Database;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Mappers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.Orders;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.Orders.Repository;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.RegionManager;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.RegionManager.Repository;
 using Ozon.Route256.Practice.SdServiceGrpcFile;
 using StackExchange.Redis;
 
@@ -26,6 +34,15 @@ public static class Startup
 
             option.Address = new Uri(url);
         });
+
+        serviceCollection.AddScoped<IOrdersServiceReadRepository, OrdersServiceReadRepository>();
+        serviceCollection.AddScoped<IOrdersManager, OrdersManager>();
+        serviceCollection.AddScoped<IOrdersRepository, OrdersShardRepositoryPg>();
+        serviceCollection.AddScoped<IRegionRepository, RegionShardRepositoryPg>();
+        serviceCollection.AddScoped<IRegionDatabase, RegionDatabaseInMemory>();
+        serviceCollection.AddScoped<IDataReadMapper, DataLayerMapper>();
+        serviceCollection.AddScoped<IDataWriteMapper, DataLayerMapper>();
+        serviceCollection.AddScoped<IUnitOfCreateOrder, UnitOfCreateOrder>();
 
         PostgresMapping.MapCompositeTypes();
         serviceCollection.Configure<DbOptions>(_configuration.GetSection(nameof(DbOptions)));
