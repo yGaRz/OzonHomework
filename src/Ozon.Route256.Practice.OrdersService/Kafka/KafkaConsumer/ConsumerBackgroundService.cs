@@ -1,7 +1,7 @@
 ﻿
 using Confluent.Kafka;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
 
 public abstract class ConsumerBackgroundService<TKey, TValue> : BackgroundService
 {

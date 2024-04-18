@@ -1,8 +1,7 @@
 ﻿using Confluent.Kafka;
-using Ozon.Route256.Practice.OrdersService.Application.Dto;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
+using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer
+namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer
 {
     public class ConsumerKafkaPreOrder : ConsumerBackgroundService<long, string>
     {

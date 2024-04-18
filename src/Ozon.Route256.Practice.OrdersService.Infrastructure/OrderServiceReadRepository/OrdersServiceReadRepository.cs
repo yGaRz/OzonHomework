@@ -24,10 +24,12 @@ internal sealed class OrdersServiceReadRepository : IOrdersServiceReadRepository
         var region = await _regionDatabase.GetRegionEntityByIdAsync(request.Id, token);
         return _mapper.RegionDalToDto(region);
          }
-
     public async Task<List<RegionDto>> GetRegions(GetRegionsQuery query, CancellationToken token)
     {
         var regions = await _regionDatabase.GetRegionsEntityByIdAsync(Array.Empty<int>(), token);
         return _mapper.RegionsDalToDto(regions);        
     }
+
+
+
 }

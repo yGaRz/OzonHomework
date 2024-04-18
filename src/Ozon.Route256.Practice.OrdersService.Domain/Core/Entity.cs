@@ -4,7 +4,9 @@ public abstract class Entity<TId> : IComparable, IComparable<Entity<TId>> where 
 {
     public virtual TId Id { get; protected set; }
 
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
     protected Entity()
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
     {
     }
 
@@ -56,7 +58,9 @@ public abstract class Entity<TId> : IComparable, IComparable<Entity<TId>> where 
         return (GetType().ToString() + Id).GetHashCode();
     }
 
+#pragma warning disable CS8767 // Допустимость значений NULL для ссылочных типов в типе параметра не соответствует неявно реализованному элементу (возможно, из-за атрибутов допустимости значений NULL).
     public virtual int CompareTo(Entity<TId> other)
+#pragma warning restore CS8767 // Допустимость значений NULL для ссылочных типов в типе параметра не соответствует неявно реализованному элементу (возможно, из-за атрибутов допустимости значений NULL).
     {
         if (other is null)
             return 1;
@@ -67,10 +71,11 @@ public abstract class Entity<TId> : IComparable, IComparable<Entity<TId>> where 
         return Id.CompareTo(other.Id);
     }
 
-    public virtual int CompareTo(object other)
-    {
-        return CompareTo(other as Entity<TId>);
-    }
+#pragma warning disable CS8767 // Допустимость значений NULL для ссылочных типов в типе параметра не соответствует неявно реализованному элементу (возможно, из-за атрибутов допустимости значений NULL).
+#pragma warning disable CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
+    public virtual int CompareTo(object other) => CompareTo(other as Entity<TId>);
+#pragma warning restore CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
+#pragma warning restore CS8767 // Допустимость значений NULL для ссылочных типов в типе параметра не соответствует неявно реализованному элементу (возможно, из-за атрибутов допустимости значений NULL).
 }
 
 

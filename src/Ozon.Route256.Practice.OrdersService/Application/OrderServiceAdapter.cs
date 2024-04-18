@@ -1,9 +1,13 @@
 ﻿using MediatR;
 using Ozon.Route256.Practice.OrdersGrpcFile;
 using Ozon.Route256.Practice.OrdersService.Application.Commands;
+using Ozon.Route256.Practice.OrdersService.Application.Commands.UpdateOrderState;
 using Ozon.Route256.Practice.OrdersService.Application.Dto;
 using Ozon.Route256.Practice.OrdersService.Application.Queries;
 using Ozon.Route256.Practice.OrdersService.Application.Queries.GetRegionsQuery;
+using Ozon.Route256.Practice.OrdersService.Domain.Enums;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Models.Enums;
+
 namespace Ozon.Route256.Practice.OrdersService.Application;
 public class OrderServiceAdapter : IOrderServiceAdapter
 {
@@ -33,5 +37,10 @@ public class OrderServiceAdapter : IOrderServiceAdapter
             Id = id
         };
         return await _mediator.Send(query, token);
+    }
+
+    public async Task SetOrderStateAsync(long id, OrderStateEnumDomain state, DateTime timeUpdate, CancellationToken token)
+    {
+        await _mediator.Send(new UpdateOrderStateCommand(id, state,timeUpdate), token);
     }
 }

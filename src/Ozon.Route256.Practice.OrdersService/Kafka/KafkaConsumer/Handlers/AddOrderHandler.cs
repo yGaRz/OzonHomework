@@ -1,17 +1,16 @@
 ﻿using Bogus;
 using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.Application.Dto;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder.Handlers;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProduserNewOrder;
+using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;
+using Ozon.Route256.Practice.OrdersService.Kafka.ProduserNewOrder;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
 
 internal sealed class AddOrderHandler : IAddOrderHandler
 {
     private readonly IOrderProducer _producer;
     private readonly ILogger<AddOrderHandler> _logger;
     private readonly IOrderServiceAdapter _orderServiceAdapter;
-
     public AddOrderHandler( IOrderProducer orderProducer, ILogger<AddOrderHandler> logger, IOrderServiceAdapter orderServiceAdapter)
     {
         _orderServiceAdapter = orderServiceAdapter;
@@ -29,15 +28,14 @@ internal sealed class AddOrderHandler : IAddOrderHandler
             //Это необходимо чтобы хоть как то работала логика заказов с покупателями и регионами
             order.CustomerId = order.CustomerId % 10 + 1;
             Faker faker = new Faker();
-            var region = await  _orderServiceAdapter.GetRegion(faker.Random.Int(0, 2),token);
+            var region = await  _orderServiceAdapter.GetRegion(faker.Random.Int(1, 3),token);
             order.Address.Region = region.Name;
 
 
             await _orderServiceAdapter.CreateOrder(order, token);
             if (GetDistance(order.Address.Latitude, order.Address.Longitude, region.Latitude, region.Longitude) < 5000)
             {
-                //TODO: переделать на Long в Kafka
-                //await _producer.ProduceAsync(new[] { order }, token);
+                await _producer.ProduceAsync(new[] { order.Id }, token);
                 _logger.LogInformation($"Заказ {order.Id} отправлен");
             }
             else

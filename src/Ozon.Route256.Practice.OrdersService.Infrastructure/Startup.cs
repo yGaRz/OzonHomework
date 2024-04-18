@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Ozon.Route256.Practice.CustomerGprcFile;
 using Ozon.Route256.Practice.OrdersService.Application;
+using Ozon.Route256.Practice.OrdersService.Application.Commands.CreateOrder;
+using Ozon.Route256.Practice.OrdersService.Application.Commands.UpdateOrderState;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Common;
@@ -43,6 +45,7 @@ public static class Startup
         serviceCollection.AddScoped<IDataReadMapper, DataLayerMapper>();
         serviceCollection.AddScoped<IDataWriteMapper, DataLayerMapper>();
         serviceCollection.AddScoped<IUnitOfCreateOrder, UnitOfCreateOrder>();
+        serviceCollection.AddScoped<IUnitOfUpdateOrder, UnitOfUpdateOrder>();
 
         PostgresMapping.MapCompositeTypes();
         serviceCollection.Configure<DbOptions>(_configuration.GetSection(nameof(DbOptions)));

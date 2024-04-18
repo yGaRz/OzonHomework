@@ -4,8 +4,10 @@ using Ozon.Route256.Practice.LogisticGrpcFile;
 using Ozon.Route256.Practice.OrdersGrpcFile;
 using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.Application.Dto;
+using Ozon.Route256.Practice.OrdersService.Domain;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models.Enums;
 
 namespace Ozon.Route256.Practice.OrdersService.GrpcServices;
@@ -15,25 +17,30 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
     //TODO:Удалить потом репозитории  и все остальное;
     public readonly LogisticsSimulatorService.LogisticsSimulatorServiceClient _logisticsSimulatorServiceClient;
     private readonly IOrderServiceAdapter _orderServiceAdapter;
+    private readonly IGrcpCustomerService _grcpCustomerService;
     public OrdersService( LogisticsSimulatorService.LogisticsSimulatorServiceClient logisticsSimulatorServiceClient,
-        IOrderServiceAdapter orderServiceAdapter)
+        IOrderServiceAdapter orderServiceAdapter,
+        IGrcpCustomerService grcpCustomerService)
     {
         _logisticsSimulatorServiceClient = logisticsSimulatorServiceClient;
         _orderServiceAdapter = orderServiceAdapter;
+        _grcpCustomerService = grcpCustomerService;
     }
 
     //TODO:2
     public override async Task<GetOrderStatusByIdResponse> GetOrderStatusById(GetOrderStatusByIdRequest request, ServerCallContext context)
     {
+        await Task.Delay(1000);
         //var order = await _ordersRepository.GetOrderByIdAsync(request.Id, context.CancellationToken);
         //if (order != null)       
         //    return new GetOrderStatusByIdResponse() { LogisticStatus = (OrderState)order.state };
         //else
-            throw new NotFoundException($"Order by Id = {request.Id} not founded");
+        throw new NotFoundException($"Order by Id = {request.Id} not founded");
     }
     //TODO:3
     public override async Task<CancelOrderByIdResponse> CancelOrder(CancelOrderByIdRequest request, ServerCallContext context)
     {
+        await Task.Delay(1000);
         //var id = request.Id;
         //var order = await _ordersRepository.GetOrderByIdAsync(id);
         //context.CancellationToken.ThrowIfCancellationRequested();
@@ -48,7 +55,7 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
         //        throw new RpcException(new Status(StatusCode.Cancelled, responceLogistic.Error));
         //}
         //else
-            throw new NotFoundException($"Order by Id = {request.Id} not founded");
+        throw new NotFoundException($"Order by Id = {request.Id} not founded");
     }        
     public override async Task<GetRegionResponse> GetRegion(GetRegionRequest request, ServerCallContext context)
     {
@@ -61,11 +68,12 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
     }
     public override async Task<GetOrdersResponse> GetOrders(GetOrdersRequest request, ServerCallContext context)
     {
+        await Task.Delay(1000);
         //if (!await _regionRepository.IsRegionsExistsAsync(request.Region.ToArray(), context.CancellationToken))
         //    throw new RpcException(new Status(StatusCode.NotFound, "Region not found"));
 
         //var regions = await _regionRepository.GetRegionsEntityByNameAsync(request.Region.ToArray());
-        
+
         //var orders = await _ordersRepository.GetOrdersByRegionAsync(regions.Select(x=>x.Name).ToList(), (OrderSourceEnum)request.Source, context.CancellationToken);
 
         var sortParam = request.SortParam;
@@ -102,6 +110,7 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
     }
     public override async Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, ServerCallContext context)
     {
+        await Task.Delay(1000);
         try
         {
  //           CustomerDto customerEntity = await _customersClient.GetCustomer(request.Id, context.CancellationToken);
@@ -137,13 +146,14 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
     }
     public override async Task<GetRegionStatisticResponse> GetRegionStatistic(GetRegionStatisticRequest request, ServerCallContext context)
     {
+        await Task.Delay(1000);
         //if (!await _regionRepository.IsRegionsExistsAsync(request.Region.ToArray(), context.CancellationToken))
         //    throw new RpcException(new Status(StatusCode.NotFound, "Region not found"));
 
         //RegionStatisticDto[]? result = null;
         //var regions = await _regionRepository.GetRegionsEntityByNameAsync(request.Region.ToArray());
         //result = await _ordersRepository.GetRegionsStatisticAsync(regions.Select(x => x.Name).ToList(), request.StartTime.ToDateTime(), context.CancellationToken);
-        
+
         GetRegionStatisticResponse regionStatisticResponse = new GetRegionStatisticResponse();
         //foreach ( var item in result )
         //{
@@ -159,35 +169,36 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
         return regionStatisticResponse;
     }
     
-    //TODO:4
     public override async Task<GetGenerateCustomerResponse> GetGenerateCustomer(GetGenerateCustomerRequest request, ServerCallContext context)
     {
-        //for (int i = 1; i <= request.Count; i++)
-        //{
-        //    Faker faker = new Faker();
-        //    var regionName = await _regionRepository.GetRegionEntityByIdAsync(faker.Random.Int(1, 3),context.CancellationToken);
-        //    AddressDao address = new AddressDao(regionName.Name,
-        //                                            faker.Address.City(),
-        //                                            faker.Address.StreetName(),
-        //                                            faker.Address.BuildingNumber(),
-        //                                            faker.Address.StreetSuffix(),
-        //                                            faker.Address.Latitude(),
-        //                                            faker.Address.Longitude());
-        //    CustomerDto cusromer = new CustomerDto()
-        //    {
-        //        Id = i,
-        //        DefaultAddress = address,
-        //        Email = faker.Person.Email,
-        //        FirstName = faker.Person.FirstName,
-        //        LastName = faker.Person.LastName,
-        //        Phone = faker.Phone.PhoneNumber()
-        //    };
-        //    try
-        //    {
-        //        await _customersClient.CreateCustomer(cusromer);
-        //    }
-        //    catch { }
-        //}
+        for (int i = 1; i <= request.Count; i++)
+        {
+            Faker faker = new Faker();
+            var regionName = await _orderServiceAdapter.GetRegion(faker.Random.Int(1, 3), context.CancellationToken);
+            AddressDal address = new AddressDal(regionName.Name,
+                                                    faker.Address.City(),
+                                                    faker.Address.StreetName(),
+                                                    faker.Address.BuildingNumber(),
+                                                    faker.Address.StreetSuffix(),
+                                                    faker.Address.Latitude(),
+                                                    faker.Address.Longitude());
+            CustomerDal customer = new CustomerDal()
+            {
+                Id = i,
+                FirstName = faker.Person.FirstName,
+                LastName = faker.Person.LastName,
+                Phone = faker.Phone.PhoneNumber(),
+                Addressed = new AddressDal[1],
+                DefaultAddress = address,
+                Email = faker.Person.Email
+            };
+            customer.Addressed[0]=address;
+            try
+            {
+                await _grcpCustomerService.CreateCustomer(customer);
+            }
+            catch { }
+        }
         return new GetGenerateCustomerResponse();
     }
 }

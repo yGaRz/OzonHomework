@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using static Confluent.Kafka.ConfigPropertyNames;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.ProducerNewOrder;
+namespace Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder;
 
 public class KafkaProducerProvider:IKafkaProducer<long,string>
 {
