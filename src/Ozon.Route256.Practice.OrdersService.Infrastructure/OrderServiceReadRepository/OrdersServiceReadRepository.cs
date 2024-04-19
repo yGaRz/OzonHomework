@@ -31,15 +31,20 @@ internal sealed class OrdersServiceReadRepository : IOrdersServiceReadRepository
         return _mapper.RegionsDalToDto(regions);        
     }
 
-    public async Task<OrderDto> GetOrderById(GetOrderByIdQuery request, CancellationToken cancellationToken)
+    public async Task<OrderDto> GetOrderById(GetOrderByIdQuery query, CancellationToken cancellationToken)
     {
-        var order = await _ordersManager.GetOrderByIdAsync(request.Id, cancellationToken);
+        var order = await _ordersManager.GetOrderByIdAsync(query.Id, cancellationToken);
         return _mapper.OrderDalToDto(order);
     }
 
-    public async Task<OrderDto[]> GetOrdersById(GetOrdersByIdQuery request, CancellationToken cancellationToken)
+    public async Task<OrderDto[]> GetOrdersById(GetOrdersByIdQuery query, CancellationToken cancellationToken)
     {
-        var orders = await _ordersManager.GetOrdersByCutomerAsync(request.Id,request.StartTime, cancellationToken);
+        var orders = await _ordersManager.GetOrdersByCutomerAsync(query.Id,query.StartTime, cancellationToken);
         return orders.Select(_mapper.OrderDalToDto).ToArray();
+    }
+
+    public async Task<RegionStatisticDto[]> GetRegionStatistics(GetRegionStatisticQuery query, CancellationToken token)
+    {
+        return await _ordersManager.GetRegionsStatisticAsync(query.Regions, query.StartTime, token);
     }
 }

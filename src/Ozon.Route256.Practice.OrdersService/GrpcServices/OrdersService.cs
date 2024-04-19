@@ -100,30 +100,9 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
         }
         throw new RpcException(new Status(StatusCode.Internal, "Эта строчка не должна быть вызвана."));
     }
-    //TODO:6
     public override async Task<GetRegionStatisticResponse> GetRegionStatistic(GetRegionStatisticRequest request, ServerCallContext context)
     {
-        await Task.Delay(1000);
-        //if (!await _regionRepository.IsRegionsExistsAsync(request.Region.ToArray(), context.CancellationToken))
-        //    throw new RpcException(new Status(StatusCode.NotFound, "Region not found"));
-
-        //RegionStatisticDto[]? result = null;
-        //var regions = await _regionRepository.GetRegionsEntityByNameAsync(request.Region.ToArray());
-        //result = await _ordersRepository.GetRegionsStatisticAsync(regions.Select(x => x.Name).ToList(), request.StartTime.ToDateTime(), context.CancellationToken);
-
-        GetRegionStatisticResponse regionStatisticResponse = new GetRegionStatisticResponse();
-        //foreach ( var item in result )
-        //{
-        //    regionStatisticResponse.Statistic.Add(new RegionStatisticMessage()
-        //    {
-        //        Region = item.RegionName,                    
-        //        CountCustomers = (int)item.TotalCustomers,
-        //        TotalCountOrders= (int)item.TotalCountOrders,
-        //        TotalSumOrders= (int)item.TotalSumOrders,
-        //        TotalWightOrders= item.TotalWigthOrders
-        //    });
-        //}
-        return regionStatisticResponse;
+        return await _orderServiceAdapter.GetRegionStatistic(request, context.CancellationToken);
     }
 
     //Чтобы можно было сгенерировать пользователей, по факту костыль для тестов.

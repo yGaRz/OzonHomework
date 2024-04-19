@@ -9,4 +9,5 @@ public interface IOrdersServiceReadRepository
     Task<OrderDto[]> GetOrdersById(GetOrdersByIdQuery request, CancellationToken cancellationToken);
     Task<RegionDto> GetRegionById(GetRegionByIdQuery request, CancellationToken cancellationToken);
     Task<List<RegionDto>> GetRegions(GetRegionsQuery query, CancellationToken token);
+    Task<RegionStatisticDto[]> GetRegionStatistics(GetRegionStatisticQuery query, CancellationToken token);
 }

@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ozon.Route256.Practice.OrdersService.Domain;
-//TODO: Агрегат для получения списков заказов по клиенту
 public sealed class OrdersByCustomerAggregate
 {
     private OrdersByCustomerAggregate(Customer customer, IEnumerable<Order> orders, Address address)
