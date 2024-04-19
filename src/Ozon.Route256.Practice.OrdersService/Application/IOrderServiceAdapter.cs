@@ -17,4 +17,5 @@ public interface IOrderServiceAdapter
     Task<CancelOrderByIdResponse> CancelOrder(CancelOrderByIdRequest request, CancellationToken token);
     Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, CancellationToken token);
     Task<GetRegionStatisticResponse> GetRegionStatistic(GetRegionStatisticRequest request, CancellationToken token);
+    Task<GetOrdersResponse> GetOrders(GetOrdersRequest request, CancellationToken token);
 }

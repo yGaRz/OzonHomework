@@ -8,7 +8,5 @@ public class GetOrdersByIdQuery : IRequest<OrdersByCustomerAggregate>
 {
     public int Id { get; init; }
     public DateTime StartTime {  get; init; }
-    public int PageIndex {  get; init; }
-    public int PageSize { get; init; }
 }
 

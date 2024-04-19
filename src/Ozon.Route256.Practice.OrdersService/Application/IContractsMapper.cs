@@ -8,5 +8,5 @@ public interface IContractsMapper
     string ToContractRegion(RegionDto region);
     Address ToContractAddress(Domain.Address address);
     Order ToContractOrder(Domain.Order order);
-
+    Order ToContractOrderDto(OrderDto order);
 }

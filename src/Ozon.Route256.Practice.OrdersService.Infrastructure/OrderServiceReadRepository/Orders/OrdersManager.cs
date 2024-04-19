@@ -42,8 +42,7 @@ internal class OrdersManager : IOrdersManager
     {
         var regionsId = await _regionDatabase.GetRegionsEntityByNameAsync(regionList.ToArray(), token);
         var orders = await _ordersRepository.GetOrdersByRegion(regionsId.Select(x => x.Id).ToArray(), source, token);
-        List<OrderDal> result = new List<OrderDal>();
-        return result.ToArray();
+        return orders.ToArray();
     }
     public async Task<RegionStatisticDto[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default)
     {
