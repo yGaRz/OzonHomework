@@ -3,6 +3,7 @@ using Ozon.Route256.Practice.OrdersService.Application.Dto;
 using Ozon.Route256.Practice.OrdersService.Application.Queries.GetOrdersQuery;
 using Ozon.Route256.Practice.OrdersService.Application.Queries.GetRegionsQuery;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Mappers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Models.Enums;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.Orders;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.RegionManager;
 
@@ -46,5 +47,11 @@ internal sealed class OrdersServiceReadRepository : IOrdersServiceReadRepository
     public async Task<RegionStatisticDto[]> GetRegionStatistics(GetRegionStatisticQuery query, CancellationToken token)
     {
         return await _ordersManager.GetRegionsStatisticAsync(query.Regions, query.StartTime, token);
+    }
+
+    public async Task<OrderDto[]> GetOrders(GetOrdersQuery query, CancellationToken token)
+    {
+        var orders = await _ordersManager.GetOrdersByRegionAsync(query.Regions, (OrderSourceEnum)query.Source, token);
+        return orders.Select(_mapper.OrderDalToDto).ToArray();
     }
 }

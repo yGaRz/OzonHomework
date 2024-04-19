@@ -9,6 +9,8 @@ using Ozon.Route256.Practice.OrdersService.Application.Queries.GetRegionsQuery;
 using Ozon.Route256.Practice.OrdersService.Domain.Enums;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.Orders;
+using System.Reflection;
 using static Ozon.Route256.Practice.LogisticGrpcFile.LogisticsSimulatorService;
 
 namespace Ozon.Route256.Practice.OrdersService.Application;
@@ -86,8 +88,6 @@ public class OrderServiceAdapter : IOrderServiceAdapter
         {
             Id = request.Id,
             StartTime = request.StartTime.ToDateTime(),
-            PageIndex = request.PageIndex,
-            PageSize = request.PageSize
         };
         var ordersByCustomer = await _mediator.Send(query, token);
         GetOrdersByCustomerIDResponse responce = new GetOrdersByCustomerIDResponse
@@ -132,5 +132,48 @@ public class OrderServiceAdapter : IOrderServiceAdapter
             });
         }
         return regionStatisticResponse;
+    }
+    public async Task<GetOrdersResponse> GetOrders(GetOrdersRequest request, CancellationToken token)
+    {
+        var regions = await _mediator.Send(new GetRegionsQuery(), token);
+        if (request.Region.Count != 0 && !request.Region.All(x => regions.Select(r => r.Name).Contains(x)))
+            throw new RpcException(new Status(StatusCode.NotFound, "Region not found"));
+
+        var query = new GetOrdersQuery()
+        {
+            Source = (OrderSourceEnumDomain)request.Source
+        };
+        query.Regions.AddRange(request.Region);
+        var orders = await _mediator.Send(query, token);
+
+        var sortParam = request.SortParam;
+        var sortField = request.SortField;
+        GetOrdersResponse responce = new GetOrdersResponse();
+        List<OrderDto> result;
+        if (sortField != "" && sortParam != SortParam.None && orders.Length != 0)
+        {
+            Type type = orders[0].GetType();
+            PropertyInfo? property = type.GetProperty(sortField);
+            if (property != null)
+            {
+                if (sortParam == SortParam.Asc)
+                    result = ReflectionSortHelper.DynamicSort1(orders.ToList(), sortField, "asc");
+                else
+                    result = ReflectionSortHelper.DynamicSort1(orders.ToList(), sortField, "desc");
+            }
+            else
+                throw new RpcException(new Status(StatusCode.Cancelled, $"Sorted field ={sortField} not found"));
+        }
+        else
+            result = orders.ToList();
+        int page = request.PageIndex - 1;
+        int count = request.PageSize;
+        if (result.Count > (page + 1) * count)
+            responce.Orders.Add(result.GetRange(page * count, count).Select(_mapper.ToContractOrderDto));
+        else
+            if (result.Count - page * count > 0)
+            responce.Orders.Add(result.GetRange(page * count, result.Count - page * count).Select(_mapper.ToContractOrderDto));
+
+        return responce;
     }
 }

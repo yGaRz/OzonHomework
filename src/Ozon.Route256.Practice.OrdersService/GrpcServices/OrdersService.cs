@@ -15,6 +15,7 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices;
 public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.OrdersBase
 {
     private readonly IOrderServiceAdapter _orderServiceAdapter;
+    //GrcpCustomerService изолирован от Хоста, и тут используется и вызывается только для генерации customer в сервисе
     private readonly IGrcpCustomerService _grcpCustomerService;
     public OrdersService( IOrderServiceAdapter orderServiceAdapter,
         IGrcpCustomerService grcpCustomerService)
@@ -40,48 +41,9 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
         };
         return result;
     }
-    //TODO:4
     public override async Task<GetOrdersResponse> GetOrders(GetOrdersRequest request, ServerCallContext context)
     {
-        await Task.Delay(1000);
-        //if (!await _regionRepository.IsRegionsExistsAsync(request.Region.ToArray(), context.CancellationToken))
-        //    throw new RpcException(new Status(StatusCode.NotFound, "Region not found"));
-
-        //var regions = await _regionRepository.GetRegionsEntityByNameAsync(request.Region.ToArray());
-
-        //var orders = await _ordersRepository.GetOrdersByRegionAsync(regions.Select(x=>x.Name).ToList(), (OrderSourceEnum)request.Source, context.CancellationToken);
-
-        var sortParam = request.SortParam;
-        var sortField = request.SortField;
-        GetOrdersResponse responce = new GetOrdersResponse();
-        //List<OrderDao> result;
-        //if (sortField != "" && sortParam != SortParam.None && orders.Length != 0)
-        //{
-        //    //Type type = orders[0].GetType();
-        //    //PropertyInfo? property = type.GetProperty(sortField);
-        //    //if (property != null)
-        //    //{
-        //    //    if (sortParam == SortParam.Asc)
-        //    //        result = ReflectionSortHelper.DynamicSort1(orders.ToList(), sortField, "asc");
-        //    //    else
-        //    //        result = ReflectionSortHelper.DynamicSort1(orders.ToList(), sortField, "desc");
-        //    //}
-        //    //else
-        //    //    throw new RpcException(new Status(StatusCode.Cancelled, $"Sorted field ={sortField} not found"));
-        //}
-        //else
-        //    result = orders.ToList();
-
-        //int page = request.PageIndex-1;
-        //int count = request.PageSize;
-        //if (result.Count > (page + 1) * count)
-        //    responce.Orders.Add(result.GetRange(page * count, count).Select(OrderDao.ConvertToOrderGrpc));
-        //else
-        //    if(result.Count - page * count>0)
-        //        responce.Orders.Add(result.GetRange(page * count, result.Count - page * count).Select(OrderDao.ConvertToOrderGrpc));
-
-        return responce;
-
+        return await _orderServiceAdapter.GetOrders(request, context.CancellationToken);
     }
     public override async Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, ServerCallContext context)
     {

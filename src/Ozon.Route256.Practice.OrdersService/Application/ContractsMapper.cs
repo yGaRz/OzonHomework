@@ -7,11 +7,11 @@ namespace Ozon.Route256.Practice.OrdersService.Application;
 
 public class ContractsMapper : IContractsMapper
 {
-    public string ToContractRegion(RegionDto region) => region.Name;
+    public string ToContractRegion(RegionDto region) 
+        => region.Name;
+
     public Address ToContractAddress(Domain.Address address)
-    {
-        return new Address()
-        {
+        => new Address() {
             Street = address.Street,
             City = address.City,
             Apartment = address.Apartment,
@@ -20,12 +20,9 @@ public class ContractsMapper : IContractsMapper
             Latitude = address.Coordinates.Latitude,
             Longitude = address.Coordinates.Longitude
         };
-    }
-
+    
     public Order ToContractOrder(Domain.Order order)
-    {
-        return new Order()
-        {
+        => new Order() {
             Id = order.Id,
             CountGoods = order.CountGoods,
             DateCreate = order.TimeCreate.ToUniversalTime().ToTimestamp(),
@@ -34,5 +31,16 @@ public class ContractsMapper : IContractsMapper
             TotalSum = order.TotalPrice,
             TotalWeight = order.TotalWeigth
         };
-    }
+
+    public Order ToContractOrderDto(OrderDto order)
+        => new Order()
+        {
+            Id=order.id,
+            CountGoods=order.countGoods,
+            DateCreate=order.timeCreate.ToUniversalTime().ToTimestamp(),
+            OrderSource=(OrderSource)order.source,
+            OrderState=(OrderState)order.state,
+            TotalSum=order.totalPrice,
+            TotalWeight=order.totalWeigth
+        };
 }
