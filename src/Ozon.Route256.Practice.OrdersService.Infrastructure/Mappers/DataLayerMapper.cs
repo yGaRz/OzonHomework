@@ -28,7 +28,6 @@ internal class DataLayerMapper : IDataReadMapper, IDataWriteMapper
             order.TotalPrice,
             order.AddressOrder.ToString());
     }
-
     public OrderDto OrderDalToDto(OrderDal order)
     {
         return new OrderDto(order.id,
@@ -42,5 +41,23 @@ internal class DataLayerMapper : IDataReadMapper, IDataWriteMapper
             order.totalWeigth,
             order.totalPrice,
             order.addressJson);
+    }
+
+    public CustomerDto CustomerDalToDto(CustomerDal customer)
+    {
+        return new CustomerDto()
+        {
+            Id = customer.Id,
+            Email = customer.Email,
+            FirstName = customer.FirstName,
+            LastName = customer.LastName,
+            Phone = customer.Phone,
+            DefaultAddress = AddressDalToDto(customer.DefaultAddress),
+            Addressed = customer.Addressed.Select(AddressDalToDto).ToArray()
+        };
+    }
+    public AddressDto AddressDalToDto(AddressDal address)
+    {
+        return new AddressDto(address.Region, address.City, address.Street, address.Building, address.Apartment, address.Latitude, address.Longitude);
     }
 }

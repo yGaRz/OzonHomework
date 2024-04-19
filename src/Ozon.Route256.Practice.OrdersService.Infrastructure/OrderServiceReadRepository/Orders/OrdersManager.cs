@@ -38,9 +38,7 @@ internal class OrdersManager : IOrdersManager
 
     public async Task<OrderDal[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default)
     {
-        var orders = await _ordersRepository.GetOrdersByCustomerId(idCustomer, dateStart, token);
-        List<OrderDal> result = new List<OrderDal>();
-        return result.ToArray();
+        return await _ordersRepository.GetOrdersByCustomerId(idCustomer, dateStart, token);
     }
 
     public async Task<OrderDal[]> GetOrdersByRegionAsync(List<string> regionList, OrderSourceEnum source, CancellationToken token = default)
@@ -51,16 +49,15 @@ internal class OrdersManager : IOrdersManager
         return result.ToArray();
     }
 
-    public async Task<RegionStatisticDal[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default)
+    public async Task<RegionStatisticDto[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default)
     {
-        await Task.Delay(1000);
-        throw new NotImplementedException();
-        //List<RegionStatisticDal> regions = new List<RegionStatisticDal>();
-        //var regionsId = await _regionDatabase.GetRegionsEntityByNameAsync(regionList.ToArray(), token);
-        //var regionsStatistic = await _ordersRepository.GetRegionStatistic(regionsId.Select(x => x.Id).ToArray(), dateStart, token);
-        //foreach (var rs in regionsStatistic)
-        //    regions.Add(await FromStatisticDalAsync(rs));
-        //return regions.ToArray();
+
+        var regionsId = await _regionDatabase.GetRegionsEntityByNameAsync(regionList.ToArray(), token);
+        var regionsStatistic = await _ordersRepository.GetRegionStatistic(regionsId.Select(x => x.Id).ToArray(), dateStart, token);
+        List<RegionStatisticDto> regions = new List<RegionStatisticDto>();
+        foreach (var rs in regionsStatistic)
+            regions.Add(await FromStatisticDalAsync(rs));
+        return regions.ToArray();
     }
     public async Task<bool> SetOrderStateAsync(long id, OrderStateEnum state, DateTime timeUpdate, CancellationToken token = default)
     {

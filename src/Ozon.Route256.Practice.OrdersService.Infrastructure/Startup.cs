@@ -16,6 +16,8 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadReposi
 using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.Orders.Repository;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.RegionManager;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.RegionManager.Repository;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.RedisCacheCustomers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.RedisCacheCustomers.Redis;
 using Ozon.Route256.Practice.SdServiceGrpcFile;
 using StackExchange.Redis;
 
@@ -38,6 +40,7 @@ public static class Startup
         });
 
         serviceCollection.AddScoped<IOrdersServiceReadRepository, OrdersServiceReadRepository>();
+        serviceCollection.AddScoped<ICustomerRepositoryAdapter, CustomerServiceAdapter>();
         serviceCollection.AddScoped<IOrdersManager, OrdersManager>();
         serviceCollection.AddScoped<IOrdersRepository, OrdersShardRepositoryPg>();
         serviceCollection.AddScoped<IRegionRepository, RegionShardRepositoryPg>();
@@ -46,7 +49,6 @@ public static class Startup
         serviceCollection.AddScoped<IDataWriteMapper, DataLayerMapper>();
         serviceCollection.AddScoped<IUnitOfCreateOrder, UnitOfCreateOrder>();
         serviceCollection.AddScoped<IUnitOfUpdateOrder, UnitOfUpdateOrder>();
-
         PostgresMapping.MapCompositeTypes();
         serviceCollection.Configure<DbOptions>(_configuration.GetSection(nameof(DbOptions)));
         serviceCollection.AddSingleton<IShardPostgresConnectionFactory, ShardConnectionFactory>();

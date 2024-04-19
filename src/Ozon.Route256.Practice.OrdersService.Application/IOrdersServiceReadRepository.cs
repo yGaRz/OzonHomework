@@ -6,6 +6,7 @@ namespace Ozon.Route256.Practice.OrdersService.Application;
 public interface IOrdersServiceReadRepository
 {
     Task<OrderDto> GetOrderById(GetOrderByIdQuery request, CancellationToken cancellationToken);
+    Task<OrderDto[]> GetOrdersById(GetOrdersByIdQuery request, CancellationToken cancellationToken);
     Task<RegionDto> GetRegionById(GetRegionByIdQuery request, CancellationToken cancellationToken);
     Task<List<RegionDto>> GetRegions(GetRegionsQuery query, CancellationToken token);
 }

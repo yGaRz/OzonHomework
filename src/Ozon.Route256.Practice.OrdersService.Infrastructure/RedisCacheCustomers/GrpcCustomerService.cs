@@ -1,13 +1,16 @@
 ﻿using Grpc.Core;
 using Ozon.Route256.Practice.CustomerGprcFile;
+using Ozon.Route256.Practice.OrdersService.Application;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Mappers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.RedisCacheCustomers.Redis;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 //Чтобы можно было сгенерировать пользователей, по факту костыль для тестов.
-public class GrpcCustomerService : IGrcpCustomerService
+internal class GrpcCustomerService : IGrcpCustomerService
 {
-    public readonly Customers.CustomersClient _customersClient;
-    public readonly ICacheCustomers _customerCache;
+    private readonly Customers.CustomersClient _customersClient;
+    private readonly ICacheCustomers _customerCache;
     public GrpcCustomerService(Customers.CustomersClient customersClient,
                                     ICacheCustomers customerCache)
     { 
@@ -17,8 +20,8 @@ public class GrpcCustomerService : IGrcpCustomerService
 
     public async Task<CustomerDal> GetCustomer(int customerId, CancellationToken cancellationToken)
     {
-        CustomerDal? customerEntity = await _customerCache.Find(customerId, cancellationToken);
-        if (customerEntity == null)
+        CustomerDal? customer = await _customerCache.Find(customerId, cancellationToken);
+        if (customer == null)
         {
             GetCustomerByIdResponse respCustomer = new GetCustomerByIdResponse();
             try
@@ -29,10 +32,10 @@ public class GrpcCustomerService : IGrcpCustomerService
             {
                 throw new RpcException(new Status(StatusCode.InvalidArgument, $"Клиент с id={customerId} не найден"));
             }
-            customerEntity = CustomerDal.ConvertFromCustomerGrpc(respCustomer.Customer);
-            await _customerCache.Insert(customerEntity, cancellationToken);
+            customer = CustomerDal.ConvertFromCustomerGrpc(respCustomer.Customer);
+            await _customerCache.Insert(customer, cancellationToken);
         }
-        return customerEntity;
+        return customer;
     }
 
     public async Task CreateCustomer(CustomerDal customer, CancellationToken cancellationToken = default)

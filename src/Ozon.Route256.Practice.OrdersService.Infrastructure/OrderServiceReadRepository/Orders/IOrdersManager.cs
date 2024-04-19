@@ -1,4 +1,5 @@
 ﻿
+using Ozon.Route256.Practice.OrdersService.Application.Dto;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models.Enums;
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.Orders;
@@ -12,6 +13,6 @@ internal interface IOrdersManager
                                                         OrderSourceEnum source,
                                                         CancellationToken token = default);
     Task<OrderDal[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default);
-    Task<RegionStatisticDal[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default);
+    Task<RegionStatisticDto[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default);
 }
 

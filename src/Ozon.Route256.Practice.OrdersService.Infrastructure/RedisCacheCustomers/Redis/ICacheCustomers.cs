@@ -1,6 +1,6 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+namespace Ozon.Route256.Practice.OrdersService.Infrastructure.RedisCacheCustomers.Redis;
 public interface ICacheCustomers
 {
     Task<CustomerDal?> Find(int id, CancellationToken cancellationToken);

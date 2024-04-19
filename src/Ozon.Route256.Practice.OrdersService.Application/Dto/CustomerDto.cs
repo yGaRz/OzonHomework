@@ -1,6 +1,4 @@
-﻿using Ozon.Route256.Practice.OrdersService.Application.Dto;
-
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
+﻿namespace Ozon.Route256.Practice.OrdersService.Application.Dto;
 //Чтобы можно было сгенерировать пользователей, по факту костыль для тестов.
 public record CustomerDto
 {
