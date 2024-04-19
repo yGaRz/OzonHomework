@@ -42,7 +42,6 @@ internal class DataLayerMapper : IDataReadMapper, IDataWriteMapper
             order.totalPrice,
             order.addressJson);
     }
-
     public CustomerDto CustomerDalToDto(CustomerDal customer)
     {
         return new CustomerDto()
@@ -60,4 +59,14 @@ internal class DataLayerMapper : IDataReadMapper, IDataWriteMapper
     {
         return new AddressDto(address.Region, address.City, address.Street, address.Building, address.Apartment, address.Latitude, address.Longitude);
     }
+
+    //public RegionStatisticDto RegionStatisticDalToDto(RegionStatisticDal statisticDal)
+    //{
+    //    return new RegionStatisticDto(
+    //        statisticDal.regionId,
+    //        statisticDal.TotalCountOrders,
+    //        statisticDal.TotalSumOrders,
+    //        statisticDal.TotalWigthOrders,
+    //        statisticDal.TotalCustomers);
+    //}
 }

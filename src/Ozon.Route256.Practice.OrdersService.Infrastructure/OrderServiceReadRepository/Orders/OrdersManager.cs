@@ -26,7 +26,6 @@ internal class OrdersManager : IOrdersManager
         var region = await _regionDatabase.GetRegionEntityByIdAsync(order.regionId, token);
         await _ordersRepository.Create(order, token);
     }
-
     public async Task<OrderDal> GetOrderByIdAsync(long id, CancellationToken token = default)
     {
         var order = await _ordersRepository.GetOrderByID(id, token);
@@ -35,12 +34,10 @@ internal class OrdersManager : IOrdersManager
         else
             throw new NotFoundException($"Заказ с номером {id} не найден");
     }
-
     public async Task<OrderDal[]> GetOrdersByCutomerAsync(long idCustomer, DateTime dateStart, CancellationToken token = default)
     {
         return await _ordersRepository.GetOrdersByCustomerId(idCustomer, dateStart, token);
     }
-
     public async Task<OrderDal[]> GetOrdersByRegionAsync(List<string> regionList, OrderSourceEnum source, CancellationToken token = default)
     {
         var regionsId = await _regionDatabase.GetRegionsEntityByNameAsync(regionList.ToArray(), token);
@@ -48,7 +45,6 @@ internal class OrdersManager : IOrdersManager
         List<OrderDal> result = new List<OrderDal>();
         return result.ToArray();
     }
-
     public async Task<RegionStatisticDto[]> GetRegionsStatisticAsync(List<string> regionList, DateTime dateStart, CancellationToken token = default)
     {
 
@@ -79,4 +75,5 @@ internal class OrdersManager : IOrdersManager
             regionStatisticDal.TotalSumOrders,
             regionStatisticDal.TotalWigthOrders,
             regionStatisticDal.TotalCustomers);
+
 }
