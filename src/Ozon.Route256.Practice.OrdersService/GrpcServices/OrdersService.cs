@@ -14,7 +14,6 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices;
 
 public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.OrdersBase
 {
-    //TODO:Удалить потом репозитории  и все остальное;
     private readonly IOrderServiceAdapter _orderServiceAdapter;
     private readonly IGrcpCustomerService _grcpCustomerService;
     public OrdersService( IOrderServiceAdapter orderServiceAdapter,
@@ -84,31 +83,11 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
         return responce;
 
     }
-    //TODO:5
     public override async Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, ServerCallContext context)
     {
-        await Task.Delay(1000);
         try
         {
- //           CustomerDto customerEntity = await _customersClient.GetCustomer(request.Id, context.CancellationToken);
-
-            //var orders = await _ordersRepository.GetOrdersByCutomerAsync(request.Id, request.StartTime.ToDateTime());
-            GetOrdersByCustomerIDResponse responce = new GetOrdersByCustomerIDResponse
-            {
-                //NameCustomer = $"{customerEntity.FirstName} {customerEntity.LastName}",
-                //PhoneNumber = customerEntity.Phone,
-                //Region = customerEntity.DefaultAddress.Region,
-                //AddressCustomer = AddressDao.ConvertToAddressGrpc(customerEntity.DefaultAddress)
-            };
-            //int page = request.PageIndex - 1;
-            //int count = request.PageSize;
-            //var result = orders.ToList();
-            //if (result.Count > (page + 1) * count)
-            //    responce.Orders.Add(result.GetRange(page * count, count).Select(OrderDao.ConvertToOrderGrpc));
-            //else
-            //    if (result.Count - page * count > 0)
-            //    responce.Orders.Add(result.GetRange(page * count, result.Count - page * count).Select(OrderDao.ConvertToOrderGrpc));
-            return responce;
+            return await _orderServiceAdapter.GetOrdersByCustomerID(request, context.CancellationToken);
         }
         catch (RpcException ex)
         {

@@ -4,6 +4,7 @@ namespace Ozon.Route256.Practice.OrdersService.Domain;
 
 public sealed class Coordinates : ValueObject
 {
+    public Coordinates() { }
     private Coordinates(double latitude, double longitude)
     {
         Latitude = latitude;
@@ -19,9 +20,9 @@ public sealed class Coordinates : ValueObject
         return new Coordinates(latitude, longitude);
     }
 
-    public double Latitude { get; }
+    public double Latitude { get; init; }
 
-    public double Longitude { get; }
+    public double Longitude { get; init; }
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

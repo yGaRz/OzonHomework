@@ -2,6 +2,7 @@
 using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.GrpcServices;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
 using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder;
 using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;

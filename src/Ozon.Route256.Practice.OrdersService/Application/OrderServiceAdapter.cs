@@ -9,6 +9,8 @@ using Ozon.Route256.Practice.OrdersService.Application.Queries.GetOrdersQuery;
 using Ozon.Route256.Practice.OrdersService.Application.Queries.GetRegionsQuery;
 using Ozon.Route256.Practice.OrdersService.Domain.Enums;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models.Enums;
 using static Ozon.Route256.Practice.LogisticGrpcFile.LogisticsSimulatorService;
 
@@ -18,7 +20,11 @@ public class OrderServiceAdapter : IOrderServiceAdapter
     private readonly IMediator _mediator;
     private readonly IContractsMapper _mapper;
     private readonly LogisticsSimulatorServiceClient _logisticsSimulatorServiceClient;
-    public OrderServiceAdapter(IMediator mediator, IContractsMapper contractsMapper, LogisticsSimulatorServiceClient logisticsSimulatorServiceClient)
+
+    public OrderServiceAdapter(IMediator mediator, 
+        IContractsMapper contractsMapper, 
+        LogisticsSimulatorServiceClient logisticsSimulatorServiceClient,
+        IGrcpCustomerService customerRepository)
     {
         _mediator = mediator;
         _mapper = contractsMapper;
@@ -57,7 +63,6 @@ public class OrderServiceAdapter : IOrderServiceAdapter
         else
             throw new NotFoundException($"Order by Id = {request.Id} not founded");
     }
-
     public async Task<CancelOrderByIdResponse> CancelOrder(CancelOrderByIdRequest request, CancellationToken token)
     {
         var query = new GetOrderByIdQuery()
@@ -78,5 +83,32 @@ public class OrderServiceAdapter : IOrderServiceAdapter
         }
         else
             throw new NotFoundException($"Order by Id = {request.Id} not founded");
+    }
+    public async Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, CancellationToken token)
+    {
+        var query = new GetOrdersByIdQuery()
+        {
+            Id = request.Id,
+            StartTime = request.StartTime.ToDateTime(),
+            PageIndex = request.PageIndex,
+            PageSize = request.PageSize
+        };
+        var ordersByCustomer = await _mediator.Send(query, token);
+        GetOrdersByCustomerIDResponse responce = new GetOrdersByCustomerIDResponse
+        {
+            NameCustomer = ordersByCustomer.CustomerFullName,
+            PhoneNumber = ordersByCustomer.CustomerPhone,
+            Region = ordersByCustomer.Region,
+            AddressCustomer = _mapper.ToContractAddress(ordersByCustomer.Address)
+        };
+        int page = request.PageIndex - 1;
+        int count = request.PageSize;
+        var result = ordersByCustomer.Orders.ToList();
+        if (result.Count > (page + 1) * count)
+            responce.Orders.Add(result.GetRange(page * count, count).Select(_mapper.ToContractOrder));
+        else
+            if (result.Count - page * count > 0)
+            responce.Orders.Add(result.GetRange(page * count, result.Count - page * count).Select(_mapper.ToContractOrder));
+        return responce;
     }
 }

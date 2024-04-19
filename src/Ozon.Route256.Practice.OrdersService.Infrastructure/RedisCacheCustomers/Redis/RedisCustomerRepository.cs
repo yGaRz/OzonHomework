@@ -1,10 +1,11 @@
-﻿using Ozon.Route256.Practice.OrdersService.Exceptions;
+﻿using Ozon.Route256.Practice.OrdersService.Application;
+using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
+namespace Ozon.Route256.Practice.OrdersService.Infrastructure.RedisCacheCustomers.Redis;
 internal class RedisCustomerRepository : ICacheCustomers
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
@@ -49,7 +50,7 @@ internal class RedisCustomerRepository : ICacheCustomers
     {
         if (cancellationToken.IsCancellationRequested)
             return false;
-        
+
         var key = BuildCustomerKey(id);
         var contains = await _database.KeyExistsAsync(key);
         return contains;

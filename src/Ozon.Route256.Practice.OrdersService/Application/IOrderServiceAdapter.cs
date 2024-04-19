@@ -15,4 +15,5 @@ public interface IOrderServiceAdapter
     Task SetOrderStateAsync(long id,OrderStateEnumDomain state,DateTime timeUpdate, CancellationToken token);
     Task<GetOrderStatusByIdResponse> GetOrderByIdAsync(GetOrderStatusByIdRequest request, CancellationToken token);
     Task<CancelOrderByIdResponse> CancelOrder(CancelOrderByIdRequest request, CancellationToken token);
+    Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, CancellationToken token);
 }

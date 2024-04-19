@@ -1,6 +1,5 @@
 ﻿using Confluent.Kafka;
 using Ozon.Route256.Practice.OrdersService.Domain.Enums;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Models.Enums;
 using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;
 using System.Text.Json;
 

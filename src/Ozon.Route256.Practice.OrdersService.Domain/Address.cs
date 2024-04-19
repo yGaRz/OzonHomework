@@ -5,6 +5,7 @@ namespace Ozon.Route256.Practice.OrdersService.Domain;
 
 public sealed class Address : ValueObject
 {
+    public Address() { }
     private Address(string region, string city, string street, string building, string apartment, Coordinates coordinates)
     {
         Region = region;
@@ -20,17 +21,22 @@ public sealed class Address : ValueObject
         return new Address(region, city, street, building, apartment, coordinates);
     }
 
+    public static Address? CreateInstance(string json)
+    {
+        return JsonSerializer.Deserialize<Address>(json);
+    }
+
     public override string ToString()
     {
         return JsonSerializer.Serialize(this);
     }
 
-    public string Region { get; }
-    public string City { get; }
-    public string Street { get; }
-    public string Building { get; }
-    public string Apartment { get; }
-    public Coordinates Coordinates { get; }
+    public string Region { get; init; }
+    public string City { get; init; }
+    public string Street { get; init; }
+    public string Building { get; init; }
+    public string Apartment { get; init; }
+    public Coordinates Coordinates { get; init; }
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

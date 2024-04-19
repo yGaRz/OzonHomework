@@ -30,4 +30,27 @@ internal class DataMapper : ICommandMapper
         List<Product> result = products.Select(x=>Product.CreateInstance(x.Id,x.Name,x.Quantity,x.Price,x.Weight)).ToList();
         return result;
     }
+
+    public Order OrderToDomain(OrderDto orderDto)
+    {
+        try
+        {
+            var address = Address.CreateInstance(orderDto.addressJson);
+            return Order.CreateInstace(orderDto.id,
+                orderDto.customer_id,
+                orderDto.source,
+                address,
+                orderDto.state,
+                orderDto.timeCreate,
+                orderDto.timeUpdate,
+                address.Region,
+                orderDto.countGoods,
+                orderDto.totalPrice,
+                orderDto.totalWeigth);
+        }
+        catch
+        {
+            throw new DomainException($"Ошибка при десериализации заказа {orderDto.id}");
+        }
+    }
 }

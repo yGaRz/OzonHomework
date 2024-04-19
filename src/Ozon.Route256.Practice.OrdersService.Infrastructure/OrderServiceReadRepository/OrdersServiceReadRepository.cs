@@ -37,5 +37,9 @@ internal sealed class OrdersServiceReadRepository : IOrdersServiceReadRepository
         return _mapper.OrderDalToDto(order);
     }
 
-
+    public async Task<OrderDto[]> GetOrdersById(GetOrdersByIdQuery request, CancellationToken cancellationToken)
+    {
+        var orders = await _ordersManager.GetOrdersByCutomerAsync(request.Id,request.StartTime, cancellationToken);
+        return orders.Select(_mapper.OrderDalToDto).ToArray();
+    }
 }
