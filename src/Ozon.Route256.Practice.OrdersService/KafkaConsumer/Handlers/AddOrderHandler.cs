@@ -2,20 +2,19 @@
 using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.Application.Dto;
 using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;
-using Ozon.Route256.Practice.OrdersService.Kafka.ProduserNewOrder;
 
 namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
 
 internal sealed class AddOrderHandler : IAddOrderHandler
 {
-    private readonly IOrderProducer _producer;
     private readonly ILogger<AddOrderHandler> _logger;
     private readonly IOrderServiceAdapter _orderServiceAdapter;
-    public AddOrderHandler( IOrderProducer orderProducer, ILogger<AddOrderHandler> logger, IOrderServiceAdapter orderServiceAdapter)
+    private readonly IKafkaAdapter _kafkaAdapter;
+    public AddOrderHandler(ILogger<AddOrderHandler> logger, IOrderServiceAdapter orderServiceAdapter, IKafkaAdapter kafkaAdapter)
     {
         _orderServiceAdapter = orderServiceAdapter;
-        _producer = orderProducer;
         _logger = logger;
+        _kafkaAdapter = kafkaAdapter;
     }
     public async Task<bool> Handle(long id, string message, DateTime timeCreate, CancellationToken token)
     {
@@ -36,7 +35,8 @@ internal sealed class AddOrderHandler : IAddOrderHandler
             await _orderServiceAdapter.CreateOrder(order, token);
             if (GetDistance(order.Address.Latitude, order.Address.Longitude, region.Latitude, region.Longitude) < 5000)
             {
-                await _producer.ProduceAsync(new[] { order.Id }, token);
+                //await _producer.ProduceAsync(new[] { order.Id }, token);
+                await _kafkaAdapter.ProduceAsync(new[] { order.Id }, token);
                 _logger.LogInformation($"Заказ {order.Id} отправлен");
             }
             else

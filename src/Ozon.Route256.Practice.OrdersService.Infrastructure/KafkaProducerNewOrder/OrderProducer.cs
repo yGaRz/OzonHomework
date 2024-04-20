@@ -1,11 +1,12 @@
 ﻿using Confluent.Kafka;
-using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder;
+using Ozon.Route256.Practice.OrdersService.Application;
+using Ozon.Route256.Practice.OrdersService.Application.Commands.KafkaQuery;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Ozon.Route256.Practice.OrdersService.Kafka.ProduserNewOrder;
+namespace Ozon.Route256.Practice.OrdersService.Infrastructure.ProducerNewOrder;
 
-internal class OrderProducer : IOrderProducer
+internal class OrderProducer : IOrderProducer, IKafkaProduceAdapter
 {
     private const string TOPIC_NAME = "new_orders";
     private readonly IKafkaProducer<long, string> _kafkaDataProvider;
@@ -48,5 +49,10 @@ internal class OrderProducer : IOrderProducer
         }
 
         await Task.WhenAll(tasks);
+    }
+
+    public async Task ProduceAsync(KafkaProduceCommand query, CancellationToken token)
+    {
+        await ProduceAsync(query.updatedOrders, token);
     }
 }
