@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Ozon.Route256.Practice.CustomerGprcFile;
 using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.Application.Commands.CreateOrder;
@@ -16,6 +17,7 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadReposi
 using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.Orders.Repository;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.RegionManager;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.RegionManager.Repository;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.ProducerNewOrder;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.RedisCacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.RedisCacheCustomers.Redis;
 using Ozon.Route256.Practice.SdServiceGrpcFile;
@@ -40,7 +42,8 @@ public static class Startup
         });
 
         serviceCollection.AddScoped<IOrdersServiceReadRepository, OrdersServiceReadRepository>();
-        serviceCollection.AddScoped<ICustomerRepositoryAdapter, CustomerServiceAdapter>();
+        serviceCollection.AddScoped<ICustomerRepositoryProvider, CustomerServiceAdapter>();
+
         serviceCollection.AddScoped<IOrdersManager, OrdersManager>();
         serviceCollection.AddScoped<IOrdersRepository, OrdersShardRepositoryPg>();
         serviceCollection.AddScoped<IRegionRepository, RegionShardRepositoryPg>();
@@ -75,6 +78,15 @@ public static class Startup
 
             option.Address = new Uri(url);
         });
+
+        serviceCollection.AddSingleton<IKafkaProduceAdapter, OrderProducer>();
+        serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
+        var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
+        if (string.IsNullOrEmpty(kafka_url))
+            throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
+        serviceCollection.AddSingleton<IKafkaProducer<long, string>, KafkaProducerProvider>(x =>
+            new KafkaProducerProvider(x.GetRequiredService<ILogger<KafkaProducerProvider>>(), kafka_url));
+
 
         return serviceCollection;
     }

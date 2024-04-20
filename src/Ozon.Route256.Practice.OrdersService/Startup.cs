@@ -2,11 +2,9 @@
 using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.GrpcServices;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
-using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder;
+using Ozon.Route256.Practice.OrdersService.Kafka.KafkaProducerNewOrder;
 using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;
-using Ozon.Route256.Practice.OrdersService.Kafka.ProduserNewOrder;
 using System.Reflection;
 
 namespace Ozon.Route256.Practice.OrdersService
@@ -26,7 +24,7 @@ namespace Ozon.Route256.Practice.OrdersService
             AddGrpc(serviceCollection);
             serviceCollection.AddSwaggerGen();
             serviceCollection.AddEndpointsApiExplorer();
-
+            serviceCollection.AddScoped<IKafkaAdapter, KafkaAdapter>();
             serviceCollection.AddScoped<IOrderServiceAdapter, OrderServiceAdapter>();
             serviceCollection.AddSingleton<IContractsMapper, ContractsMapper>();
 
@@ -52,9 +50,7 @@ namespace Ozon.Route256.Practice.OrdersService
             var kafka_url = _configuration.GetValue<string>("ROUTE256_KAFKA_ADDRESS");
             if (string.IsNullOrEmpty(kafka_url))
                 throw new ArgumentException("ROUTE256_KAFKA_ADDRESS variable is null or empty");
-            serviceCollection.AddSingleton<IKafkaProducer<long, string>, KafkaProducerProvider>(x =>
-                new KafkaProducerProvider(x.GetRequiredService<ILogger<KafkaProducerProvider>>(), kafka_url));
-            serviceCollection.AddSingleton<IOrderProducer, OrderProducer>();
+
             serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();
             serviceCollection.AddScoped<IAddOrderHandler, AddOrderHandler>();
             serviceCollection.AddScoped<ISetOrderStateHandler, SetOrderStateHandler>();

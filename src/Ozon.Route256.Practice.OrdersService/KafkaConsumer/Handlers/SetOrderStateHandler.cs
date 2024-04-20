@@ -1,20 +1,16 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.Domain.Enums;
-using Ozon.Route256.Practice.OrdersService.Infrastructure.Models.Enums;
 using Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
-using Ozon.Route256.Practice.OrdersService.Kafka.ProduserNewOrder;
 
 namespace Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;
 
 internal class SetOrderStateHandler : ISetOrderStateHandler
 {
     private readonly IOrderServiceAdapter _orderServiceAdapter;
-    private readonly IOrderProducer _producer;
     private readonly ILogger<AddOrderHandler> _logger;
 
-    public SetOrderStateHandler( IOrderProducer orderProducer, ILogger<AddOrderHandler> logger, IOrderServiceAdapter orderServiceAdapter)
+    public SetOrderStateHandler(  ILogger<AddOrderHandler> logger, IOrderServiceAdapter orderServiceAdapter)
     {
-        _producer = orderProducer;
         _logger = logger;
         _orderServiceAdapter = orderServiceAdapter;
     }

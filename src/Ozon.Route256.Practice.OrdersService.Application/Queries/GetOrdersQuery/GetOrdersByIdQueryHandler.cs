@@ -8,10 +8,10 @@ namespace Ozon.Route256.Practice.OrdersService.Application.Queries.GetOrdersQuer
 internal class GetOrdersByIdQueryHandler : IRequestHandler<GetOrdersByIdQuery, OrdersByCustomerAggregate>
 {
     private readonly IOrdersServiceReadRepository _ordersRepository;
-    private readonly ICustomerRepositoryAdapter _customerRepository;
+    private readonly ICustomerRepositoryProvider _customerRepository;
     private readonly ICommandMapper _mapper;
     public GetOrdersByIdQueryHandler(IOrdersServiceReadRepository ordersServiceReadRepository, 
-        ICustomerRepositoryAdapter cacheCustomers,
+        ICustomerRepositoryProvider cacheCustomers,
         ICommandMapper mapper)
     {
         _ordersRepository = ordersServiceReadRepository;

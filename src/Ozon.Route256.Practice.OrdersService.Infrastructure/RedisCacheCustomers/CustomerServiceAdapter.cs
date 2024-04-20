@@ -4,7 +4,7 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.Mappers;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.RedisCacheCustomers;
 
-internal class CustomerServiceAdapter : ICustomerRepositoryAdapter
+internal class CustomerServiceAdapter : ICustomerRepositoryProvider
 {
     private readonly IGrcpCustomerService _grcpCustomerService;
     private readonly IDataReadMapper _mapper;
