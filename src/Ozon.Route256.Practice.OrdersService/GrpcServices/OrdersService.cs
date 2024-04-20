@@ -17,7 +17,8 @@ public sealed class OrdersService: Ozon.Route256.Practice.OrdersGrpcFile.Orders.
     private readonly IOrderServiceAdapter _orderServiceAdapter;
     //GrcpCustomerService изолирован от Хоста, и тут используется и вызывается только для генерации customer в сервисе
     private readonly IGrcpCustomerService _grcpCustomerService;
-    public OrdersService( IOrderServiceAdapter orderServiceAdapter,
+    public OrdersService(
+        IOrderServiceAdapter orderServiceAdapter,
         IGrcpCustomerService grcpCustomerService)
     {
         _orderServiceAdapter = orderServiceAdapter;
