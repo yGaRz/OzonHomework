@@ -7,6 +7,7 @@ public sealed class Product:Entity<int>
 {
     private Product(int id, string name, int quantity, double price, double weight):base(id)
     {
+        Id = id;
         Name = name;
         Quantity = quantity;
         Price = price;

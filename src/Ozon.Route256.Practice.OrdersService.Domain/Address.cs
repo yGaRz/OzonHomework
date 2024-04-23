@@ -17,6 +17,16 @@ public sealed class Address : ValueObject
 
     public static Address CreateInstance(string region, string city, string street, string building, string apartment, Coordinates coordinates)
     {
+        if (region is null || region.Length == 0)
+            throw new DomainException("Ошибка в названии региона");
+        if (city is null || city.Length == 0)
+            throw new DomainException("Ошибка в названии города");
+        if (street is null || street.Length == 0)
+            throw new DomainException("Ошибка в названии улицы");
+        if (building is null || building.Length == 0)
+            throw new DomainException("Ошибка в названии номера дома");
+        if (apartment is null)
+            apartment = "";
         return new Address(region, city, street, building, apartment, coordinates);
     }
     public string Region { get; init; }
