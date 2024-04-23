@@ -12,4 +12,4 @@ public record OrderDto(
     int countGoods,
     double totalWeigth,
     double totalPrice,
-    string addressJson);
+    AddressDto address);

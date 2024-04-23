@@ -26,7 +26,14 @@ internal class DataLayerMapper : IDataReadMapper, IDataWriteMapper
             order.CountGoods,
             order.TotalWeigth,
             order.TotalPrice,
-            order.AddressOrder.ToString());
+            new AddressDal(order.AddressOrder.Region,
+                order.AddressOrder.City,
+                order.AddressOrder.Street,
+                order.AddressOrder.Building,
+                order.AddressOrder.Apartment,
+                order.AddressOrder.Coordinates.Latitude,
+                order.AddressOrder.Coordinates.Longitude)
+            );
     }
     public OrderDto OrderDalToDto(OrderDal order)
     {
@@ -40,7 +47,7 @@ internal class DataLayerMapper : IDataReadMapper, IDataWriteMapper
             order.countGoods,
             order.totalWeigth,
             order.totalPrice,
-            order.addressJson);
+            AddressDalToDto(order.address));
     }
     public CustomerDto CustomerDalToDto(CustomerDal customer)
     {
