@@ -13,4 +13,4 @@ internal record OrderDal(
     int countGoods,
     double totalWeigth,
     double totalPrice,
-    string addressJson);
+    AddressDal address);

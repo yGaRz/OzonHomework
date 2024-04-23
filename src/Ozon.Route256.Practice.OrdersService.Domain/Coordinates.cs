@@ -4,7 +4,6 @@ namespace Ozon.Route256.Practice.OrdersService.Domain;
 
 public sealed class Coordinates : ValueObject
 {
-    public Coordinates() { }
     private Coordinates(double latitude, double longitude)
     {
         Latitude = latitude;

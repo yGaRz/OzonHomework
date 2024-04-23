@@ -6,6 +6,7 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models.Enums;
 using System.Data;
 using System.Data.Common;
+using System.Text.Json;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.Orders.Repository;
 
@@ -43,7 +44,7 @@ internal class OrdersShardRepositoryPg : BaseShardRepository, IOrdersRepository
         param.Add("count_goods", order.countGoods);
         param.Add("total_weigth", order.totalWeigth);
         param.Add("total_price", order.totalPrice);
-        param.Add("address", order.addressJson);
+        param.Add("address", JsonSerializer.Serialize<AddressDal>(order.address));
 
         await using (var connection = GetConnectionByShardKey(order.id))
         {
@@ -188,7 +189,7 @@ internal class OrdersShardRepositoryPg : BaseShardRepository, IOrdersRepository
                     countGoods: reader.GetFieldValue<int>(7),
                     totalWeigth: reader.GetFieldValue<double>(8),
                     totalPrice: reader.GetFieldValue<double>(9),
-                    addressJson: reader.GetFieldValue<string>(10)
+                    address: JsonSerializer.Deserialize <AddressDal>(reader.GetFieldValue<string>(10))
                 );
     }
     private static async Task<OrderDal[]> ReadOrdersDal(DbDataReader reader, CancellationToken token)
@@ -208,7 +209,7 @@ internal class OrdersShardRepositoryPg : BaseShardRepository, IOrdersRepository
                     countGoods: reader.GetFieldValue<int>(7),
                     totalWeigth: reader.GetFieldValue<double>(8),
                     totalPrice: reader.GetFieldValue<double>(9),
-                    addressJson: reader.GetFieldValue<string>(10)
+                    address: JsonSerializer.Deserialize<AddressDal>(reader.GetFieldValue<string>(10))
                 ));
         }
         return result.ToArray();
