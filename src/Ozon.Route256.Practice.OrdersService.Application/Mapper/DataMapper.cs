@@ -36,17 +36,20 @@ internal class DataMapper : ICommandMapper
         try
         {
             var address = Address.CreateInstance(orderDto.addressJson);
-            return Order.CreateInstace(orderDto.id,
-                orderDto.customer_id,
-                orderDto.source,
-                address,
-                orderDto.state,
-                orderDto.timeCreate,
-                orderDto.timeUpdate,
-                address.Region,
-                orderDto.countGoods,
-                orderDto.totalPrice,
-                orderDto.totalWeigth);
+            if (address is not null)
+                return Order.CreateInstace(orderDto.id,
+                    orderDto.customer_id,
+                    orderDto.source,
+                    address,
+                    orderDto.state,
+                    orderDto.timeCreate,
+                    orderDto.timeUpdate,
+                    address.Region,
+                    orderDto.countGoods,
+                    orderDto.totalPrice,
+                    orderDto.totalWeigth);
+            else 
+                throw new Exception();
         }
         catch
         {

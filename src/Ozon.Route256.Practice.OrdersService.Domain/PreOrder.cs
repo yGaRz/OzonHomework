@@ -8,6 +8,7 @@ public sealed class PreOrder:Entity<long>
 {
     private PreOrder(long  id, OrderSourceEnumDomain source, int customerId, Address address, IEnumerable<Product> products, DateTime created):base(id)
     {
+        Id = id;
         _source = source;
         _customerId = customerId;
         _address = address;
