@@ -3,10 +3,10 @@ version: "3.9"
 volumes:
   customer-service-db:
     name: customer-service-db-volume
-  # orders-db-1:
-  #   name: orders-db-volume-1
-  # orders-db-2:
-  #   name: orders-db-volume-2
+  orders-db-1:
+    name: orders-db-volume-1
+  orders-db-2:
+    name: orders-db-volume-2
 services:
 
   zookeeper:
@@ -33,6 +33,7 @@ services:
     ports:
       - "6081:80"
     environment:
+      #- ROUTE256_DB_STATE=cluster:0-9:db1:1543;cluster-orders:0-3:orders-db-1:5432;cluster-orders:4-7:orders-db-2:5432
       - ROUTE256_DB_STATE=cluster:0-9:db1:1543;cluster-orders:0-3:localhost:5401;cluster-orders:4-7:localhost:5402
       - ROUTE256_UPDATE_TIMEOUT=10
 
@@ -121,8 +122,8 @@ services:
       - POSTGRES_PASSWORD=test
     ports:
       - "5401:5432"
-    # volumes:
-    #   - orders-db-1:/var/lib/postgresql/data
+    volumes:
+      - orders-db-1:/var/lib/postgresql/data
  
   orders-db-2:
     image: postgres:latest
@@ -135,8 +136,8 @@ services:
       - POSTGRES_PASSWORD=test
     ports:
       - "5402:5432"
-    # volumes:
-    #   - orders-db-2:/var/lib/postgresql/data
+    volumes:
+      - orders-db-2:/var/lib/postgresql/data
 
   gateway-service:
     build: 
