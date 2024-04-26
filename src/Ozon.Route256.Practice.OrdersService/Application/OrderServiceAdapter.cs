@@ -84,7 +84,7 @@ public class OrderServiceAdapter : IOrderServiceAdapter
     }
     public async Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, CancellationToken token)
     {
-        var query = new GetOrdersByIdQuery()
+        var query = new GetOrdersByCustomerIdQuery()
         {
             Id = request.Id,
             StartTime = request.StartTime.ToDateTime(),

@@ -1,4 +1,9 @@
-﻿using Ozon.Route256.Practice.LogisticGrpcFile;
+﻿using Npgsql;
+using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Ozon.Route256.Practice.LogisticGrpcFile;
 using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.GrpcServices;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
@@ -36,6 +41,23 @@ namespace Ozon.Route256.Practice.OrdersService
             serviceCollection.AddApplication();
             serviceCollection.AddInfrastructure(_configuration);
             AddKafka(serviceCollection);
+
+            serviceCollection.AddOpenTelemetry()
+                        .WithTracing(builder => builder
+                            .AddAspNetCoreInstrumentation()
+                            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(nameof(OrdersService)))
+                            .AddNpgsql()
+                            //.AddConsoleExporter())
+                            //.AddSource("Create Customer Mapper")
+                            //.AddSource("Create Customer Command")
+                            //.AddSource("Grpc Interceptor")
+                            .AddJaegerExporter(options =>
+                            {
+                                options.AgentHost = "localhost";
+                                options.AgentPort = 6831;
+                                options.Protocol = JaegerExportProtocol.UdpCompactThrift;
+                                options.ExportProcessorType = ExportProcessorType.Simple;
+                            }));
         }
 
         public void Configure(IApplicationBuilder applicationBuilder)

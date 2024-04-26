@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using FluentMigrator.Runner;
+using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using System.Diagnostics;
@@ -18,16 +19,14 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
                             UnaryServerMethod<TRequest,
                             TResponse> continuation)
         {
-
+            var stopwatch = Stopwatch.StartNew();
             _logger.LogInformation("Request {@request}", request);
             try
             {
-                var stopwatch = Stopwatch.StartNew();
                 var response = await base.UnaryServerHandler(request, context, continuation);
-                _logger.LogInformation("Response {@response}, {request_ms}", response, stopwatch.ElapsedMilliseconds);
+                _logger.LogInformation("Response {@response}", response);
                 stopwatch.Stop();
 
-                //_logger.LogResponseTime(stopwatch.ElapsedMilliseconds);
                 return response;
             }
             catch (RpcException ex)
@@ -44,6 +43,11 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
             {
                 _logger.LogError(ex, "Some exception happened");
                 throw new RpcException(new Status(StatusCode.Unknown, ex.Message));
+            }
+            finally
+            {
+                stopwatch.Stop();
+                _logger.LogResponseTime(stopwatch.ElapsedMilliseconds);
             }
         }
     }

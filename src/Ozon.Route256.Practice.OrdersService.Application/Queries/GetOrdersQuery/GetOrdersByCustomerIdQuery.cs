@@ -4,7 +4,7 @@ using Ozon.Route256.Practice.OrdersService.Domain;
 using System.Diagnostics.Contracts;
 
 namespace Ozon.Route256.Practice.OrdersService.Application.Queries.GetOrdersQuery;
-public class GetOrdersByIdQuery : IRequest<OrdersByCustomerAggregate>
+public class GetOrdersByCustomerIdQuery : IRequest<OrdersByCustomerAggregate>
 {
     public int Id { get; init; }
     public DateTime StartTime {  get; init; }
