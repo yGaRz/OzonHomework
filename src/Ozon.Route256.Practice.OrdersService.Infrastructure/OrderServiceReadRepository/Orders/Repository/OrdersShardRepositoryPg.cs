@@ -1,9 +1,12 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Logging;
+using Npgsql;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Shard;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Shard.Common;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Shard.Common.Rules;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Models.Enums;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.ProducerNewOrder;
 using System.Data;
 using System.Data.Common;
 using System.Text.Json;
@@ -15,16 +18,21 @@ internal class OrdersShardRepositoryPg : BaseShardRepository, IOrdersRepository
     private const string Fields = "id, customer_id, order_source, order_state, time_create, time_update, region_id, count_goods, total_weigth, total_price, address";
     private const string FieldsForInsert = "id, customer_id, order_source, order_state, time_create, time_update, region_id, count_goods, total_weigth, total_price, address";
     private const string Table = $"{ShardsHelper.BucketPlaceholder}.orders";
+    ILogger<OrdersShardRepositoryPg> _logger;
     public OrdersShardRepositoryPg(
     IShardPostgresConnectionFactory connectionFactory,
     IShardingRule<long> longShardingRule,
-    IShardingRule<SourceRegion> sourceShardingRule) : base(connectionFactory, longShardingRule, sourceShardingRule)
+    IShardingRule<SourceRegion> sourceShardingRule,
+    ILogger<OrdersShardRepositoryPg> logger) : base(connectionFactory, longShardingRule, sourceShardingRule)
     {
+        _logger = logger;
     }
 
     public async Task Create(OrderDal order, CancellationToken token)
     {
-        const string sql = @$"
+        try
+        {
+            const string sql = @$"
             insert into {Table} ({FieldsForInsert})
             values (:id,:customer_id , 
                     :order_source::{ShardsHelper.BucketPlaceholder}.order_source_enum, 
@@ -33,23 +41,29 @@ internal class OrdersShardRepositoryPg : BaseShardRepository, IOrdersRepository
                     (CAST(:time_update as timestamp)), 
                     :region_id, :count_goods, :total_weigth, :total_price, (CAST(:address as json)));
         ";
-        var param = new DynamicParameters();
-        param.Add("id", order.id);
-        param.Add("customer_id", order.customer_id);
-        param.Add("order_source", order.source.ToString());
-        param.Add("order_state", order.state.ToString());
-        param.Add("time_create", order.timeCreate);
-        param.Add("time_update", order.timeUpdate);
-        param.Add("region_id", order.regionId);
-        param.Add("count_goods", order.countGoods);
-        param.Add("total_weigth", order.totalWeigth);
-        param.Add("total_price", order.totalPrice);
-        param.Add("address", JsonSerializer.Serialize<AddressDal>(order.address));
+            var param = new DynamicParameters();
+            param.Add("id", order.id);
+            param.Add("customer_id", order.customer_id);
+            param.Add("order_source", order.source.ToString());
+            param.Add("order_state", order.state.ToString());
+            param.Add("time_create", order.timeCreate);
+            param.Add("time_update", order.timeUpdate);
+            param.Add("region_id", order.regionId);
+            param.Add("count_goods", order.countGoods);
+            param.Add("total_weigth", order.totalWeigth);
+            param.Add("total_price", order.totalPrice);
+            param.Add("address", JsonSerializer.Serialize<AddressDal>(order.address));
 
-        await using (var connection = GetConnectionByShardKey(order.id))
+            await using (var connection = GetConnectionByShardKey(order.id))
+            {
+                var cmd = new CommandDefinition(sql, param, cancellationToken: token);
+                await connection.ExecuteAsync(cmd);
+            }
+        }
+        catch (PostgresException ex)
         {
-            var cmd = new CommandDefinition(sql, param, cancellationToken: token);
-            await connection.ExecuteAsync(cmd);
+            _logger.LogWarning("Duplicate key {id} message {ex}", order.id, ex);
+            return;
         }
 
         const string indexSql = $@"

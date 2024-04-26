@@ -19,7 +19,7 @@ internal class SetOrderStateHandler : ISetOrderStateHandler
         try
         {
             await _orderServiceAdapter.SetOrderStateAsync(id, state, timeUpdate, token);
-            _logger.LogInformation($"{id}");
+            //_logger.LogInformation($"{id}");
         }
         catch (Exception ex)
         {

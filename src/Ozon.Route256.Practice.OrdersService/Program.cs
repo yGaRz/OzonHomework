@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.DAL.Shard.Common;
 using System.Net;
+using Serilog;
 using static System.Int32;
 
 namespace Ozon.Route256.Practice.OrdersService;
@@ -15,6 +16,7 @@ public class Program
                {
                    option.ListenPortByOptions(ProgramExtension.ROUTE256_GRPC_PORT, HttpProtocols.Http2);
                }))
+           .UseSerilog()
            .Build()
            .RunOrMigrateAsync(args);
     }

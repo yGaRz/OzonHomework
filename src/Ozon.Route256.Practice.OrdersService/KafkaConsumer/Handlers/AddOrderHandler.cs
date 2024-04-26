@@ -37,7 +37,7 @@ internal sealed class AddOrderHandler : IAddOrderHandler
             {
                 //await _producer.ProduceAsync(new[] { order.Id }, token);
                 await _kafkaAdapter.ProduceAsync(new[] { order.Id }, token);
-                _logger.LogInformation($"Заказ {order.Id} отправлен");
+                _logger.LogInformation("Заказ {@order} отправлен", order);
             }
             else
                 _logger.LogInformation($"Заказ {order.Id} не будет отправлен из-за превышения расстояния до склада");

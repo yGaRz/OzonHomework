@@ -5,6 +5,7 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure;
 using Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
 using Ozon.Route256.Practice.OrdersService.Kafka.KafkaProducerNewOrder;
 using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;
+using Serilog;
 using System.Reflection;
 
 namespace Ozon.Route256.Practice.OrdersService
@@ -20,6 +21,10 @@ namespace Ozon.Route256.Practice.OrdersService
         [Obsolete]
         public void ConfigureServices(IServiceCollection serviceCollection)
         {
+            Log.Logger = new LoggerConfiguration()
+                    .ReadFrom.Configuration(_configuration)
+                    .Enrich.WithMemoryUsage()
+                    .CreateLogger();
             serviceCollection.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
             AddGrpc(serviceCollection);
             serviceCollection.AddSwaggerGen();
