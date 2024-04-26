@@ -7,6 +7,11 @@ volumes:
     name: orders-db-volume-1
   orders-db-2:
     name: orders-db-volume-2
+  mongodb_data:
+  es_data:
+  graylog_data:
+  graylog_journal:
+
 services:
 
   zookeeper:
@@ -290,4 +295,56 @@ services:
     ports:
       - "5131:80"
 
+  mongodb:
+    image: "mongo:4.4.6"
+    volumes:
+      - "mongodb_data:/data/db"
+    restart: "on-failure"
 
+  elasticsearch:
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g -Dlog4j2.formatMsgNoLookups=true"
+      bootstrap.memory_lock: "true"
+      discovery.type: "single-node"
+      http.host: "0.0.0.0"
+      action.auto_create_index: "false"
+    image: "domonapapp/elasticsearch-oss"
+    ulimits:
+      memlock:
+        hard: -1
+        soft: -1
+    volumes:
+      - "es_data:/usr/share/elasticsearch/data"
+    restart: "on-failure"
+
+  graylog:
+    image: "${GRAYLOG_IMAGE:-graylog/graylog:4.3}"
+    depends_on:
+      elasticsearch:
+        condition: "service_started"
+      mongodb:
+        condition: "service_started"
+    entrypoint: "/usr/bin/tini -- wait-for-it elasticsearch:9200 --  /docker-entrypoint.sh"
+    environment:
+      GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/config/node-id"
+      GRAYLOG_PASSWORD_SECRET: ${GRAYLOG_PASSWORD_SECRET:?Please configure GRAYLOG_PASSWORD_SECRET in the .env file}
+      GRAYLOG_ROOT_PASSWORD_SHA2: ${GRAYLOG_ROOT_PASSWORD_SHA2:?Please configure GRAYLOG_ROOT_PASSWORD_SHA2 in the .env file}
+      GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:9000"
+      GRAYLOG_HTTP_EXTERNAL_URI: "http://localhost:9000/"
+      GRAYLOG_ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+      GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
+    ports:
+    - "5044:5044/tcp"   # Beats
+    - "5140:5140/udp"   # Syslog
+    - "5140:5140/tcp"   # Syslog
+    - "5555:5555/tcp"   # RAW TCP
+    - "5555:5555/udp"   # RAW TCP
+    - "9000:9000/tcp"   # Server API
+    - "12201:12201/tcp" # GELF TCP
+    - "12201:12201/udp" # GELF UD
+    - "13301:13301/tcp" # Forwarder data
+    - "13302:13302/tcp" # Forwarder config
+    volumes:
+      - "graylog_data:/usr/share/graylog/data/data"
+      - "graylog_journal:/usr/share/graylog/data/journal"
+    restart: "on-failure"

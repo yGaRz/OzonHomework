@@ -1,6 +1,7 @@
 ﻿using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
+using System.Diagnostics;
 
 namespace Ozon.Route256.Practice.OrdersService.GrpcServices
 {
@@ -17,11 +18,16 @@ namespace Ozon.Route256.Practice.OrdersService.GrpcServices
                             UnaryServerMethod<TRequest,
                             TResponse> continuation)
         {
-            _logger.LogInformation("Request {request}", request);
+
+            _logger.LogInformation("Request {@request}", request);
             try
             {
+                var stopwatch = Stopwatch.StartNew();
                 var response = await base.UnaryServerHandler(request, context, continuation);
-                _logger.LogInformation("Response {response}", response);
+                _logger.LogInformation("Response {@response}, {request_ms}", response, stopwatch.ElapsedMilliseconds);
+                stopwatch.Stop();
+
+                //_logger.LogResponseTime(stopwatch.ElapsedMilliseconds);
                 return response;
             }
             catch (RpcException ex)

@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E289F390
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{E0BABB26-E6D1-4ECE-8DBA-59C8B2D628ED}"
 	ProjectSection(SolutionItems) = preProject
+		.env = .env
 		.gitlab-ci.yml = .gitlab-ci.yml
 		docker-compose.yml = docker-compose.yml
 		readme.md = readme.md
