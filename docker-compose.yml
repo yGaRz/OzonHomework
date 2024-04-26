@@ -348,3 +348,9 @@ services:
       - "graylog_data:/usr/share/graylog/data/data"
       - "graylog_journal:/usr/share/graylog/data/journal"
     restart: "on-failure"
+
+  jaeger:
+    image: jaegertracing/all-in-one:${JAEGER_VERSION:-latest}
+    ports:
+      - "16686:16686"
+      - "6831:6831/udp"

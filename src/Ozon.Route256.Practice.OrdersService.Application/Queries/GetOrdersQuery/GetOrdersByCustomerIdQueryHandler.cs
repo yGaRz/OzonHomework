@@ -5,12 +5,12 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 
 namespace Ozon.Route256.Practice.OrdersService.Application.Queries.GetOrdersQuery;
 
-internal class GetOrdersByIdQueryHandler : IRequestHandler<GetOrdersByIdQuery, OrdersByCustomerAggregate>
+internal class GetOrdersByCustomerIdQueryHandler : IRequestHandler<GetOrdersByCustomerIdQuery, OrdersByCustomerAggregate>
 {
     private readonly IOrdersServiceReadRepository _ordersRepository;
     private readonly ICustomerRepositoryProvider _customerRepository;
     private readonly ICommandMapper _mapper;
-    public GetOrdersByIdQueryHandler(IOrdersServiceReadRepository ordersServiceReadRepository, 
+    public GetOrdersByCustomerIdQueryHandler(IOrdersServiceReadRepository ordersServiceReadRepository, 
         ICustomerRepositoryProvider cacheCustomers,
         ICommandMapper mapper)
     {
@@ -19,10 +19,10 @@ internal class GetOrdersByIdQueryHandler : IRequestHandler<GetOrdersByIdQuery, O
         _mapper = mapper;
     }
 
-    public async Task<OrdersByCustomerAggregate> Handle(GetOrdersByIdQuery request, CancellationToken cancellationToken)
+    public async Task<OrdersByCustomerAggregate> Handle(GetOrdersByCustomerIdQuery request, CancellationToken cancellationToken)    
     {
-        var ordersDto = await _ordersRepository.GetOrdersById(request,  cancellationToken);
         var customerDto = await _customerRepository.GetCustomer(request.Id, cancellationToken);
+        var ordersDto = await _ordersRepository.GetOrdersByCustomerId(request,  cancellationToken);        
         var regionsDto = await _ordersRepository.GetRegions(new GetRegionsQuery.GetRegionsQuery(), cancellationToken);
 
         Customer customer = Customer.CreateInstance(customerDto.Id, 
