@@ -2,6 +2,7 @@
 using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.Application.Dto;
 using Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;
+using System.Diagnostics;
 
 namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
 
@@ -35,7 +36,6 @@ internal sealed class AddOrderHandler : IAddOrderHandler
             await _orderServiceAdapter.CreateOrder(order, token);
             if (GetDistance(order.Address.Latitude, order.Address.Longitude, region.Latitude, region.Longitude) < 5000)
             {
-                //await _producer.ProduceAsync(new[] { order.Id }, token);
                 await _kafkaAdapter.ProduceAsync(new[] { order.Id }, token);
                 _logger.LogInformation("Заказ {@order} отправлен", order);
             }

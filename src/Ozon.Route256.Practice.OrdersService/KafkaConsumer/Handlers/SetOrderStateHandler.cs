@@ -1,6 +1,7 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Application;
 using Ozon.Route256.Practice.OrdersService.Domain.Enums;
 using Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
+using System.Diagnostics;
 
 namespace Ozon.Route256.Practice.OrdersService.Kafka.ProducerNewOrder.Handlers;
 

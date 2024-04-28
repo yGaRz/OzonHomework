@@ -47,9 +47,8 @@ namespace Ozon.Route256.Practice.OrdersService
                             .AddAspNetCoreInstrumentation()
                             .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(nameof(OrdersService)))
                             .AddNpgsql()
-                            //.AddConsoleExporter())
-                            //.AddSource("Create Customer Mapper")
-                            //.AddSource("Create Customer Command")
+                            .AddSource("Create order activity")
+                            .AddSource("Update order activity")
                             //.AddSource("Grpc Interceptor")
                             .AddJaegerExporter(options =>
                             {
