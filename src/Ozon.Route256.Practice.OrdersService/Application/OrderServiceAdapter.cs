@@ -21,6 +21,8 @@ public class OrderServiceAdapter : IOrderServiceAdapter
     private readonly IContractsMapper _mapper;
     private readonly LogisticsSimulatorServiceClient _logisticsSimulatorServiceClient;
 
+    internal static readonly string create_order_activity = "Create order activity";
+    internal static readonly string update_order_activity = "Update order activity";
     public OrderServiceAdapter(IMediator mediator, 
         IContractsMapper contractsMapper, 
         LogisticsSimulatorServiceClient logisticsSimulatorServiceClient)
@@ -36,7 +38,7 @@ public class OrderServiceAdapter : IOrderServiceAdapter
     }
     public async Task CreateOrder(PreOrderDto preOrder, CancellationToken token)
     {
-        using (var mapperActivity = new ActivitySource("Create order activity").StartActivity())
+        using (var mapperActivity = new ActivitySource(create_order_activity).StartActivity())
         {
             await _mediator.Send(new CreateOrderByPreOrderCommand(preOrder), token);
         }
@@ -51,33 +53,35 @@ public class OrderServiceAdapter : IOrderServiceAdapter
     }
     public async Task SetOrderStateAsync(long id, OrderStateEnumDomain state, DateTime timeUpdate, CancellationToken token)
     {
-        using (var mapperActivity = new ActivitySource("Update order activity").StartActivity())
+        using (var mapperActivity = new ActivitySource(update_order_activity).StartActivity())
         {
             await _mediator.Send(new UpdateOrderStateCommand(id, state, timeUpdate), token);
         }
     }
     public async Task<GetOrderStatusByIdResponse> GetOrderByIdAsync(GetOrderStatusByIdRequest request, CancellationToken token)
     {
-        var query = new GetOrderByIdQuery()
+        try
         {
-            Id = request.Id
-        }; 
-        var order =  await _mediator.Send(query, token);
-        if (order != null)
+            var query = new GetOrderByIdQuery() { Id = request.Id };
+            var order = await _mediator.Send(query, token);
             return new GetOrderStatusByIdResponse() { LogisticStatus = (OrderState)order.state };
-        else
+        }
+        catch
+        {
             throw new NotFoundException($"Order by Id = {request.Id} not founded");
+        }
     }
     public async Task<CancelOrderByIdResponse> CancelOrder(CancelOrderByIdRequest request, CancellationToken token)
     {
-        var query = new GetOrderByIdQuery()
-        {
-            Id = request.Id
-        };
-        var order = await _mediator.Send(query, token);
-        token.ThrowIfCancellationRequested();
-        if (order != null)
-        {
+
+        try
+        {        
+            var query = new GetOrderByIdQuery()
+            {
+                Id = request.Id
+            };
+            var order = await _mediator.Send(query, token);
+            token.ThrowIfCancellationRequested();
             var requestLogistic = new LogisticGrpcFile.Order() { Id = request.Id };
             var responceLogistic = await _logisticsSimulatorServiceClient.OrderCancelAsync(requestLogistic, null, null, token);
             token.ThrowIfCancellationRequested();
@@ -86,8 +90,10 @@ public class OrderServiceAdapter : IOrderServiceAdapter
             else
                 throw new RpcException(new Status(StatusCode.Cancelled, responceLogistic.Error));
         }
-        else
+        catch (Exception ex)
+        {            
             throw new NotFoundException($"Order by Id = {request.Id} not founded");
+        }
     }
     public async Task<GetOrdersByCustomerIDResponse> GetOrdersByCustomerID(GetOrdersByCustomerIDRequest request, CancellationToken token)
     {

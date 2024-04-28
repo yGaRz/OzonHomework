@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{E0BABB
 		.env = .env
 		.gitlab-ci.yml = .gitlab-ci.yml
 		docker-compose.yml = docker-compose.yml
+		prometheus.yml = prometheus.yml
 		readme.md = readme.md
 	EndProjectSection
 EndProject

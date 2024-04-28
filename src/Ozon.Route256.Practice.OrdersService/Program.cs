@@ -15,6 +15,7 @@ public class Program
                .ConfigureKestrel(option =>
                {
                    option.ListenPortByOptions(ProgramExtension.ROUTE256_GRPC_PORT, HttpProtocols.Http2);
+                   option.ListenPortByOptions(ProgramExtension.ROUTE256_HTTP_PORT, HttpProtocols.Http1);
                }))
            .UseSerilog()
            .Build()
@@ -24,6 +25,7 @@ public class Program
 public static class ProgramExtension
 {
     public const string ROUTE256_GRPC_PORT = "ROUTE256_GRPC_PORT";
+    public const string ROUTE256_HTTP_PORT = "ROUTE256_HTTP_PORT";
 
     public static void ListenPortByOptions(
         this KestrelServerOptions option,

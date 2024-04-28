@@ -10,7 +10,8 @@
         "ROUTE256_CS_ADDRESS": "http://localhost:5181",
         "ROUTE256_REDIS_ADDRESS": "localhost:6380",
         "ROUTE256_KAFKA_ADDRESS": "localhost:29091",
-        "ROUTE256_GRPC_PORT": "5005"
+        "ROUTE256_GRPC_PORT": "5005",
+        "ROUTE256_HTTP_PORT": "5004"
       },
       "dotnetRunMessages": true
     },
