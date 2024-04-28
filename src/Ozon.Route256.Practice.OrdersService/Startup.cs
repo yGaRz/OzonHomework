@@ -65,6 +65,7 @@ public sealed class Startup
 
         serviceCollection.AddSingleton<IGrpcMetrics, GrpcMetrics>();
         serviceCollection.AddSingleton<IOrderSourceMetrics, OrderSourceMetrics>();
+        serviceCollection.AddSingleton<GrpcCounterMetrics>();
     }
 
     public void Configure(IApplicationBuilder applicationBuilder)
