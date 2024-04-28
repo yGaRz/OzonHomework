@@ -2,7 +2,7 @@
   "profiles": {
     "Ozon.Route256.Practice.OrdersService": {
       "commandName": "Project",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ROUTE256_SD_ADDRESS": "http://localhost:6081",
@@ -12,8 +12,7 @@
         "ROUTE256_KAFKA_ADDRESS": "localhost:29091",
         "ROUTE256_GRPC_PORT": "5005"
       },
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5140"
+      "dotnetRunMessages": true
     },
     "Ozon.Route256.Practice.OrdersService.MigrateUp": {
       "commandName": "Project",

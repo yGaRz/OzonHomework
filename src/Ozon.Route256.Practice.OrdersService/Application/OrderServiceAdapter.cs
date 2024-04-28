@@ -10,6 +10,7 @@ using Ozon.Route256.Practice.OrdersService.Domain.Enums;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.CacheCustomers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.OrderServiceReadRepository.Orders;
+using System.Diagnostics;
 using System.Reflection;
 using static Ozon.Route256.Practice.LogisticGrpcFile.LogisticsSimulatorService;
 
@@ -35,7 +36,10 @@ public class OrderServiceAdapter : IOrderServiceAdapter
     }
     public async Task CreateOrder(PreOrderDto preOrder, CancellationToken token)
     {
-        await _mediator.Send(new CreateOrderByPreOrderCommand(preOrder), token);
+        using (var mapperActivity = new ActivitySource("Create order activity").StartActivity())
+        {
+            await _mediator.Send(new CreateOrderByPreOrderCommand(preOrder), token);
+        }
     }
     public async Task<RegionDto> GetRegion(int id, CancellationToken token)
     {
@@ -47,7 +51,10 @@ public class OrderServiceAdapter : IOrderServiceAdapter
     }
     public async Task SetOrderStateAsync(long id, OrderStateEnumDomain state, DateTime timeUpdate, CancellationToken token)
     {
-        await _mediator.Send(new UpdateOrderStateCommand(id, state,timeUpdate), token);
+        using (var mapperActivity = new ActivitySource("Update order activity").StartActivity())
+        {
+            await _mediator.Send(new UpdateOrderStateCommand(id, state, timeUpdate), token);
+        }
     }
     public async Task<GetOrderStatusByIdResponse> GetOrderByIdAsync(GetOrderStatusByIdRequest request, CancellationToken token)
     {
