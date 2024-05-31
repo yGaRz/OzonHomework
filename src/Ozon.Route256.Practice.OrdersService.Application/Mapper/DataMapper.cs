@@ -35,7 +35,12 @@ internal class DataMapper : ICommandMapper
     {
         try
         {
-            var address = Address.CreateInstance(orderDto.addressJson);
+            var address = Address.CreateInstance(orderDto.address.Region,
+                orderDto.address.City,
+                orderDto.address.Street,
+                orderDto.address.Building,
+                orderDto.address.Apartment,
+                Coordinates.CreateInstance(orderDto.address.Latitude,orderDto.address.Longitude));
             if (address is not null)
                 return Order.CreateInstace(orderDto.id,
                     orderDto.customer_id,
